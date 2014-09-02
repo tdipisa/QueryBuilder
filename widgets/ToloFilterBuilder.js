@@ -42,14 +42,14 @@ Ext.define('TolomeoExt.FilterBuilder', {
      *  ``String``
      *  String to display before filter type combo.  Default is ``"Match"``.
      */
-    preComboText: "Match",
+    preComboText: "Confronta",
 
     /** api: config[postComboText]
      *  ``String``
      *  String to display after filter type combo.  Default is
      *  ``"of the following:"``.
      */
-    postComboText: "of the following:",
+    postComboText: "dei seguenti:",
 
     /** api: config[cls]
      *  ``String``
@@ -417,14 +417,28 @@ Ext.define('TolomeoExt.FilterBuilder', {
 			
 			this.childFilterContainer.remove(item, true);
 		}else{
-			var items = item.findByType("gxp_filterfield");
+//			var items = item.findByType("tolomeo_filterfield");
+			var items = item.query("tolomeo_filterfield");
 			
 			var i = 0;
 			while(items[i]){
-				items[i].reset();
+				//items[i].reset();
+				for(var k = 0; k<items.length; k++){
+					items[k].items.each(function(f) {
+					    if (Ext.isFunction(f.reset)) {
+					        f.reset();
+					    }
+					});
+				}
 				
                 for(var c = 1;c<items[i].items.items.length;c++){
-                    items[i].items.get(c).disable();                            
+                    //items[i].items.get(c).disable();  
+                	var cmp = items[i].items.get(c);
+                	if(cmp.xtype == "container"){
+                		cmp.removeAll();
+                	}else{
+                		cmp.disable();
+                	}
                 }
 
 				filter.value = null;
@@ -463,13 +477,17 @@ Ext.define('TolomeoExt.FilterBuilder', {
             triggerAction: "all",
             mode: "local",
             listeners: {
-                select: function(combo, record) {
+                select: function(combo, records) {
+                	var record = records;
+                	if(records instanceof Array){
+                		record = records[0];
+                	}
                     this.changeBuilderType(record.get("value"));
                     this.fireEvent("change", this);
                 },
                 scope: this
             },
-            width: 60 // TODO: move to css
+            width: 70 // TODO: move to css
         };
     },
     

@@ -33,17 +33,17 @@ Ext.define('TolomeoExt.ComparisonComboBox', {
 
     triggerAction: "all",
 
-    width: 50,
+    width: 80,
 
     editable: true,
   
     initComponent: function() {
         var defConfig = {
-            displayField: "name",
+            displayField: "text",
             valueField: "value",
             store: new Ext.data.SimpleStore({
                 data: this.allowedTypes,
-                fields: ["value", "name"]
+                fields: ["value", "text"]
             }),
             value: (this.value === undefined) ? this.allowedTypes[0][0] : this.value,
             listeners: {

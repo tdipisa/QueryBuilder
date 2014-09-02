@@ -117,7 +117,7 @@ Ext.define('TolomeoExt.FilterField', {
     
     createValueWidget: function(type) {
         if(this.autoComplete && this.fieldType === 'string') {
-            return Ext.apply({}, this.addAutocompleteStore(this.autoCompleteDefault[type]));
+            //return Ext.apply({}, this.addAutocompleteStore(this.autoCompleteDefault[type]));
         } else {
             return Ext.apply({}, this.fieldDefault[type][this.fieldType]);
         }
@@ -150,9 +150,9 @@ Ext.define('TolomeoExt.FilterField', {
                 validateOnBlur: false,
                 ref: "value",
                 //value: this.filter.value,
-                width: 50,
                 grow: true,
-                growMin: 50,
+                growMin: 80,
+                width: 80,
                 anchor: "100%",
                 allowBlank: this.allowBlank,
                 listeners: {
@@ -171,8 +171,8 @@ Ext.define('TolomeoExt.FilterField', {
                 //value: this.filter.lowerBoundary,
                 //tooltip: this.lowerBoundaryTip,
                 grow: true,
-                growMin: 30,
-                width: 30,
+                growMin: 80,
+                width: 80,
                 ref: "lowerBoundary",
                 anchor: "100%",
                 allowBlank: this.allowBlank,
@@ -191,8 +191,8 @@ Ext.define('TolomeoExt.FilterField', {
             
             'upper': {
                 grow: true,
-                growMin: 30,
-                width: 30,
+                growMin: 80,
+                width: 80,
                 ref: "upperBoundary",
                 allowBlank: this.allowBlank,
                 listeners: {
@@ -216,43 +216,50 @@ Ext.define('TolomeoExt.FilterField', {
                 'double': Ext.applyIf({
                     xtype: "numberfield",
                     allowDecimals:true,
-                    decimalPrecision: 10
+                    decimalPrecision: 10,
+                    width: 70
                 },this.defaultItemsProp[key]),
                 'float': Ext.applyIf({
                     xtype: "numberfield",
                     allowDecimals:true,
-                    decimalPrecision: 10
+                    decimalPrecision: 10,
+                    width: 70
                 },this.defaultItemsProp[key]),
                 'decimal': Ext.applyIf({
                     xtype: "numberfield",
                     allowDecimals:true,
-                    decimalPrecision: 10
+                    decimalPrecision: 10,
+                    width: 70
                 },this.defaultItemsProp[key]),
                 'int': Ext.applyIf({
                     xtype: "numberfield",
-                    allowDecimals:false
+                    allowDecimals:false,
+                    width: 70
                 },this.defaultItemsProp[key]),
                 'integer': Ext.applyIf({
                     xtype: "numberfield",
-                    allowDecimals:false
+                    allowDecimals:false,
+                    width: 70
                 },this.defaultItemsProp[key]),
                 'long': Ext.applyIf({
                     xtype: "numberfield",
-                    allowDecimals:false
+                    allowDecimals:false,
+                    width: 70
                 },this.defaultItemsProp[key]),
                 'short': Ext.applyIf({
                     xtype: "numberfield",
-                    allowDecimals:false
+                    allowDecimals:false,
+                    width: 70
                 },this.defaultItemsProp[key]),
                 'date': Ext.applyIf({
                     xtype: "datefield",
-                    width: 70,
+                    width: 80,
                     allowBlank: false,
                     format: this.dateFormat
                 },this.defaultItemsProp[key]),
                 'dateTime': Ext.applyIf({
                     xtype: "datefield",
-                    width: 70,
+                    width: 80,
                     allowBlank: false,
                     format: this.dateFormat
                 },this.defaultItemsProp[key])
@@ -459,7 +466,7 @@ Ext.define('TolomeoExt.FilterField', {
                 },
                 scope: this
             },
-            width: 120
+            width: 140
         };
         
         var defComparisonComboConfig = {
@@ -476,6 +483,38 @@ Ext.define('TolomeoExt.FilterField', {
                 	}
                     this.createValueWidgets(record.get("value"));
                 },
+//                expand: function(combo) {
+//                    var store = combo.getStore();
+//                    store.clearFilter();
+//                    if(this.fieldType === "date" || this.fieldType === "dateTime" || this.fieldType === "time" || this.fieldType === "int" || this.fieldType === "double" || this.fieldType === "decimal" || this.fieldType === "integer" || this.fieldType === "long" || this.fieldType === "float" || this.fieldType === "short"){
+//                        store.filter([
+//                          {
+//                            fn   : function(record) {
+//                                return (record.get('text') === "=") || (record.get('text') === "<>") || (record.get('text') === "<") || (record.get('text') === ">") || (record.get('text') === "<=") || (record.get('text') === ">=") || (record.get('text') === "between");
+//                            },
+//                            scope: this
+//                          }                      
+//                        ]);
+//                    }else if(this.fieldType === "boolean"){
+//                        store.filter([
+//                          {
+//                            fn   : function(record) {
+//                                return (record.get('name') === "=");
+//                            },
+//                            scope: this
+//                          }                      
+//                        ]);
+//                    }else if(this.fieldType === "string"){
+//                        store.filter([
+//                          {
+//                            fn   : function(record) {
+//                            	return (record.get('text') === "=") || (record.get('text') === "<>") || (record.get('text') === "<") || (record.get('text') === ">") || (record.get('text') === "<=") || (record.get('text') === ">=") || (record.get('text') === "like") || (record.get('text') === "ilike");
+//                            },
+//                            scope: this
+//                          }                      
+//                        ]);
+//                    }  
+//                },
                 expand: function(combo) {
                     var store = combo.getStore();
                     store.clearFilter();
@@ -483,21 +522,30 @@ Ext.define('TolomeoExt.FilterField', {
                         store.filter([
                           {
                             fn   : function(record) {
-                                return (record.get('name') === "=") || (record.get('name') === "<>") || (record.get('name') === "<") || (record.get('name') === ">") || (record.get('name') === "<=") || (record.get('name') === ">=") || (record.get('name') === "between");
+                                return (record.get('text') != "like") || (record.get('text') != "ilike");
                             },
                             scope: this
                           }                      
                         ]);
-                    }/*else if(this.fieldType === "boolean"){
+                    }else if(this.fieldType === "boolean"){
                         store.filter([
                           {
                             fn   : function(record) {
-                                return (record.get('name') === "=");
+                                return (record.get('name') == "=");
                             },
                             scope: this
                           }                      
                         ]);
-                    }*/ 
+                    }else if(this.fieldType === "string"){
+                        store.filter([
+                          {
+                            fn   : function(record) {
+                            	return (record.get('text') != "between");
+                            },
+                            scope: this
+                          }                      
+                        ]);
+                    }  
                 },
                 scope: this
             }
@@ -525,7 +573,7 @@ Ext.define('TolomeoExt.FilterField', {
             },
             layout  : 'hbox',            
             defaultMargins: '0 3 0 0',
-            width: 100
+            width: 160
         }];
         
         this.addEvents(
