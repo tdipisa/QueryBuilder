@@ -9,17 +9,19 @@
  * requires GeoExt/data/AttributeStore.js
  */
 
+Ext.ns('TolomeoExt.widgets.form');
+
 /** api: constructor
- *  .. class:: FilterField(config)
+ *  .. class:: ToloFilterField(config)
  *   
  *      A form field representing a comparison filter.
  */
-Ext.define('TolomeoExt.FilterField', {
+Ext.define('TolomeoExt.widgets.form.ToloFilterField', {
 	
 	//extend: 'Ext.form.CompositeField',
 	extend: 'Ext.form.FieldContainer',
 	
-	alias: 'widget.tolomeo_filterfield',
+	alias: 'widget.tolomeo_tolofilterfield',
 	    
     /** api:config[lowerBoundaryTip]
      *  ``String`` tooltip for the lower boundary textfield (i18n)
@@ -376,7 +378,6 @@ Ext.define('TolomeoExt.FilterField', {
     },
     
     initComponent: function() {
-        
         var me = this;
         
         this.combineErrors = false;
@@ -583,12 +584,13 @@ Ext.define('TolomeoExt.FilterField', {
              *
              * Listener arguments:
              * filter - {OpenLayers.Filter} This filter.
-             * this - {gxp.form.FilterField} (TODO change sequence of event parameters)
+             * this - {gxp.form.ToloFilterField} (TODO change sequence of event parameters)
              */
             "change"
         ); 
 
-        TolomeoExt.FilterField.superclass.initComponent.call(this);
+//        TolomeoExt.widgets.form.ToloFilterField.superclass.initComponent.call(this);
+        this.callParent();
     },
 
     /**

@@ -1,4 +1,4 @@
-.gxp-filterbuilder .x-toolbar {
+.tolomeo-tolofilterbuilder .x-toolbar {
     background: transparent;
     border: none !important;
 }
@@ -9,4 +9,33 @@
 
 .x-btn .delete {
     background-image: url(../img/delete.png);
+}
+
+/*****************
+ **BBOX FieldSet**
+ *****************/
+
+.spatial-cell{
+    text-align: center;
+}
+
+.aoi-fields{
+    margin-left: 0%;
+    margin-right: 5%;
+}
+
+.aoi-button{
+    background-image: url(../img/shape_square.png) !important;
+}
+
+.center-align{
+	margin: auto;
+}
+
+/********************
+ ** Buffer Fieldset**
+ ********************/
+ 
+.gx-cursor{
+    background-image: url(../img/cursor.png);
 }

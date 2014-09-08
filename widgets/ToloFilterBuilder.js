@@ -1,14 +1,16 @@
 
+Ext.ns('TolomeoExt.widgets');
+
 /** api: constructor
- *  .. class:: FilterBuilder(config)
+ *  .. class:: ToloFilterBuilder(config)
  *   
  *      Create a panel for assembling a filter.
  */
-Ext.define('TolomeoExt.FilterBuilder', {
+Ext.define('TolomeoExt.widgets.ToloFilterBuilder', {
 	
 	extend: 'Ext.Container',
 
-	alias: 'widget.tolomeo_filterbuilder',
+	alias: 'widget.tolomeo_tolofilterbuilder',
 	
     /** api: config[builderTypeNames]
      *  ``Array``
@@ -54,9 +56,9 @@ Ext.define('TolomeoExt.FilterBuilder', {
     /** api: config[cls]
      *  ``String``
      *  The CSS class to be added to this panel's element (defaults to
-     *  ``"gxp-filterbuilder"``).
+     *  ``"gxp-ToloFilterBuilder"``).
      */
-    cls: "gxp-filterbuilder",
+    cls: "tolomeo-tolofilterbuilder",
     
     /** api: config[filter]
      *  ``OpenLayers.Filter``
@@ -106,7 +108,7 @@ Ext.define('TolomeoExt.FilterBuilder', {
 
     initComponent: function() {
         var defConfig = {
-            defaultBuilderType: TolomeoExt.FilterBuilder.ANY_OF
+            defaultBuilderType: TolomeoExt.widgets.ToloFilterBuilder.ANY_OF
         };
         Ext.applyIf(this, defConfig);
         
@@ -122,25 +124,28 @@ Ext.define('TolomeoExt.FilterBuilder', {
             ref: "form",
             defaults: {anchor: "100%"},
             hideLabels: true,
-            items: [{
-                //xtype: "compositefield",
-                xtype: "fieldcontainer",
-                style: "padding-left: 2px",
-                items: [{
-                    xtype: "label",
-                    style: "padding-top: 0.3em",
-                    text: this.preComboText
-                }, this.createBuilderTypeCombo(), 
+            items: [
                 {
-                    xtype: "label",
-                    style: "padding-top: 0.3em",
-                    text: this.postComboText
-                }]
-            }, this.createChildFiltersPanel(), {
-                xtype: "toolbar",
-                items: this.createToolBar()
-            }]
-        
+	                //xtype: "compositefield",
+	                xtype: "fieldcontainer",
+	                style: "padding-left: 2px",
+	                items: [{
+	                    xtype: "label",
+	                    style: "padding-top: 0.3em",
+	                    text: this.preComboText
+	                }, this.createBuilderTypeCombo(), 
+	                {
+	                    xtype: "label",
+	                    style: "padding-top: 0.3em",
+	                    text: this.postComboText
+	                }]
+	            }, 
+	            this.createChildFiltersPanel(), 
+	            {
+	                xtype: "toolbar",
+	                items: this.createToolBar()
+	            }
+		    ]        
         }];
         
         this.addEvents(
@@ -149,13 +154,14 @@ Ext.define('TolomeoExt.FilterBuilder', {
              * Fires when the filter changes.
              *
              * Listener arguments:
-             * builder - {gxp.FilterBuilder} This filter builder.  Call
+             * builder - {gxp.ToloFilterBuilder} This filter builder.  Call
              *     ``getFilter`` to get the updated filter.
              */
             "change"
         ); 
 
-        TolomeoExt.FilterBuilder.superclass.initComponent.call(this);
+//        TolomeoExt.widgets.ToloFilterBuilder.superclass.initComponent.call(this);
+        this.callParent();
     },
 
     /** private: method[createToolBar]
@@ -312,7 +318,7 @@ Ext.define('TolomeoExt.FilterBuilder', {
                         } else {
                             // non-logical child of NOT should be wrapped
                             var type;
-                            if(this.defaultBuilderType === TolomeoExt.FilterBuilder.NOT_ALL_OF) {
+                            if(this.defaultBuilderType === TolomeoExt.widgets.ToloFilterBuilder.NOT_ALL_OF) {
                                 type = OpenLayers.Filter.Logical.AND;
                             } else {
                                 type = OpenLayers.Filter.Logical.OR;
@@ -349,7 +355,7 @@ Ext.define('TolomeoExt.FilterBuilder', {
      */
     wrapFilter: function(filter) {
         var type;
-        if(this.defaultBuilderType === TolomeoExt.FilterBuilder.ALL_OF) {
+        if(this.defaultBuilderType === TolomeoExt.widgets.ToloFilterBuilder.ALL_OF) {
             type = OpenLayers.Filter.Logical.AND;
         } else {
             type = OpenLayers.Filter.Logical.OR;
@@ -372,10 +378,10 @@ Ext.define('TolomeoExt.FilterBuilder', {
     addCondition: function(group) {
         var filter, type;
         if(group) {
-            type = "tolomeo_filterbuilder";
+            type = "tolomeo_tolofilterbuilder";
             filter = this.wrapFilter(this.createDefaultFilter());
         } else {
-            type = "tolomeo_filterfield";
+            type = "tolomeo_tolofilterfield";
             filter = this.createDefaultFilter();
         }
         var newChild = this.newRow({
@@ -418,7 +424,7 @@ Ext.define('TolomeoExt.FilterBuilder', {
 			this.childFilterContainer.remove(item, true);
 		}else{
 //			var items = item.findByType("tolomeo_filterfield");
-			var items = item.query("tolomeo_filterfield");
+			var items = item.query("tolomeo_tolofilterfield");
 			
 			var i = 0;
 			while(items[i]){
@@ -453,9 +459,9 @@ Ext.define('TolomeoExt.FilterBuilder', {
     
     createBuilderTypeCombo: function() {
         var types = this.allowedBuilderTypes || [
-            TolomeoExt.FilterBuilder.ANY_OF, 
-            TolomeoExt.FilterBuilder.ALL_OF,
-            TolomeoExt.FilterBuilder.NONE_OF
+            TolomeoExt.widgets.ToloFilterBuilder.ANY_OF, 
+            TolomeoExt.widgets.ToloFilterBuilder.ALL_OF,
+            TolomeoExt.widgets.ToloFilterBuilder.NONE_OF
         ];
         var numTypes = types.length;
         var data = new Array(numTypes);
@@ -475,7 +481,7 @@ Ext.define('TolomeoExt.FilterBuilder', {
             displayField: "name",
             valueField: "value",
             triggerAction: "all",
-            mode: "local",
+            queryMode: "local",
             listeners: {
                 select: function(combo, records) {
                 	var record = records;
@@ -501,19 +507,19 @@ Ext.define('TolomeoExt.FilterBuilder', {
             this.builderType = type;
             var child = this.filter.filters[0];
             switch(type) {
-                case TolomeoExt.FilterBuilder.ANY_OF:
+                case TolomeoExt.widgets.ToloFilterBuilder.ANY_OF:
                     this.filter.type = OpenLayers.Filter.Logical.OR;
                     child.type = OpenLayers.Filter.Logical.OR;
                     break;
-                case TolomeoExt.FilterBuilder.ALL_OF:
+                case TolomeoExt.widgets.ToloFilterBuilder.ALL_OF:
                     this.filter.type = OpenLayers.Filter.Logical.OR;
                     child.type = OpenLayers.Filter.Logical.AND;
                     break;
-                case TolomeoExt.FilterBuilder.NONE_OF:
+                case TolomeoExt.widgets.ToloFilterBuilder.NONE_OF:
                     this.filter.type = OpenLayers.Filter.Logical.NOT;
                     child.type = OpenLayers.Filter.Logical.OR;
                     break;
-                case TolomeoExt.FilterBuilder.NOT_ALL_OF:
+                case TolomeoExt.widgets.ToloFilterBuilder.NOT_ALL_OF:
                     this.filter.type = OpenLayers.Filter.Logical.NOT;
                     child.type = OpenLayers.Filter.Logical.AND;
                     break;
@@ -536,7 +542,7 @@ Ext.define('TolomeoExt.FilterBuilder', {
         for(var i=0, len=grandchildren.length; i<len; ++i) {
             grandchild = grandchildren[i];
             var fieldCfg = {
-                xtype: "tolomeo_filterfield",
+                xtype: "tolomeo_tolofilterfield",
                 allowBlank: this.allowBlank,
                 columnWidth: 1,
                 filter: grandchild,
@@ -554,13 +560,14 @@ Ext.define('TolomeoExt.FilterBuilder', {
             var containerCfg = Ext.applyIf(
                 grandchild instanceof OpenLayers.Filter.Logical ?
                     {
-                        xtype: "tolomeo_filterbuilder"
+                        xtype: "tolomeo_tolofilterbuilder"
                     } : {
                         xtype: "container",
                         layout: "form",
                         hideLabels: true,
                         items: fieldCfg
-                    }, fieldCfg);
+                    }, fieldCfg
+            );
                 
             this.childFilterContainer.add(this.newRow(containerCfg));
         }
@@ -576,23 +583,28 @@ Ext.define('TolomeoExt.FilterBuilder', {
      *  condition removal.
      */
     newRow: function(filterContainer) {
-        var ct = new Ext.Container({
+        var ct = Ext.create('Ext.Container', {
             layout: "column",
-            items: [{
-                xtype: "container",
-                width: 28,
-                height: 26,
-                style: "padding-left: 2px",
-                items: {
-                    xtype: "button",
-                    tooltip: this.removeConditionText,
-                    iconCls: "delete",
-                    handler: function(btn){
-                        this.removeCondition(ct, filterContainer.filter);
-                    },
-                    scope: this
-                }
-            }, filterContainer]
+            items: [
+                {
+	                xtype: "container",
+	                width: 28,
+	                height: 26,
+	                style: "padding-left: 2px",
+	                items: [{
+	                    xtype: "button",
+	                    style: {
+	                    	marginTop: '3px'
+	                    },
+	                    tooltip: this.removeConditionText,
+	                    iconCls: "delete",
+	                    handler: function(btn){
+	                        this.removeCondition(ct, filterContainer.filter);
+	                    },
+	                    scope: this
+	                }]
+	            }, filterContainer
+            ]
         });
         return ct;
     },
@@ -609,19 +621,19 @@ Ext.define('TolomeoExt.FilterBuilder', {
             if(this.filter.type === OpenLayers.Filter.Logical.NOT) {
                 switch(child.type) {
                     case OpenLayers.Filter.Logical.OR:
-                        type = TolomeoExt.FilterBuilder.NONE_OF;
+                        type = TolomeoExt.widgets.ToloFilterBuilder.NONE_OF;
                         break;
                     case OpenLayers.Filter.Logical.AND:
-                        type = TolomeoExt.FilterBuilder.NOT_ALL_OF;
+                        type = TolomeoExt.widgets.ToloFilterBuilder.NOT_ALL_OF;
                         break;
                 }
             } else {
                 switch(child.type) {
                     case OpenLayers.Filter.Logical.OR:
-                        type = TolomeoExt.FilterBuilder.ANY_OF;
+                        type = TolomeoExt.widgets.ToloFilterBuilder.ANY_OF;
                         break;
                     case OpenLayers.Filter.Logical.AND:
-                        type = TolomeoExt.FilterBuilder.ALL_OF;
+                        type = TolomeoExt.widgets.ToloFilterBuilder.ALL_OF;
                         break;
                 }
             }
@@ -650,10 +662,10 @@ Ext.define('TolomeoExt.FilterBuilder', {
 /**
  * Builder Types
  */
-TolomeoExt.FilterBuilder.ANY_OF = 0;
-TolomeoExt.FilterBuilder.ALL_OF = 1;
-TolomeoExt.FilterBuilder.NONE_OF = 2;
-TolomeoExt.FilterBuilder.NOT_ALL_OF = 3;
+TolomeoExt.widgets.ToloFilterBuilder.ANY_OF = 0;
+TolomeoExt.widgets.ToloFilterBuilder.ALL_OF = 1;
+TolomeoExt.widgets.ToloFilterBuilder.NONE_OF = 2;
+TolomeoExt.widgets.ToloFilterBuilder.NOT_ALL_OF = 3;
 
-/** api: xtype = tolomeo_filterbuilder */
-//Ext.preg('tolomeo_filterbuilder', TolomeoExt.FilterBuilder); 
+/** api: xtype = tolomeo_ToloFilterBuilder */
+//Ext.preg('tolomeo_ToloFilterBuilder', TolomeoExt.ToloFilterBuilder); 

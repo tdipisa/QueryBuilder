@@ -1,10 +1,13 @@
+
+Ext.ns('TolomeoExt.widgets.form');
+
 /** api: constructor
- *  .. class:: ComparisonComboBox(config)
+ *  .. class:: ToloComparisonComboBox(config)
  *   
  *      A combo box for selecting comparison operators available in OGC
  *      filters.
  */
-Ext.define('TolomeoExt.ComparisonComboBox', {
+Ext.define('TolomeoExt.widgets.form.ToloComparisonComboBox', {
 	
 	extend: 'Ext.form.ComboBox',
 	
@@ -62,6 +65,7 @@ Ext.define('TolomeoExt.ComparisonComboBox', {
         
         Ext.applyIf(this, defConfig);
         
-        TolomeoExt.ComparisonComboBox.superclass.initComponent.call(this);
+//        TolomeoExt.widgets.form.ToloComparisonComboBox.superclass.initComponent.call(this);
+        this.callParent();
     }
 });
