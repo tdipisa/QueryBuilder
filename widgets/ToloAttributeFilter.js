@@ -1,19 +1,15 @@
 
-/**
- * @overview Query Filter.
- *
- * @name Tolomeo - Interfaccia Query Filter
- * @author Tobia Di Pisa
- */
-
 Ext.ns('TolomeoExt.widgets');
 
 /**
  * Class: TolomeoExt.ToloQueryFilter
  *
+ * @overview Query Filter.
+ * @name Tolomeo - Interfaccia Query Filter
+ * @author Tobia Di Pisa
  *
  */
-Ext.define('TolomeoExt.widgets.ToloQueryFilter', {
+Ext.define('TolomeoExt.widgets.ToloAttributeFilter', {
 
 	extend: 'Ext.Panel',
 
@@ -31,7 +27,7 @@ Ext.define('TolomeoExt.widgets.ToloQueryFilter', {
             //xtype: "tolomeo_filterbuilder",
             //ref: "../filterBuilder",
             //attributes: schema,
-            attributes: Ext.create('Ext.data.Store',{
+            attributes: Ext.create('Ext.data.Store', {
                 baseParams: {
                     TYPENAME: "topp:states"
                 },
@@ -50,11 +46,7 @@ Ext.define('TolomeoExt.widgets.ToloQueryFilter', {
     		    // should be used in order to retrieve the 
     		    // available layer list.
     	       	// ////////////////////////////////////////////
-    		    data: [
-    		           {name: "name", type: "xsd:string", restriction: undefined},
-    		           {name: "code", type: "xsd:double", restriction: undefined},
-    		           {name: "date", type: "xsd:date", restriction: undefined}
-    		    ]
+    		    data: schema
     		}),
             allowBlank: true,
             allowGroups: false
@@ -65,6 +57,8 @@ Ext.define('TolomeoExt.widgets.ToloQueryFilter', {
 			//anchor: "-1",
 			autoWidth: true,
 			autoHeight: true,
+			collapsed : false,
+			checkboxToggle: true,
 			items:[this.filterBuilder]
 		});
 		

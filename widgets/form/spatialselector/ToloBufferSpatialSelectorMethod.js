@@ -1,22 +1,20 @@
-/**
- * @requires widgets/form/spatialselector/SpatialSelectorMethod.js
- */
 
-/** api: (extends)
- *  widgets/form/spatialselector/SpatialSelectorMethod.js
- */
 Ext.ns('TolomeoExt.widgets.form.spatialselector');
 
 /** api: constructor
- *  .. class:: BufferSpatialSelectorMethod(config)
+ *  .. class:: ToloBufferSpatialSelectorMethod(config)
  *
  *    Plugin for spatial selection based on buffer fieldset
  */
-Ext.define('TolomeoExt.widgets.form.spatialselector.BufferSpatialSelectorMethod',  {
+Ext.define('TolomeoExt.widgets.form.spatialselector.ToloBufferSpatialSelectorMethod',  {
 	
-	extend: 'TolomeoExt.widgets.form.spatialselector.SpatialSelectorMethod',
+	extend: 'TolomeoExt.widgets.form.spatialselector.ToloSpatialSelectorMethod',
 
 	alias : 'widget.tolomeo_spatial_buffer_selector',
+	
+	requires: [
+       'TolomeoExt.widgets.form.spatialselector.ToloSpatialSelectorMethod'
+	],
 
 	/** api: config[name]
 	 *  ``String``
@@ -59,7 +57,7 @@ Ext.define('TolomeoExt.widgets.form.spatialselector.BufferSpatialSelectorMethod'
 		// ///////////////////////////////////////////
 		// Spatial Buffer Selector FieldSet
 		// ///////////////////////////////////////////
-		this.bufferFieldset = new TolomeoExt.widgets.form.BufferFieldset({
+		this.bufferFieldset = new TolomeoExt.widgets.form.ToloBufferFieldset({
 			id: this.id + "bufferFieldset",
 			//ref: "bufferFieldset",
 			map: null, //this.target.mapPanel.map,
@@ -84,13 +82,13 @@ Ext.define('TolomeoExt.widgets.form.spatialselector.BufferSpatialSelectorMethod'
 
     	this.items = [this.bufferFieldset];
 
-//    	TolomeoExt.widgets.form.spatialselector.BufferSpatialSelectorMethod.superclass.initComponent.call(this);
+//    	TolomeoExt.widgets.form.spatialselector.ToloBufferSpatialSelectorMethod.superclass.initComponent.call(this);
     	this.callParent();
     },
 
 	// trigger action when activate the plugin
 	activate: function(){
-		TolomeoExt.widgets.form.spatialselector.BufferSpatialSelectorMethod.superclass.activate.call(this);
+		TolomeoExt.widgets.form.spatialselector.ToloBufferSpatialSelectorMethod.superclass.activate.call(this);
 		if(this.output){
 			this.output.enable();
 			if(Ext.isIE){
@@ -101,7 +99,7 @@ Ext.define('TolomeoExt.widgets.form.spatialselector.BufferSpatialSelectorMethod'
 
 	// trigger action when deactivate the plugin
 	deactivate: function(){
-		TolomeoExt.widgets.form.spatialselector.BufferSpatialSelectorMethod.superclass.deactivate.call(this);
+		TolomeoExt.widgets.form.spatialselector.ToloBufferSpatialSelectorMethod.superclass.deactivate.call(this);
 		if(this.output){
 			this.bufferFieldset.resetPointSelection();
 			this.bufferFieldset.coordinatePicker.toggleButton(false);
@@ -112,7 +110,7 @@ Ext.define('TolomeoExt.widgets.form.spatialselector.BufferSpatialSelectorMethod'
 
     // Reset method
     reset: function(){
-    	TolomeoExt.widgets.form.spatialselector.BufferSpatialSelectorMethod.superclass.reset.call(this);
+    	TolomeoExt.widgets.form.spatialselector.ToloBufferSpatialSelectorMethod.superclass.reset.call(this);
 		if(this.output){
 			this.bufferFieldset.resetPointSelection();
 			this.bufferFieldset.coordinatePicker.toggleButton(false);

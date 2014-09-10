@@ -34,6 +34,13 @@ Ext.define('TolomeoExt.ToloQueryBuilderExt', {
 	 * {String}
 	 */
 	TOLOMEOContext: null,
+	
+	config: {
+		qbEventManager: null,
+		layerSelector: null,
+		spatialSelector: null,
+		queryfilter: null
+	}, 
 
 	/**
 	 * initComponent: TolomeoExt.ToloQueryBuilderExt
@@ -48,9 +55,13 @@ Ext.define('TolomeoExt.ToloQueryBuilderExt', {
 		
 		//this.layout = "fit";
     	
+		this.qbEventManager = Ext.create('TolomeoExt.events.ToloQueryBuilderEvtManager');
+		
 		this.layerSelector = Ext.create('TolomeoExt.widgets.ToloLayerSelector');
-		this.spatialSelector = Ext.create('TolomeoExt.widgets.ToloSpatialSelector');
-		this.queryfilter = Ext.create('TolomeoExt.widgets.ToloQueryFilter');
+		this.spatialSelector = Ext.create('TolomeoExt.widgets.ToloSpatialSelector', {
+			qbEventManager: this.qbEventManager
+		});
+		this.queryfilter = Ext.create('TolomeoExt.widgets.ToloAttributeFilter');
 			
 		this.bbar = ["->", {
             text: "Cancella",

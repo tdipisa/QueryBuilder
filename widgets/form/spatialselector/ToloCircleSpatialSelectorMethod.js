@@ -1,22 +1,20 @@
-/**
- * @requires widgets/form/spatialselector/SpatialSelectorMethod.js
- */
 
-/** api: (extends)
- *  widgets/form/spatialselector/SpatialSelectorMethod.js
- */
 Ext.ns('TolomeoExt.widgets.form.spatialselector');
 
 /** api: constructor
- *  .. class:: CircleSpatialSelectorMethod(config)
+ *  .. class:: ToloCircleSpatialSelectorMethod(config)
  *
  *    Plugin for spatial selection based on circle drawing
  */
-Ext.define('TolomeoExt.widgets.form.spatialselector.CircleSpatialSelectorMethod', {
+Ext.define('TolomeoExt.widgets.form.spatialselector.ToloCircleSpatialSelectorMethod', {
 	
-	extend: 'TolomeoExt.widgets.form.spatialselector.PolygonSpatialSelectorMethod',
+	extend: 'TolomeoExt.widgets.form.spatialselector.ToloPolygonSpatialSelectorMethod',
 
 	alias: 'widget.tolomeo_spatial_circle_selector',
+	
+	requires: [
+       'TolomeoExt.widgets.form.spatialselector.ToloSpatialSelectorMethod'
+	],
   
     /** api: config[metricUnit]
 	 *  ``Object``
@@ -63,7 +61,7 @@ Ext.define('TolomeoExt.widgets.form.spatialselector.CircleSpatialSelectorMethod'
 
     // Reset method
     reset: function(){
-    	TolomeoExt.widgets.form.spatialselector.CircleSpatialSelectorMethod.superclass.reset.call(this);
+    	TolomeoExt.widgets.form.spatialselector.ToloCircleSpatialSelectorMethod.superclass.reset.call(this);
 		if(this.circleCentroidLayer){
 			this.circleCentroidLayer.removeAllFeatures();
 		}

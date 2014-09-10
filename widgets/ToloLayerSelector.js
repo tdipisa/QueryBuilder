@@ -1,17 +1,12 @@
 
-/**
- * @overview Layer Selector.
- *
- * @name Tolomeo - Interfaccia Layer Selector
- * @author Tobia Di Pisa
- */
-
 Ext.ns('TolomeoExt.widgets');
 
 /**
  * Class: ToloLayerSelector
  *
- *
+ * @overview Layer Selector.
+ * @name Tolomeo - Interfaccia Layer Selector
+ * @author Tobia Di Pisa
  */
 Ext.define('TolomeoExt.widgets.ToloLayerSelector', {
 

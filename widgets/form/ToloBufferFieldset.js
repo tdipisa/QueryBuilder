@@ -1,15 +1,12 @@
-/** api: (define)
- *  module = TolomeoExt.form
- *  class = BufferFieldset
- */
+
 Ext.ns('TolomeoExt.widgets.form');
 
 /** api: constructor
- *  .. class:: BufferFieldset(config)
+ *  .. class:: ToloBufferFieldset(config)
  *   
  *    Buffer fieldset
  */
-Ext.define('TolomeoExt.widgets.form.BufferFieldset', {
+Ext.define('TolomeoExt.widgets.form.ToloBufferFieldset', {
 	
 	extend: 'Ext.form.FieldSet',
 	
@@ -110,7 +107,7 @@ Ext.define('TolomeoExt.widgets.form.BufferFieldset', {
 	 * private: method[initComponent]
      */
     initComponent: function() {
-		this.coordinatePicker = Ext.create('TolomeoExt.widgets.form.CoordinatePicker', {
+		this.coordinatePicker = Ext.create('TolomeoExt.widgets.form.ToloCoordinatePicker', {
 			map: this.map,
 			fieldLabel: this.coordinatePickerLabel,
 			latitudeEmptyText: this.latitudeEmptyText,
@@ -196,7 +193,7 @@ Ext.define('TolomeoExt.widgets.form.BufferFieldset', {
         
 		this.title = this.bufferFieldSetTitle;
 		
-		//TolomeoExt.widgets.form.BufferFieldset.superclass.initComponent.call(this);
+		//TolomeoExt.widgets.form.ToloBufferFieldset.superclass.initComponent.call(this);
 		this.callParent();
     },
 	

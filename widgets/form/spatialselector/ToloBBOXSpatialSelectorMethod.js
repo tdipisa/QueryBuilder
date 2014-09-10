@@ -1,22 +1,20 @@
-/**
- * @requires widgets/form/spatialselector/SpatialSelectorMethod.js
- */
 
-/** api: (extends)
- *  widgets/form/spatialselector/SpatialSelectorMethod.js
- */
 Ext.namespace('TolomeoExt.widgets.form.spatialselector');
 
 /** api: constructor
- *  .. class:: BBOXSpatialSelectorMethod(config)
+ *  .. class:: ToloBBOXSpatialSelectorMethod(config)
  *
  *    Plugin for spatial selection based on BBOX fieldset
  */
-Ext.define('TolomeoExt.widgets.form.spatialselector.BBOXSpatialSelectorMethod', {
+Ext.define('TolomeoExt.widgets.form.spatialselector.ToloBBOXSpatialSelectorMethod', {
 		
-	extend: 'TolomeoExt.widgets.form.spatialselector.SpatialSelectorMethod',
+	extend: 'TolomeoExt.widgets.form.spatialselector.ToloSpatialSelectorMethod',
 
 	alias : 'widget.tolomeo_spatial_bbox_selector',
+	
+	requires: [
+       'TolomeoExt.widgets.form.spatialselector.ToloSpatialSelectorMethod'
+	],
 
     /** api: config[metricUnit]
 	 *  ``Object``
@@ -136,7 +134,7 @@ Ext.define('TolomeoExt.widgets.form.spatialselector.BBOXSpatialSelectorMethod', 
 		    	"onChangeAOI" : function(bounds) {
 		            var geom = bounds.toGeometry();
 		            if(displayProjection){
-		              geom = bounds.toGeometry().transform(new  OpenLayers.Projection(displayProjection),this.target.mapPanel.map.projection  );
+		              geom = bounds.toGeometry().transform(new OpenLayers.Projection(displayProjection),this.target.mapPanel.map.projection);
 		              this.setCurrentGeometry(geom);
 		            }else{
 		              this.setCurrentGeometry(geom);
@@ -146,17 +144,17 @@ Ext.define('TolomeoExt.widgets.form.spatialselector.BBOXSpatialSelectorMethod', 
 		    }
         };
 
-    	this.output = Ext.create('TolomeoExt.form.BBOXFieldset', confbbox);
+    	this.output = Ext.create('TolomeoExt.widgets.form.ToloBBOXFieldset', confbbox);
 
     	this.items = [this.output];
 
-    	//TolomeoExt.widgets.form.spatialselector.BBOXSpatialSelectorMethod.superclass.initComponent.call(this);
+    	//TolomeoExt.widgets.form.spatialselector.ToloBBOXSpatialSelectorMethod.superclass.initComponent.call(this);
     	this.callParent();
     },
 
 	// trigger action when activate the plugin
 	activate: function(){
-		TolomeoExt.widgets.form.spatialselector.BBOXSpatialSelectorMethod.superclass.activate.call(this);
+		TolomeoExt.widgets.form.spatialselector.ToloBBOXSpatialSelectorMethod.superclass.activate.call(this);
 		if(this.output){
 			this.output.enable();
 		}
@@ -164,7 +162,7 @@ Ext.define('TolomeoExt.widgets.form.spatialselector.BBOXSpatialSelectorMethod', 
 
 	// trigger action when deactivate the plugin
 	deactivate: function(){
-		TolomeoExt.widgets.form.spatialselector.BBOXSpatialSelectorMethod.superclass.deactivate.call(this);
+		TolomeoExt.widgets.form.spatialselector.ToloBBOXSpatialSelectorMethod.superclass.deactivate.call(this);
 		if(this.output){
     		this.output.removeBBOXLayer();
 			this.output.disable();
@@ -173,7 +171,7 @@ Ext.define('TolomeoExt.widgets.form.spatialselector.BBOXSpatialSelectorMethod', 
 
     // Reset method
     reset: function(){
-    	TolomeoExt.widgets.form.spatialselector.BBOXSpatialSelectorMethod.superclass.reset.call(this);
+    	TolomeoExt.widgets.form.spatialselector.ToloBBOXSpatialSelectorMethod.superclass.reset.call(this);
     	this.output.removeBBOXLayer();
     	this.output.reset();
     },
@@ -183,7 +181,7 @@ Ext.define('TolomeoExt.widgets.form.spatialselector.BBOXSpatialSelectorMethod', 
      *  Obtain selection summary
 	 */
     getSummary: function(geometry){
-		var summary = TolomeoExt.widgets.form.spatialselector.BBOXSpatialSelectorMethod.superclass.getSummary.call(this, geometry);
+		var summary = TolomeoExt.widgets.form.spatialselector.ToloBBOXSpatialSelectorMethod.superclass.getSummary.call(this, geometry);
 		var metricUnit = this.metricUnit;
 
 		var perimeter = this.getLength(geometry, metricUnit);

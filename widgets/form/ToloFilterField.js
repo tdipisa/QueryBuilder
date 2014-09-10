@@ -1,6 +1,6 @@
 
 /**
- * @include widgets/form/ToloComparisonComboBox.js
+ * include widgets/form/ToloComparisonComboBox.js
  * 
  * include data/WPSUniqueValuesReader.js
  * include data/WPSUniqueValuesProxy.js

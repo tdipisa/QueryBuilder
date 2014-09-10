@@ -1,14 +1,12 @@
-/** 
- *  class = BBOXFieldset
- */
-Ext.ns("TolomeoExt.form");
+
+Ext.ns("TolomeoExt.widgets.form");
 
 /** api: constructor
- *  .. class:: BBOXFieldset(config)
+ *  .. class:: ToloBBOXFieldset(config)
  *   
  *    BBOX fieldset
  */
-Ext.define('TolomeoExt.form.BBOXFieldset', {
+Ext.define('TolomeoExt.widgets.form.ToloBBOXFieldset', {
 	
 	extend: 'Ext.form.FieldSet',
 	
@@ -346,7 +344,7 @@ Ext.define('TolomeoExt.form.BBOXFieldset', {
           
         };
 
-        //TolomeoExt.form.BBOXFieldset.superclass.initComponent.call(this);
+        //TolomeoExt.form.ToloBBOXFieldset.superclass.initComponent.call(this);
         this.callParent();
     },
     

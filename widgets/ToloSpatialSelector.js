@@ -1,16 +1,12 @@
-/**
- * @overview Spatial Selector.
- *
- * @name Tolomeo - Interfaccia Spatial Selector
- * @author Tobia Di Pisa
- */
 
 Ext.ns('TolomeoExt.widgets');
 
 /**
  * Class: ToloSpatialSelector
  *
- *
+ * @overview Spatial Selector.
+ * @name Tolomeo - Interfaccia Spatial Selector
+ * @author Tobia Di Pisa
  */
 Ext.define('TolomeoExt.widgets.ToloSpatialSelector', {
 
@@ -73,6 +69,8 @@ Ext.define('TolomeoExt.widgets.ToloSpatialSelector', {
 	 * Text for Label Combo Selection Method (i18n).
 	 */
 	comboSelectionMethodLabel : "Selection",
+	
+	qbEventManager: null,
     
 	/** api: method[constructor]
 	 * Init spatialSelectors .
@@ -101,7 +99,9 @@ Ext.define('TolomeoExt.widgets.ToloSpatialSelector', {
 			for (var key in this.spatialSelectorsConfig){
 				var spConfig = this.spatialSelectorsConfig[key];
 				//spConfig.target = this.target;
-				var plugin = Ext.create(spConfig.xtype);
+				var plugin = Ext.create(spConfig.xtype, {
+					qbEventManager: this.qbEventManager
+				});
 				this.spatialSelectors[key] = plugin;
 				var selectorItem = plugin.getSelectionMethodItem();
 				selectorItem.value = key;
@@ -200,7 +200,8 @@ Ext.define('TolomeoExt.widgets.ToloSpatialSelector', {
 			title: this.comboSelectionMethodLabel,
 			items: selItems
 		});
-		
+
+// Not restore this
 //    	if(this.spatialSelectors){
 //	    	for (var key in this.spatialSelectors){
 //	    		var output = this.spatialSelectors[key];

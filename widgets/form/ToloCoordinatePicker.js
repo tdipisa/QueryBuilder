@@ -1,7 +1,7 @@
 
 Ext.ns('TolomeoExt.widgets.form');
 
-Ext.define('TolomeoExt.widgets.form.CoordinatePicker', {
+Ext.define('TolomeoExt.widgets.form.ToloCoordinatePicker', {
 	
 	extend: 'Ext.form.FieldContainer',
 
@@ -185,7 +185,7 @@ Ext.define('TolomeoExt.widgets.form.CoordinatePicker', {
                 }
             ];
         
-//        return  TolomeoExt.widgets.form.CoordinatePicker.superclass.initComponent.apply(this, arguments);
+//        return  TolomeoExt.widgets.form.ToloCoordinatePicker.superclass.initComponent.apply(this, arguments);
         this.callParent(arguments);
     },
 	
@@ -211,7 +211,7 @@ Ext.define('TolomeoExt.widgets.form.CoordinatePicker', {
 		if( lon && lat ){
 			//add point
 			var lonlat = new OpenLayers.LonLat(lon,lat);
-			lonlat.transform(new OpenLayers.Projection(this.outputSRS),map.getProjectionObject() );
+			lonlat.transform(new OpenLayers.Projection(this.outputSRS),map.getProjectionObject());
 			this.updateMapPoint(lonlat);
 		}
     },

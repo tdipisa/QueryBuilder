@@ -1,29 +1,26 @@
 /**
- * include widgets/form/spatialselector/BBOXSpatialSelectorMethod.js
- * include widgets/form/spatialselector/BufferSpatialSelectorMethod.js
- * include widgets/form/spatialselector/CircleSpatialSelectorMethod.js
- * include widgets/form/spatialselector/GeocoderSpatialSelectorMethod.js
- * include widgets/form/spatialselector/PolygonSpatialSelectorMethod.js
+ * include widgets/form/spatialselector/BBOXToloSpatialSelectorMethod.js
+ * include widgets/form/spatialselector/BufferToloSpatialSelectorMethod.js
+ * include widgets/form/spatialselector/CircleToloSpatialSelectorMethod.js
+ * include widgets/form/spatialselector/GeocoderToloSpatialSelectorMethod.js
+ * include widgets/form/spatialselector/PolygonToloSpatialSelectorMethod.js
  */
 
-/** api: (extends)
- *  Container.js
- */
 Ext.ns('TolomeoExt.widgets.form.spatialselector');
 
 /** api: constructor
- *  .. class:: SpatialSelectorMethod(config)
+ *  .. class:: ToloSpatialSelectorMethod(config)
  *
  *    Common code for plugins for spatial selection.
  *    Known plugins: <ul>
- *       <li>BBOXSpatialSelectorMethod: `gxp_spatial_bbox_selector` ptype</li>
- *       <li>BufferSpatialSelectorMethod: `gxp_spatial_buffer_selector` ptype</li>
- *       <li>CircleSpatialSelectorMethod: `gxp_spatial_circle_selector` ptype</li>
- *       <li>GeocoderSpatialSelectorMethod: `gxp_spatial_geocoding_selector` ptype</li>
- *       <li>PolygonSpatialSelectorMethod: `gxp_spatial_polygon_selector` ptype</li>
+ *       <li>BBOXToloSpatialSelectorMethod: `gxp_spatial_bbox_selector` ptype</li>
+ *       <li>BufferToloSpatialSelectorMethod: `gxp_spatial_buffer_selector` ptype</li>
+ *       <li>CircleToloSpatialSelectorMethod: `gxp_spatial_circle_selector` ptype</li>
+ *       <li>GeocoderToloSpatialSelectorMethod: `gxp_spatial_geocoding_selector` ptype</li>
+ *       <li>PolygonToloSpatialSelectorMethod: `gxp_spatial_polygon_selector` ptype</li>
  * 	  </ul>
  */
-Ext.define('TolomeoExt.widgets.form.spatialselector.SpatialSelectorMethod', {
+Ext.define('TolomeoExt.widgets.form.spatialselector.ToloSpatialSelectorMethod', {
 	
 	extend: 'Ext.Container',
 
@@ -221,12 +218,14 @@ Ext.define('TolomeoExt.widgets.form.spatialselector.SpatialSelectorMethod', {
 	 * Text msg for no complete form (i18n).
 	 */
 	noCompleteMsgText: "Please, complete form before query",
+	
+	qbEventManager: null,
 
 	// init spatialSelector method
 	constructor : function(config) {
 		Ext.apply(this, config);
 		
-		//return TolomeoExt.widgets.form.spatialselector.SpatialSelectorMethod.superclass.constructor.call(this, arguments);		
+		//return TolomeoExt.widgets.form.spatialselector.ToloSpatialSelectorMethod.superclass.constructor.call(this, arguments);		
 		this.callParent(arguments);
 	},
 
@@ -258,24 +257,8 @@ Ext.define('TolomeoExt.widgets.form.spatialselector.SpatialSelectorMethod', {
 			this.items.push(this.getDistanceFieldset());
 		}
 
-		//TolomeoExt.widgets.form.spatialselector.SpatialSelectorMethod.superclass.initComponent.call(this);
+		//TolomeoExt.widgets.form.spatialselector.ToloSpatialSelectorMethod.superclass.initComponent.call(this);
 		this.callParent();
-		
-//		if(this.addGeometryOperation){
-//			/*if (!this.items){
-//				this.items = [];
-//			}*/
-//			this.add({
-//				xtype: 'fieldset',
-//				ref: "geometryOperationFieldset",
-//				title: this.geometryOperationText,
-//                checkboxToggle: true,
-//                collapsed : true/*,
-//				items: [this.getGeometryOperationCombo()]*/
-//			});
-//			
-//			this.add(this.getDistanceFieldset());
-//		}
     },
 
 	/** api: method[getSelectionMethodItem]
@@ -537,6 +520,7 @@ Ext.define('TolomeoExt.widgets.form.spatialselector.SpatialSelectorMethod', {
      *  Obtain the geometry operation combo
 	 */
 	getGeometryOperationCombo : function() {
+// Not restore this
 //		var geometryOperationMethodCombo = Ext.create('Ext.form.ComboBox', {
 //			//xtype : 'combo',
 //			ref : '../geometryOperation',

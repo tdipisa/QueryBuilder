@@ -1,22 +1,20 @@
-/**
- * @include widgets/form/spatialselector/SpatialSelectorMethod.js
- */
 
-/** api: (extends)
- *  widgets/form/spatialselector/SpatialSelectorMethod.js
- */
 Ext.ns('TolomeoExt.widgets.form.spatialselector');
 
 /** api: constructor
- *  .. class:: PolygonSpatialSelectorMethod(config)
+ *  .. class:: ToloPolygonSpatialSelectorMethod(config)
  *
  *    Plugin for spatial selection based on simple polygon
  */
-Ext.define('TolomeoExt.widgets.form.spatialselector.PolygonSpatialSelectorMethod', {
+Ext.define('TolomeoExt.widgets.form.spatialselector.ToloPolygonSpatialSelectorMethod', {
 	
-	extend: 'TolomeoExt.widgets.form.spatialselector.SpatialSelectorMethod',
+	extend: 'TolomeoExt.widgets.form.spatialselector.ToloSpatialSelectorMethod',
 	
 	alias: 'widget.tolomeo_spatial_polygon_selector',
+	
+	requires: [
+       'TolomeoExt.widgets.form.spatialselector.ToloSpatialSelectorMethod'
+	],
 
 	/** api: config[name]
 	 *  ``String``
@@ -32,8 +30,13 @@ Ext.define('TolomeoExt.widgets.form.spatialselector.PolygonSpatialSelectorMethod
 
 	// trigger action when activate the plugin
 	activate: function(){
-		TolomeoExt.widgets.form.spatialselector.PolygonSpatialSelectorMethod.superclass.activate.call(this);
+		TolomeoExt.widgets.form.spatialselector.ToloPolygonSpatialSelectorMethod.superclass.activate.call(this);
 
+//		this.qbEventManager.fireEvent("polygonSpatialSelectorActive", this);
+
+// ////////////////////////////////////////////////
+// Extrapolated part into ToloMapAPIExt.js		
+// ////////////////////////////////////////////////
 		/**
 		 * Create Polygon Selector
 		 */
@@ -85,7 +88,7 @@ Ext.define('TolomeoExt.widgets.form.spatialselector.PolygonSpatialSelectorMethod
 
 	// trigger action when deactivate the plugin
 	deactivate: function(){
-		TolomeoExt.widgets.form.spatialselector.PolygonSpatialSelectorMethod.superclass.deactivate.call(this);
+		TolomeoExt.widgets.form.spatialselector.ToloPolygonSpatialSelectorMethod.superclass.deactivate.call(this);
 		if(this.draw){
 			this.draw.deactivate();	
 		}
@@ -98,7 +101,7 @@ Ext.define('TolomeoExt.widgets.form.spatialselector.PolygonSpatialSelectorMethod
 
     // Reset method
     reset: function(){
-    	TolomeoExt.widgets.form.spatialselector.PolygonSpatialSelectorMethod.superclass.reset.call(this);
+    	TolomeoExt.widgets.form.spatialselector.ToloPolygonSpatialSelectorMethod.superclass.reset.call(this);
 		if(this.drawings){
 			this.drawings.removeAllFeatures();
 		}
@@ -109,7 +112,7 @@ Ext.define('TolomeoExt.widgets.form.spatialselector.PolygonSpatialSelectorMethod
      *  Obtain selection summary
 	 */
     getSummary: function(geometry){
-		var summary = TolomeoExt.widgets.form.spatialselector.BBOXSpatialSelectorMethod.superclass.getSummary.call(this, geometry);
+		var summary = TolomeoExt.widgets.form.spatialselector.ToloPolygonSpatialSelectorMethod.superclass.getSummary.call(this, geometry);
 		var metricUnit = "km";
 
 		var perimeter = this.getLength(geometry, metricUnit);
