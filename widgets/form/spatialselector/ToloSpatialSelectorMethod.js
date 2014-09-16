@@ -257,8 +257,24 @@ Ext.define('TolomeoExt.widgets.form.spatialselector.ToloSpatialSelectorMethod', 
 			this.items.push(this.getDistanceFieldset());
 		}
 
+		this.output.addEvents(
+				"geometrySelect"
+		);	
+		
 		//TolomeoExt.widgets.form.spatialselector.ToloSpatialSelectorMethod.superclass.initComponent.call(this);
 		this.callParent();
+		
+        this.on("added", function(scope){
+        	scope.geometryOperationFieldset = scope.query('fieldset[ref=geometryOperationFieldset]')[0];
+        	scope.geometryOperation = scope.query('combo[ref=geometryOperation]')[0];
+        	scope.distanceFieldset = scope.query('fieldset[ref=distanceFieldset]')[0];
+        	scope.distance = scope.query('numberfield[ref="distance"]')[0];
+        	scope.dunits = scope.query('textfield[ref=dunits]')[0];
+//TODO: fix this     	
+//			if(scope.qbEventManager){
+//				scope.qbEventManager.fireEvent("setmapunitsvaluefield", scope.dunits);
+//			}
+        });
     },
 
 	/** api: method[getSelectionMethodItem]
@@ -278,6 +294,7 @@ Ext.define('TolomeoExt.widgets.form.spatialselector.ToloSpatialSelectorMethod', 
 	 */
 	getQueryFilter: function(){
 		var operation = null;
+		
 		if(this.addGeometryOperation && !this.geometryOperationFieldset.collapsed){
 			if(this.geometryOperation.isValid() ){
 				operation = this.geometryOperation.getValue();
@@ -293,6 +310,7 @@ Ext.define('TolomeoExt.widgets.form.spatialselector.ToloSpatialSelectorMethod', 
 		}else{
 			operation = OpenLayers.Filter.Spatial.INTERSECTS;
 		}
+		
 		if(this.currentGeometry){
 			switch (operation){
 				case OpenLayers.Filter.Spatial.CONTAINS:
@@ -377,9 +395,9 @@ Ext.define('TolomeoExt.widgets.form.spatialselector.ToloSpatialSelectorMethod', 
     	this.currentGeometry = null;
     	this.currentFilter = null;
 
-		if(this.featureSummary && this.featureSummary.isVisible()){
-			this.featureSummary.hide();
-		}
+//		if(this.featureSummary && this.featureSummary.isVisible()){
+//			this.featureSummary.hide();
+//		}
     },
 
 	/** api: method[setCurrentGeometry]
@@ -388,133 +406,137 @@ Ext.define('TolomeoExt.widgets.form.spatialselector.ToloSpatialSelectorMethod', 
 	 */
     setCurrentGeometry: function(geometry){
 		this.currentGeometry = geometry;
+		
     	if (geometry) {
-
 			if (this.zoomToCurrentExtent && geometry && geometry.getBounds) {
 				var dataExtent = geometry.getBounds();
-				this.target.mapPanel.map.zoomToExtent(dataExtent, closest=false);
+				
+				// create an event to manage the zoom to extent
+//				this.target.mapPanel.map.zoomToExtent(dataExtent, closest=false);
+				this.qbEventManager.fireEvents("zoomtomapextent", {dataExtent: dataExtent});
 			}
 
-			this.addFeatureSummary(geometry);
+			//this.addFeatureSummary(geometry);
 			this.output.fireEvent("geometrySelect", geometry);
 		} 
     },
 
-	/** api: method[addFeatureSummary]
-     *  :arg geometry: ``Object`` The geometry to be setted as current geometry.
-     *  Add feature summary if needed
-	 */
-    addFeatureSummary: function(geometry){
-		if(this.showSelectionSummary){
-			if(this.featureSummary && this.featureSummary.isVisible()){
-				this.featureSummary.hide();
-			}
-			this.featureSummary = new Ext.ToolTip({
-				xtype : 'tooltip',
-				target : Ext.getBody(),
-				html : this.getSummary(geometry),
-				title : this.selectionSummary,
-				autoHide : false,
-				closable : true,
-				draggable : false,
-				mouseOffset : [0, 0],
-				showDelay : 1,
-				listeners : {
-					scope : this,
-					hide : function(cmp) {
-						this.featureSummary.destroy();
-					}
-				}
-			});
-
-			var vertex = geometry.getVertices();
-			var point;
-			if ( geometry instanceof OpenLayers.Bounds) {
-				point = vertex[1];
-			} else{
-				point = vertex[vertex.length - 1];
-			}
-
-			var px = this.target.mapPanel.map.getPixelFromLonLat(new OpenLayers.LonLat(point.x, point.y));
-			var p0 = this.target.mapPanel.getPosition();
-
-			this.featureSummary.targetXY = [p0[0] + px.x, p0[1] + px.y];
-			this.featureSummary.show();
-		}
-    },
-
-	/** api: method[getSummary]
-     *  :arg geometry: ``Object`` The geometry to be setted as current geometry.
-     *  Obtain selection summary
-	 */
-    getSummary: function(geometry){
-
-		var summary = "", metricUnit = this.metricUnit;
-
-		var area = this.getArea(geometry, metricUnit);
-		var length = this.getLength(geometry, metricUnit);
-		if (area) {
-			summary += this.areaLabel + ": " + area + " " + metricUnit + '<sup>2</sup>' + '<br />';
-		}else if (length) {
-			summary += this.lengthLabel + ": " + length + " " + metricUnit + '<br />';
-		}else if(geometry instanceof OpenLayers.Geometry.Point){
-			summary += "X: " + geometry.x + ", Y:" + geometry.y + '<sup>2</sup>' + '<br />';
-		}
-
-		return summary;
-    },
-
-	/**
-	 * Method: getArea
-	 *
-	 * Parameters:
-	 * geometry - {<OpenLayers.Geometry>}
-	 * units - {String} Unit abbreviation
-	 *
-	 * Returns:
-	 * {Float} The geometry area in the given units.
-	 */
-	getArea : function(geometry, units) {
-		var area, geomUnits;
-		area = geometry.getArea();
-		if(area > 0){
-			area = geometry.getGeodesicArea(this.target.mapPanel.map.getProjectionObject());
-			geomUnits = "m";
-
-			var inPerDisplayUnit = OpenLayers.INCHES_PER_UNIT[units];
-			if (inPerDisplayUnit) {
-				var inPerMapUnit = OpenLayers.INCHES_PER_UNIT[geomUnits];
-				area *= Math.pow((inPerMapUnit / inPerDisplayUnit), 2);
-			}
-		}
-		return area;
-	},
-
-	/**
-	 * Method: getLength
-	 *
-	 * Parameters:
-	 * geometry - {<OpenLayers.Geometry>}
-	 * units - {String} Unit abbreviation
-	 *
-	 * Returns:
-	 * {Float} The geometry length in the given units.
-	 */
-	getLength : function(geometry, units) {
-		var length, geomUnits;
-		length = geometry.getLength();
-		if(length){
-			length = geometry.getGeodesicLength(this.target.mapPanel.map.getProjectionObject());
-			geomUnits = "m";
-
-			var inPerDisplayUnit = OpenLayers.INCHES_PER_UNIT[units];
-			if (inPerDisplayUnit) {
-				var inPerMapUnit = OpenLayers.INCHES_PER_UNIT[geomUnits];
-				length *= (inPerMapUnit / inPerDisplayUnit);
-			}
-		}
-		return length;
-	},
+// Not Restore this
+//	/** api: method[addFeatureSummary]
+//     *  :arg geometry: ``Object`` The geometry to be setted as current geometry.
+//     *  Add feature summary if needed
+//	 */
+//    addFeatureSummary: function(geometry){
+//		if(this.showSelectionSummary){
+//			if(this.featureSummary && this.featureSummary.isVisible()){
+//				this.featureSummary.hide();
+//			}
+//			this.featureSummary = new Ext.ToolTip({
+//				xtype : 'tooltip',
+//				target : Ext.getBody(),
+//				html : this.getSummary(geometry),
+//				title : this.selectionSummary,
+//				autoHide : false,
+//				closable : true,
+//				draggable : false,
+//				mouseOffset : [0, 0],
+//				showDelay : 1,
+//				listeners : {
+//					scope : this,
+//					hide : function(cmp) {
+//						this.featureSummary.destroy();
+//					}
+//				}
+//			});
+//
+//			var vertex = geometry.getVertices();
+//			var point;
+//			if ( geometry instanceof OpenLayers.Bounds) {
+//				point = vertex[1];
+//			} else{
+//				point = vertex[vertex.length - 1];
+//			}
+//
+//			var px = this.target.mapPanel.map.getPixelFromLonLat(new OpenLayers.LonLat(point.x, point.y));
+//			var p0 = this.target.mapPanel.getPosition();
+//
+//			this.featureSummary.targetXY = [p0[0] + px.x, p0[1] + px.y];
+//			this.featureSummary.show();
+//		}
+//    },
+//
+//	/** api: method[getSummary]
+//     *  :arg geometry: ``Object`` The geometry to be setted as current geometry.
+//     *  Obtain selection summary
+//	 */
+//    getSummary: function(geometry){
+//
+//		var summary = "", metricUnit = this.metricUnit;
+//
+//		var area = this.getArea(geometry, metricUnit);
+//		var length = this.getLength(geometry, metricUnit);
+//		if (area) {
+//			summary += this.areaLabel + ": " + area + " " + metricUnit + '<sup>2</sup>' + '<br />';
+//		}else if (length) {
+//			summary += this.lengthLabel + ": " + length + " " + metricUnit + '<br />';
+//		}else if(geometry instanceof OpenLayers.Geometry.Point){
+//			summary += "X: " + geometry.x + ", Y:" + geometry.y + '<sup>2</sup>' + '<br />';
+//		}
+//
+//		return summary;
+//    },
+//
+//	/**
+//	 * Method: getArea
+//	 *
+//	 * Parameters:
+//	 * geometry - {<OpenLayers.Geometry>}
+//	 * units - {String} Unit abbreviation
+//	 *
+//	 * Returns:
+//	 * {Float} The geometry area in the given units.
+//	 */
+//	getArea : function(geometry, units) {
+//		var area, geomUnits;
+//		area = geometry.getArea();
+//		if(area > 0){
+//			area = geometry.getGeodesicArea(this.target.mapPanel.map.getProjectionObject());
+//			geomUnits = "m";
+//
+//			var inPerDisplayUnit = OpenLayers.INCHES_PER_UNIT[units];
+//			if (inPerDisplayUnit) {
+//				var inPerMapUnit = OpenLayers.INCHES_PER_UNIT[geomUnits];
+//				area *= Math.pow((inPerMapUnit / inPerDisplayUnit), 2);
+//			}
+//		}
+//		return area;
+//	},
+//
+//	/**
+//	 * Method: getLength
+//	 *
+//	 * Parameters:
+//	 * geometry - {<OpenLayers.Geometry>}
+//	 * units - {String} Unit abbreviation
+//	 *
+//	 * Returns:
+//	 * {Float} The geometry length in the given units.
+//	 */
+//	getLength : function(geometry, units) {
+//		var length, geomUnits;
+//		length = geometry.getLength();
+//		if(length){
+//			length = geometry.getGeodesicLength(this.target.mapPanel.map.getProjectionObject());
+//			geomUnits = "m";
+//
+//			var inPerDisplayUnit = OpenLayers.INCHES_PER_UNIT[units];
+//			if (inPerDisplayUnit) {
+//				var inPerMapUnit = OpenLayers.INCHES_PER_UNIT[geomUnits];
+//				length *= (inPerMapUnit / inPerDisplayUnit);
+//			}
+//		}
+//		return length;
+//	},
 
 	/** api: method[getGeometryOperationCombo]
      *  Obtain the geometry operation combo
@@ -566,7 +588,7 @@ Ext.define('TolomeoExt.widgets.form.spatialselector.ToloSpatialSelectorMethod', 
 //		});
 		
 		var geometryOperationMethodCombo = Ext.create('Ext.form.ComboBox', {
-			ref : '../geometryOperation',
+			ref : 'geometryOperation',
 			typeAhead : true,
 			forceSelection: true, 
 			queryMode: 'local',
@@ -626,15 +648,15 @@ Ext.define('TolomeoExt.widgets.form.spatialselector.ToloSpatialSelectorMethod', 
 				xtype: "textfield",
 				fieldLabel: this.distanceUnitsTitleText,
 				name: "dunits",
-				ref: "../dunits",
+				ref: "dunits",
 				labelStyle: 'width: 130px;',
-				value: null, //this.target.mapPanel.map.units,
+				//value: null, //this.target.mapPanel.map.units,
 				allowBlank: false
 			},{
 				xtype: "numberfield",
 				fieldLabel: this.distanceTitleText,
 				name: "distance",
-				ref: "../distance",
+				ref: "distance",
 				labelStyle: 'width: 130px;',
 				allowBlank: false
 			}]

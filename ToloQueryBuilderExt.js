@@ -68,7 +68,9 @@ Ext.define('TolomeoExt.ToloQueryBuilderExt', {
             //iconCls: "cancel",
             scope: this,
             handler: function() {
-            	alert("cancel");
+            	this.spatialSelector.reset();
+            	var spatialMethodCombo = this.spatialSelector.getSelectionMethodCombo();
+            	spatialMethodCombo.reset();
             }
         }, {
             text: "Cerca",
@@ -82,8 +84,8 @@ Ext.define('TolomeoExt.ToloQueryBuilderExt', {
             	}
             	
                 var spatialFilter = this.spatialSelector.getQueryFilter();   
-                if (currentFilter) {
-                    filters.push(currentFilter);
+                if (spatialFilter) {
+                	filters.push(spatialFilter);
                 }
 					
 				var filter = filters.length > 1 ?

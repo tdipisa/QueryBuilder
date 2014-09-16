@@ -68,14 +68,20 @@ Ext.define('TolomeoExt.widgets.form.spatialselector.ToloBufferSpatialSelectorMet
 			selectStyle: this.selectStyle,
 			geodesic: this.geodesic || true,
 			latitudeEmptyText: this.latitudeEmptyText,
-			longitudeEmptyText: this.longitudeEmptyText
+			longitudeEmptyText: this.longitudeEmptyText,
+			qbEventManager: this.qbEventManager
 		});
+		
 		this.bufferFieldset.on("bufferadded", function(evt, feature){
 			this.setCurrentGeometry(feature.geometry);
 		}, this);
 
 	    this.bufferFieldset.on("bufferremoved", function(evt, feature){
 			this.setCurrentGeometry(null);
+		}, this);
+	    
+	    this.bufferFieldset.on("afterlayout", function(evt){
+	    	this.qbEventManager.fireEvent("addcoordinatepickercontrol", this.bufferFieldset.coordinatePicker);
 		}, this);
 
     	this.output = this;
@@ -117,31 +123,32 @@ Ext.define('TolomeoExt.widgets.form.spatialselector.ToloBufferSpatialSelectorMet
 		}
     },
 
-	/** api: method[getSummary]
-     *  :arg geometry: ``Object`` The geometry to be setted as current geometry.
-     *  Obtain selection summary
-	 */
-    getSummary: function(geometry){
-		var summary = "", metricUnit = "km";
-
-		var area = this.getArea(geometry, metricUnit);
-		if (area) {
-			summary += this.areaLabel + ": " + area + " " + metricUnit + '<sup>2</sup>' + '<br />';
-		}
-
-		// //////////////////////////////////////////////////////////
-		// Draw also the circle center as a part of summary report
-		// //////////////////////////////////////////////////////////
-		var circleSelectionCentroid = geometry.getCentroid();
-
-		if (circleSelectionCentroid) {
-			var lon = circleSelectionCentroid.x.toFixed(3);
-			var lat = circleSelectionCentroid.y.toFixed(3);
-			var xField = null /*this.target.mapPanel.map.projection*/ == "EPSG:4326" ? "Lon" : "X";
-			var yField = null /*this.target.mapPanel.map.projection*/ == "EPSG:4326" ? "Lat" : "Y";
-			summary += this.centroidLabel + ": " + lon + " ("+xField+") " + lat + " ("+yField+")" + '<br />';
-		}
-
-		return summary;
-    }
+//    Not restore this
+//	/** api: method[getSummary]
+//     *  :arg geometry: ``Object`` The geometry to be setted as current geometry.
+//     *  Obtain selection summary
+//	 */
+//    getSummary: function(geometry){
+//		var summary = "", metricUnit = "km";
+//
+//		var area = this.getArea(geometry, metricUnit);
+//		if (area) {
+//			summary += this.areaLabel + ": " + area + " " + metricUnit + '<sup>2</sup>' + '<br />';
+//		}
+//
+//		// //////////////////////////////////////////////////////////
+//		// Draw also the circle center as a part of summary report
+//		// //////////////////////////////////////////////////////////
+//		var circleSelectionCentroid = geometry.getCentroid();
+//
+//		if (circleSelectionCentroid) {
+//			var lon = circleSelectionCentroid.x.toFixed(3);
+//			var lat = circleSelectionCentroid.y.toFixed(3);
+//			var xField = null /*this.target.mapPanel.map.projection*/ == "EPSG:4326" ? "Lon" : "X";
+//			var yField = null /*this.target.mapPanel.map.projection*/ == "EPSG:4326" ? "Lat" : "Y";
+//			summary += this.centroidLabel + ": " + lon + " ("+xField+") " + lat + " ("+yField+")" + '<br />';
+//		}
+//
+//		return summary;
+//    }
 });

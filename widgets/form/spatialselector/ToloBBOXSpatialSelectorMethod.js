@@ -129,19 +129,19 @@ Ext.define('TolomeoExt.widgets.form.spatialselector.ToloBBOXSpatialSelectorMetho
 		    southLabel:this.southLabel,
 		    setAoiText: this.setAoiText,
 		    setAoiTooltip: this.setAoiTooltip,
-		    waitEPSGMsg: "Please Wait...",
-		    listeners : {
-		    	"onChangeAOI" : function(bounds) {
-		            var geom = bounds.toGeometry();
-		            if(displayProjection){
-		              geom = bounds.toGeometry().transform(new OpenLayers.Projection(displayProjection),this.target.mapPanel.map.projection);
-		              this.setCurrentGeometry(geom);
-		            }else{
-		              this.setCurrentGeometry(geom);
-		            }
-		    	},
-		    	scope: this
-		    }
+		    waitEPSGMsg: "Please Wait..."//,
+//		    listeners : {
+//		    	"onChangeAOI" : function(bounds) {
+//		            var geom = bounds.toGeometry();
+//		            if(displayProjection){
+//		              geom = bounds.toGeometry().transform(new OpenLayers.Projection(displayProjection),this.target.mapPanel.map.projection);
+//		              this.setCurrentGeometry(geom);
+//		            }else{
+//		              this.setCurrentGeometry(geom);
+//		            }
+//		    	},
+//		    	scope: this
+//		    }
         };
 
     	this.output = Ext.create('TolomeoExt.widgets.form.ToloBBOXFieldset', confbbox);
@@ -164,7 +164,10 @@ Ext.define('TolomeoExt.widgets.form.spatialselector.ToloBBOXSpatialSelectorMetho
 	deactivate: function(){
 		TolomeoExt.widgets.form.spatialselector.ToloBBOXSpatialSelectorMethod.superclass.deactivate.call(this);
 		if(this.output){
-    		this.output.removeBBOXLayer();
+//    		this.output.removeBBOXLayer();
+			if(this.qbEventManager){
+				this.qbEventManager.fireEvent("removelayer", this.output.layerName);
+			}
 			this.output.disable();
 		}
 	},
@@ -172,23 +175,28 @@ Ext.define('TolomeoExt.widgets.form.spatialselector.ToloBBOXSpatialSelectorMetho
     // Reset method
     reset: function(){
     	TolomeoExt.widgets.form.spatialselector.ToloBBOXSpatialSelectorMethod.superclass.reset.call(this);
-    	this.output.removeBBOXLayer();
+//    	this.output.removeBBOXLayer();
+    	
+		if(this.qbEventManager){
+			this.qbEventManager.fireEvent("removelayer", this.output.layerName);
+		}
     	this.output.reset();
     },
 
-	/** api: method[getSummary]
-     *  :arg geometry: ``Object`` The geometry to be setted as current geometry.
-     *  Obtain selection summary
-	 */
-    getSummary: function(geometry){
-		var summary = TolomeoExt.widgets.form.spatialselector.ToloBBOXSpatialSelectorMethod.superclass.getSummary.call(this, geometry);
-		var metricUnit = this.metricUnit;
-
-		var perimeter = this.getLength(geometry, metricUnit);
-		if (perimeter) {
-			summary += this.perimeterLabel + ": " + perimeter + " " + metricUnit + '<br />';
-		}
-
-		return summary;
-    }
+//  Not Restore this
+//	/** api: method[getSummary]
+//     *  :arg geometry: ``Object`` The geometry to be setted as current geometry.
+//     *  Obtain selection summary
+//	 */
+//    getSummary: function(geometry){
+//		var summary = TolomeoExt.widgets.form.spatialselector.ToloBBOXSpatialSelectorMethod.superclass.getSummary.call(this, geometry);
+//		var metricUnit = this.metricUnit;
+//
+//		var perimeter = this.getLength(geometry, metricUnit);
+//		if (perimeter) {
+//			summary += this.perimeterLabel + ": " + perimeter + " " + metricUnit + '<br />';
+//		}
+//
+//		return summary;
+//    }
 });

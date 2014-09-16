@@ -103,22 +103,26 @@ Ext.define('TolomeoExt.widgets.form.ToloBufferFieldset', {
 	
 	geodesic: true,
 	
+	config: {
+	         bufferLayer: null
+	},
+	
     /** 
 	 * private: method[initComponent]
      */
     initComponent: function() {
 		this.coordinatePicker = Ext.create('TolomeoExt.widgets.form.ToloCoordinatePicker', {
-			map: this.map,
+//			map: this.map,
 			fieldLabel: this.coordinatePickerLabel,
 			latitudeEmptyText: this.latitudeEmptyText,
 			longitudeEmptyText: this.longitudeEmptyText,
 			outputSRS: this.outputSRS,
 			//selectStyle: this.selectStyle,
 			toggleGroup: this.toggleGroup,
-			ref: "coordinatePicker",
+//			ref: "coordinatePicker",
 			listeners: {
 				scope: this,
-				update: function(){
+				updatebuffer: function(lonlat, scope){
 				    var cv = this.coordinatePicker.isValid();
 				    var bv = this.bufferField.isValid();
 					if(cv && bv ){                                 
@@ -126,15 +130,42 @@ Ext.define('TolomeoExt.widgets.form.ToloBufferFieldset', {
                         var lonlat = new OpenLayers.LonLat(coords[0], coords[1]);
                         var point = new OpenLayers.Geometry.Point(lonlat.lon, lonlat.lat);
                         
-                        var regularPolygon = OpenLayers.Geometry.Polygon.createRegularPolygon(
-                            point,
-                            this.bufferField.getValue(),
-                            100, 
-                            null
-                        );
+//                        var regularPolygon = OpenLayers.Geometry.Polygon.createRegularPolygon(
+//                            point,
+//                            this.bufferField.getValue(),
+//                            100, 
+//                            null
+//                        );
+//                        
+//                        this.drawBuffer(regularPolygon);
                         
-                        this.drawBuffer(regularPolygon);
+        				if(this.qbEventManager){
+        					this.qbEventManager.fireEvent("drawbuffer", 
+        							point, 
+        							this.geodesic, 
+        							this.bufferField.getValue(), 
+        							this.selectStyle,
+        							this.selectLayerName,
+        							this.displayInLayerSwitcher,
+        							this.setBufferLayer, 
+        							this);
+        				}
                     }
+				},
+//				afterInit: function(evt){
+//					if(this.qbEventManager){
+//						this.qbEventManager.fireEvent("aftercoordinatepickerinit", {scope: evt});
+//					}
+//				},
+				reset: function(selectLayerName){
+					if(this.qbEventManager){
+						this.qbEventManager.fireEvent("removelayer", selectLayerName);
+					}
+				},
+				update: function(lonlat, scope){
+					if(this.qbEventManager){
+						this.qbEventManager.fireEvent("updatemappoint", lonlat, scope);
+					}
 				}
 			}			
 		});
@@ -142,7 +173,7 @@ Ext.define('TolomeoExt.widgets.form.ToloBufferFieldset', {
 		this.bufferField = Ext.create('Ext.form.NumberField', {
 			name: 'buffer',
 			ref: 'bufferField',
-			fieldLabel: this.bufferFieldLabel + " (TODO"+/*this.map.units+*/")",
+			fieldLabel: this.bufferFieldLabel,// + " (TODO"+/*this.map.units+*/")",
 			allowBlank: false,
 			disabled: false,
 			width: 195,
@@ -156,31 +187,43 @@ Ext.define('TolomeoExt.widgets.form.ToloBufferFieldset', {
 			validationDelay: 1500
 		});
 		
-		this.bufferField.addListener("keyup", function(){        
+		this.bufferField.addListener("keyup", function(){   
 			if(this.coordinatePicker.isValid() && this.bufferField.isValid()){						
 				var coords = this.coordinatePicker.getCoordinate();
 				var lonlat = new OpenLayers.LonLat(coords[0], coords[1]);
 				var point = new OpenLayers.Geometry.Point(lonlat.lon, lonlat.lat);
 				
-				var polygon;
-				if(this.geodesic){
-					polygon = OpenLayers.Geometry.Polygon.createGeodesicPolygon(
-						point,
-						this.bufferField.getValue(),
-						100, 
-						0,
-						this.map.getProjectionObject()
-					);
-				}else{
-					polygon = OpenLayers.Geometry.Polygon.createRegularPolygon(
-						point,
-						this.bufferField.getValue(),
-						100, 
-						0
-					);
+				if(this.qbEventManager){
+					this.qbEventManager.fireEvent("drawbuffer", 
+							point, 
+							this.geodesic, 
+							this.bufferField.getValue(), 
+							this.selectStyle,
+							this.selectLayerName,
+							this.displayInLayerSwitcher,
+							this.setBufferLayer,
+							this);
 				}
 				
-				this.drawBuffer(polygon);
+//				var polygon;
+//				if(this.geodesic){
+//					polygon = OpenLayers.Geometry.Polygon.createGeodesicPolygon(
+//						point,
+//						this.bufferField.getValue(),
+//						100, 
+//						0,
+//						this.map.getProjectionObject()
+//					);
+//				}else{
+//					polygon = OpenLayers.Geometry.Polygon.createRegularPolygon(
+//						point,
+//						this.bufferField.getValue(),
+//						100, 
+//						0
+//					);
+//				}
+//				
+//				this.drawBuffer(polygon);
 			}else{
 				this.resetBuffer();
 			}
@@ -197,33 +240,37 @@ Ext.define('TolomeoExt.widgets.form.ToloBufferFieldset', {
 		this.callParent();
     },
 	
-    drawBuffer: function(regularPolygon){
-        if(this.selectStyle){
-            this.resetBuffer();
-            var style = new OpenLayers.Style(this.selectStyle);
-            
-			this.bufferLayer = new OpenLayers.Layer.Vector(this.selectLayerName,{
-                styleMap: style                
-            });
-
-            var bufferFeature = new OpenLayers.Feature.Vector(regularPolygon);
-            this.bufferLayer.addFeatures([bufferFeature]);
-			
-            this.bufferLayer.displayInLayerSwitcher = this.displayInLayerSwitcher;
-            this.map.addLayer(this.bufferLayer);  
-			
-			this.fireEvent('bufferadded', this, bufferFeature);
-        }    
-    },
+//    drawBuffer: function(regularPolygon){
+//        if(this.selectStyle){
+//            this.resetBuffer();
+//            var style = new OpenLayers.Style(this.selectStyle);
+//            
+//			this.bufferLayer = new OpenLayers.Layer.Vector(this.selectLayerName,{
+//                styleMap: style                
+//            });
+//
+//            var bufferFeature = new OpenLayers.Feature.Vector(regularPolygon);
+//            this.bufferLayer.addFeatures([bufferFeature]);
+//			
+//            this.bufferLayer.displayInLayerSwitcher = this.displayInLayerSwitcher;
+//            this.map.addLayer(this.bufferLayer);  
+//			
+//			this.fireEvent('bufferadded', this, bufferFeature);
+//        }    
+//    },
 	
 	resetBuffer: function(){
-		if(this.selectStyle){
-			var layer = null; //map.getLayersByName(this.selectLayerName)[0];
-            if(layer){
-                map.removeLayer(layer);
-            }
-			
-			this.fireEvent('bufferremoved', this);
+//		if(this.selectStyle){
+//			var layer = null; //map.getLayersByName(this.selectLayerName)[0];
+//            if(layer){
+//                map.removeLayer(layer);
+//            }
+//			
+//			this.fireEvent('bufferremoved', this);
+//		}
+		if(this.qbEventManager){
+			this.qbEventManager.fireEvent("removelayer", this.selectLayerName);
+			//this.coordinatePicker.resetMapPoint();
 		}
 	},
 	
@@ -236,5 +283,10 @@ Ext.define('TolomeoExt.widgets.form.ToloBufferFieldset', {
 		this.coordinatePicker.resetPoint();
         this.bufferField.reset();
 		this.resetBuffer();
+	},
+	
+	setBufferLayer: function(bufferLayer, bufferFeature){
+		this.bufferLayer = bufferLayer;
+		this.fireEvent('bufferadded', this, bufferFeature);
 	}
 });

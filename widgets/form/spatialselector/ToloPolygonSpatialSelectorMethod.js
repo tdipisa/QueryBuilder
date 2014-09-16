@@ -32,50 +32,45 @@ Ext.define('TolomeoExt.widgets.form.spatialselector.ToloPolygonSpatialSelectorMe
 	activate: function(){
 		TolomeoExt.widgets.form.spatialselector.ToloPolygonSpatialSelectorMethod.superclass.activate.call(this);
 
-//		this.qbEventManager.fireEvent("polygonSpatialSelectorActive", this);
-
-// ////////////////////////////////////////////////
-// Extrapolated part into ToloMapAPIExt.js		
-// ////////////////////////////////////////////////
-		/**
-		 * Create Polygon Selector
-		 */
-        this.drawings = new OpenLayers.Layer.Vector({},
-			{
-				displayInLayerSwitcher:false,
-				styleMap : new OpenLayers.StyleMap({
-					"default" : this.defaultStyle,
-					"select" : this.selectStyle,
-					"temporary" : this.temporaryStyle
-				})
-			}
-		);
-
-        this.drawings.events.on({
-            "featureadded": function(event) {
-				this.setCurrentGeometry(event.feature.geometry);
-            },                                
-            "beforefeatureadded": function(event) {
-                this.drawings.destroyFeatures();
-            },
-            scope:this
-        });                                 
-    
-    	// TODO: restore this
-        //this.target.mapPanel.map.addLayer(this.drawings);
-        
-        this.draw = this.getDrawControl();
-        
-		// disable pan while drawing
-		// TODO: make it configurable
-		this.draw.handler.stopDown = true;
-		this.draw.handler.stopUp = true;
-
-        // TODO: restore this
-		//this.target.mapPanel.map.addControl(this.draw);
+		if(this.qbEventManager){
+			this.qbEventManager.fireEvent("polygonSpatialSelectorActive", this);
+		}
 		
-		// TODO: restore this
-        //this.draw.activate();
+//		/**
+//		 * Create Polygon Selector
+//		 */
+//        this.drawings = new OpenLayers.Layer.Vector({},
+//			{
+//				displayInLayerSwitcher:false,
+//				styleMap : new OpenLayers.StyleMap({
+//					"default" : this.defaultStyle,
+//					"select" : this.selectStyle,
+//					"temporary" : this.temporaryStyle
+//				})
+//			}
+//		);
+//
+//        this.drawings.events.on({
+//            "featureadded": function(event) {
+//				this.setCurrentGeometry(event.feature.geometry);
+//            },                                
+//            "beforefeatureadded": function(event) {
+//                this.drawings.destroyFeatures();
+//            },
+//            scope:this
+//        });                                 
+//    
+//        //this.target.mapPanel.map.addLayer(this.drawings);
+//        
+//        this.draw = this.getDrawControl();
+//        
+//		// disable pan while drawing
+//		this.draw.handler.stopDown = true;
+//		this.draw.handler.stopUp = true;
+//
+//		//this.target.mapPanel.map.addControl(this.draw);
+//		
+//        //this.draw.activate();
 	},
 
 	// obtain draw control
@@ -93,8 +88,12 @@ Ext.define('TolomeoExt.widgets.form.spatialselector.ToloPolygonSpatialSelectorMe
 			this.draw.deactivate();	
 		}
 		if (this.drawings) {
-			// TODO: restore this
 			//this.target.mapPanel.map.removeLayer(this.drawings);
+			
+			if(this.qbEventManager){
+				this.qbEventManager.fireEvent("removelayer", this.drawings);
+			}
+			
 			this.drawings = null;
 		}
 	},
@@ -107,19 +106,20 @@ Ext.define('TolomeoExt.widgets.form.spatialselector.ToloPolygonSpatialSelectorMe
 		}
     },
 
-	/** api: method[getSummary]
-     *  :arg geometry: ``Object`` The geometry to be setted as current geometry.
-     *  Obtain selection summary
-	 */
-    getSummary: function(geometry){
-		var summary = TolomeoExt.widgets.form.spatialselector.ToloPolygonSpatialSelectorMethod.superclass.getSummary.call(this, geometry);
-		var metricUnit = "km";
-
-		var perimeter = this.getLength(geometry, metricUnit);
-		if (perimeter) {
-			summary += this.perimeterLabel + ": " + perimeter + " " + metricUnit + '<br />';
-		}
-
-		return summary;
-    }
+// Not restore this
+//	/** api: method[getSummary]
+//     *  :arg geometry: ``Object`` The geometry to be setted as current geometry.
+//     *  Obtain selection summary
+//	 */
+//    getSummary: function(geometry){
+//		var summary = TolomeoExt.widgets.form.spatialselector.ToloPolygonSpatialSelectorMethod.superclass.getSummary.call(this, geometry);
+//		var metricUnit = "km";
+//
+//		var perimeter = this.getLength(geometry, metricUnit);
+//		if (perimeter) {
+//			summary += this.perimeterLabel + ": " + perimeter + " " + metricUnit + '<br />';
+//		}
+//
+//		return summary;
+//    }
 });

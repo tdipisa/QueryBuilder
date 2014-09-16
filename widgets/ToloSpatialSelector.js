@@ -102,6 +102,10 @@ Ext.define('TolomeoExt.widgets.ToloSpatialSelector', {
 				var plugin = Ext.create(spConfig.xtype, {
 					qbEventManager: this.qbEventManager
 				});
+//				plugin.output.on('geometrySelect', function(geometry){
+//					this.qbEventManager.fireEvent("ongeneratesummary");
+//				}, this);
+				
 				this.spatialSelectors[key] = plugin;
 				var selectorItem = plugin.getSelectionMethodItem();
 				selectorItem.value = key;
@@ -134,7 +138,7 @@ Ext.define('TolomeoExt.widgets.ToloSpatialSelector', {
 			xtype : 'combo',
 			// anchor : '100%',
 			id : this.id + '_selectionMethod_id',
-			ref : '../outputType',
+//			ref : '../outputType',
 			fieldLabel : this.comboSelectionMethodLabel,
 			typeAhead : true,
 			triggerAction : 'all',
@@ -221,6 +225,13 @@ Ext.define('TolomeoExt.widgets.ToloSpatialSelector', {
     	
     	this.callParent();    	
     	//return layout;
+    	
+    	//
+    	// Update the current map extent
+    	//
+    	this.qbEventManager.on("mapmoved", function(extent){
+    		this.currentMapExtent = extent;
+    	}, this);
     },
     
 	/** api: method[reset]
@@ -237,7 +248,7 @@ Ext.define('TolomeoExt.widgets.ToloSpatialSelector', {
 	    		&& this.spatialSelectors[this.defaultSelectionMethod]){
 	    		this.spatialSelectors[this.defaultSelectionMethod].activate();
 				this.activeMethod = this.spatialSelectors[this.defaultSelectionMethod];
-	    	}
+	    	}   	
     	}
     },
 
@@ -253,7 +264,7 @@ Ext.define('TolomeoExt.widgets.ToloSpatialSelector', {
 			return new OpenLayers.Filter.Spatial({
 				type: OpenLayers.Filter.Spatial.BBOX,
 				property: this.filterGeometryName,
-				value: this.target.mapPanel.map.getExtent()
+				value: this.currentMapExtent //this.target.mapPanel.map.getExtent()
 			});
 		}
 	},
@@ -268,6 +279,11 @@ Ext.define('TolomeoExt.widgets.ToloSpatialSelector', {
 		}else{
 			return null;
 		}
+	},
+	
+	getSelectionMethodCombo: function(){		
+    	var selectionMethodCombo = this.queryById(this.id + '_selectionMethod_id');
+    	return  selectionMethodCombo;
 	}
-    
+	
 });

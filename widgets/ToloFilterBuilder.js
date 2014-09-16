@@ -162,6 +162,11 @@ Ext.define('TolomeoExt.widgets.ToloFilterBuilder', {
 
 //        TolomeoExt.widgets.ToloFilterBuilder.superclass.initComponent.call(this);
         this.callParent();
+        
+        this.on("added", function(scope){
+        	scope.form = scope.query('container[ref=form]')[0];
+        	scope.builderTypeCombo = scope.query('combo[ref=builderTypeCombo]')[0];
+        });
     },
 
     /** private: method[createToolBar]
@@ -477,7 +482,7 @@ Ext.define('TolomeoExt.widgets.ToloFilterBuilder', {
                 fields: ["value", "name"]
             }),
             value: this.builderType,
-            ref: "../../builderTypeCombo",
+            ref: "builderTypeCombo",
             displayField: "name",
             valueField: "value",
             triggerAction: "all",
