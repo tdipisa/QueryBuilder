@@ -11,6 +11,12 @@ Ext.ns('TolomeoExt.widgets');
 Ext.define('TolomeoExt.widgets.ToloLayerSelector', {
 
 	extend: 'Ext.Panel',
+	
+	/** 
+	 * Property: layers
+	 * {Array}
+	 */
+	layers: null,
 
 	/**
 	 * initComponent: TolomeoExt.widgets.ToloLayerSelector
@@ -24,18 +30,22 @@ Ext.define('TolomeoExt.widgets.ToloLayerSelector', {
 		
 		this.layerStore = Ext.create('Ext.data.Store',{
 		    fields: [{
-		    	name: 'description',
-		    	mapping: 'description'
+		    	name: 'descrizione',
+		    	mapping: 'descrizione'
 		    },{
 		    	name: 'name', 
 		    	mapping: 'name'
+		    },{
+		    	name: 'codTPN', 
+		    	mapping: 'codTPN'
 		    }],
 	       	// TODO ///////////////////////////////////////
 	        // Now we use a local store. The proper service 
 		    // should be used in order to retrieve the 
 		    // available layer list.
 	       	// ////////////////////////////////////////////
-		    data: layerStore
+//		    data: layerStore
+		    data: this.layers
 		});
 
 		this.layerSelectorCombo = Ext.create('Ext.form.ComboBox',{
@@ -54,13 +64,14 @@ Ext.define('TolomeoExt.widgets.ToloLayerSelector', {
 			store: this.layerStore,
 		    listeners:{
 		         scope: this,
-		         'select': function(){
+		         select: function(combo, records, eOpts){
 		        	 // TODO ///////////////////////////////////////
-		        	 // Manager here the event for the request 
+		        	 // Manage here the event for the request 
 		        	 // to retrieve the FeatureType schema 
 		        	 // (attribute type and definition for the 
 		        	 // QueryFilter component). 
 		        	 // ////////////////////////////////////////////
+		        	 this.fireEvent("layerselected", records);
 		         }
 		    }
 		});	

@@ -30,6 +30,7 @@
  		
  		<!-- TolomeoExt uncompressed classes (ONLY for test purpose) -->
  		<script type="text/javascript" src="/tolomeobinj/js/tolomeoExt/ToloMapAPIExt.js" charset="utf-8" ></script>
+ 		<script type="text/javascript" src="/tolomeobinj/js/tolomeoExt/ToloCrossAjax.js" charset="utf-8" ></script>
  		
  		<!-- Caricamento scripts per Query Builder -->
  		<script type="text/javascript" src="/tolomeobinj/js/tolomeoExt/query_builder/controls/openlayers/SetBox.js" charset="utf-8" ></script>
@@ -53,6 +54,7 @@
  		<script type="text/javascript" src="/tolomeobinj/js/tolomeoExt/query_builder/widgets/form/spatialselector/ToloPolygonSpatialSelectorMethod.js" charset="utf-8" ></script>
  		<script type="text/javascript" src="/tolomeobinj/js/tolomeoExt/query_builder/widgets/form/spatialselector/ToloCircleSpatialSelectorMethod.js" charset="utf-8" ></script>
  		
+ 		<script type="text/javascript" src="/tolomeobinj/js/tolomeoExt/query_builder/ToloFeatureManager.js" charset="utf-8" ></script>
  		<script type="text/javascript" src="/tolomeobinj/js/tolomeoExt/query_builder/ToloQueryBuilderExt.js" charset="utf-8" ></script>
  		<script type="text/javascript" src="/tolomeobinj/js/tolomeoExt/query_builder/ToloFeatureGridPanel.js" charset="utf-8" ></script>
 		

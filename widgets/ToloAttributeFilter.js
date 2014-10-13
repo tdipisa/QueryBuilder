@@ -23,43 +23,43 @@ Ext.define('TolomeoExt.widgets.ToloAttributeFilter', {
 	initComponent: function(){				
 		this.border = 0;
 		
-		this.filterBuilder = new TolomeoExt.widgets.ToloFilterBuilder({
-            //xtype: "tolomeo_filterbuilder",
-            //ref: "../filterBuilder",
-            //attributes: schema,
-            attributes: Ext.create('Ext.data.Store', {
-                baseParams: {
-                    TYPENAME: "topp:states"
-                },
-    		    fields: [{
-    		    	name: 'name',
-    		    	mapping: 'name'
-    		    },{
-    		    	name: 'type', 
-    		    	mapping: 'type'
-    		    },{
-    		    	name: 'restriction', 
-    		    	mapping: 'restriction'
-    		    }],
-    	       	// TODO ///////////////////////////////////////
-    	        // Now we use a local store. The proper service 
-    		    // should be used in order to retrieve the 
-    		    // available layer list.
-    	       	// ////////////////////////////////////////////
-    		    data: schema
-    		}),
-            allowBlank: true,
-            allowGroups: false
-        });
+//		this.filterBuilder = new TolomeoExt.widgets.ToloFilterBuilder({
+//            //xtype: "tolomeo_filterbuilder",
+//            //ref: "../filterBuilder",
+//            //attributes: schema,
+//            attributes: Ext.create('Ext.data.Store', {
+//                baseParams: {
+//                    TYPENAME: "topp:states"
+//                },
+//    		    fields: [{
+//    		    	name: 'name',
+//    		    	mapping: 'name'
+//    		    },{
+//    		    	name: 'type', 
+//    		    	mapping: 'type'
+//    		    },{
+//    		    	name: 'restriction', 
+//    		    	mapping: 'restriction'
+//    		    }],
+//    	       	// TODO ///////////////////////////////////////
+//    	        // Now we use a local store. The proper service 
+//    		    // should be used in order to retrieve the 
+//    		    // available layer list.
+//    	       	// ////////////////////////////////////////////
+//    		    data: schema
+//    		}),
+//            allowBlank: true,
+//            allowGroups: false
+//        });
 		
 		this.attributeFieldSet = Ext.create('Ext.form.FieldSet',{
 			title: 'Filtro Per Attributo',
 			//anchor: "-1",
 			autoWidth: true,
 			autoHeight: true,
-			collapsed : false,
-			checkboxToggle: true,
-			items:[this.filterBuilder]
+			collapsed : true,
+			checkboxToggle: true/*,
+			items:[this.filterBuilder]*/
 		});
 		
 		// TODO ////////////////////////////////////
@@ -72,6 +72,42 @@ Ext.define('TolomeoExt.widgets.ToloAttributeFilter', {
 //		TolomeoExt.widgets.ToloQueryFilter.superclass.initComponent.call(this);
 		this.callParent();
 		
-    }   
+    },
+    
+    addFilterBuilder: function(results, store){
+    	var schema = results;
+    	
+		var filterBuilder = new TolomeoExt.widgets.ToloFilterBuilder({
+//            attributes: schema,
+			 attributes: Ext.create('Ext.data.Store', {
+                baseParams: {
+                   TYPENAME: "topp:states"
+                },
+	   		    fields: [{
+	   		    	name: 'name',
+	   		    	mapping: 'name'
+	   		    },{
+	   		    	name: 'type', 
+	   		    	mapping: 'type'
+	   		    },{
+	   		    	name: 'restriction', 
+	   		    	mapping: 'restriction'
+	   		    },{
+	   		    	name: 'regex', 
+	   		    	mapping: 'regex'
+	   		    },{
+	   		    	name: 'dbname', 
+	   		    	mapping: 'dbname'
+	   		    }],
+	   		    data: schema
+	   		}),
+            allowBlank: true,
+            allowGroups: false
+        });
+		
+		this.attributeFieldSet.add(filterBuilder);
+		
+		this.enable();
+    }
     
 });

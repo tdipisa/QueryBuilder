@@ -199,7 +199,7 @@ Ext.define('TolomeoExt.widgets.ToloSpatialSelector', {
 		layout.items = [];		
 		layout.items.push({
 			xtype: 'fieldset',
-			collapsed : false,
+			collapsed : true,
 			checkboxToggle: true,
 			title: this.comboSelectionMethodLabel,
 			items: selItems

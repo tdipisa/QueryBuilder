@@ -212,54 +212,54 @@ Ext.define('TolomeoExt.widgets.form.ToloFilterField', {
         
         for(key in this.defaultItemsProp) {
             this.fieldDefault[key] = {
-                'string': Ext.applyIf({
+                'java.lang.String': Ext.applyIf({
                     xtype: "textfield"
                 }, this.defaultItemsProp[key]),
-                'double': Ext.applyIf({
+                'java.lang.Double': Ext.applyIf({
                     xtype: "numberfield",
                     allowDecimals:true,
                     decimalPrecision: 10,
                     width: 70
                 },this.defaultItemsProp[key]),
-                'float': Ext.applyIf({
+                'java.lang.Float': Ext.applyIf({
                     xtype: "numberfield",
                     allowDecimals:true,
                     decimalPrecision: 10,
                     width: 70
                 },this.defaultItemsProp[key]),
-                'decimal': Ext.applyIf({
+                'java.math.BigDecimal': Ext.applyIf({
                     xtype: "numberfield",
                     allowDecimals:true,
                     decimalPrecision: 10,
                     width: 70
                 },this.defaultItemsProp[key]),
-                'int': Ext.applyIf({
+                'java.math.BigInteger': Ext.applyIf({
                     xtype: "numberfield",
                     allowDecimals:false,
                     width: 70
                 },this.defaultItemsProp[key]),
-                'integer': Ext.applyIf({
+                'java.lang.Integer': Ext.applyIf({
                     xtype: "numberfield",
                     allowDecimals:false,
                     width: 70
                 },this.defaultItemsProp[key]),
-                'long': Ext.applyIf({
+                'java.lang.Long': Ext.applyIf({
                     xtype: "numberfield",
                     allowDecimals:false,
                     width: 70
                 },this.defaultItemsProp[key]),
-                'short': Ext.applyIf({
+                'java.lang.Short': Ext.applyIf({
                     xtype: "numberfield",
                     allowDecimals:false,
                     width: 70
                 },this.defaultItemsProp[key]),
-                'date': Ext.applyIf({
+                'java.util.Date': Ext.applyIf({
                     xtype: "datefield",
                     width: 80,
                     allowBlank: false,
                     format: this.dateFormat
                 },this.defaultItemsProp[key]),
-                'dateTime': Ext.applyIf({
+                'java.util.Calendar': Ext.applyIf({
                     xtype: "datefield",
                     width: 80,
                     allowBlank: false,
@@ -437,7 +437,7 @@ Ext.define('TolomeoExt.widgets.form.ToloFilterField', {
                 	}
                 	
                     this.filter.property = record.get("name");
-                    this.fieldType = record.get("type").split(":")[1];
+                    this.fieldType = record.get("type");//.split(":")[1];
                     if(!this.comparisonCombo) {
                         this.comparisonCombo = this.items.get(1);
                     }
