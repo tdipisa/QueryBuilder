@@ -32,6 +32,11 @@ Ext.define('TolomeoExt.widgets.form.ToloFilterField', {
      *  ``String`` tooltip for the lower boundary textfield (i18n)
      */
     upperBoundaryTip: "upper boundary",
+    
+    /**
+     * 
+     */
+    invalidRegExText: "Valore del campo non corretto",
      
     /** api: config[caseInsensitiveMatch]
      *  ``Boolean``
@@ -87,25 +92,25 @@ Ext.define('TolomeoExt.widgets.form.ToloFilterField', {
     
     pageSize: 5,
     
-    addValidation: function(config) {
-        //Add VTYPE validation according to validators config
-        var feature = this.attributes.baseParams.TYPENAME.split(":")[1];
-        var fieldName = this.filter.property;
-        if(this.validators && this.validators[feature] && this.validators[feature][fieldName]) {
-            var validator = this.validators[feature][fieldName];
-            // currently we support only regex based validation
-            if(validator.type === 'regex') {
-                var valueTest = new RegExp(validator.value);
-                
-                Ext.apply(config,{
-                    validator: function(value) {
-                        return valueTest.test(value) ? true : validator.invalidText;
-                    }
-                });
-            }
-        }
-        return config;
-    },
+//    addValidation: function(config) {
+//        //Add VTYPE validation according to validators config
+//        var feature = this.attributes.baseParams.TYPENAME.split(":")[1];
+//        var fieldName = this.filter.property;
+//        if(this.validators && this.validators[feature] && this.validators[feature][fieldName]) {
+//            var validator = this.validators[feature][fieldName];
+//            // currently we support only regex based validation
+//            if(validator.type === 'regex') {
+//                var valueTest = new RegExp(validator.value);
+//                
+//                Ext.apply(config,{
+//                    validator: function(value) {
+//                        return valueTest.test(value) ? true : validator.invalidText;
+//                    }
+//                });
+//            }
+//        }
+//        return config;
+//    },
     
     /*addAutocompleteStore: function(config) {
         var uniqueValuesStore = new gxp.data.WPSUniqueValuesStore({
@@ -118,10 +123,21 @@ Ext.define('TolomeoExt.widgets.form.ToloFilterField', {
     },*/
     
     createValueWidget: function(type) {
-        if(this.autoComplete && this.fieldType === 'string') {
+        if(this.autoComplete && this.fieldType === 'java.lang.String') {
             //return Ext.apply({}, this.addAutocompleteStore(this.autoCompleteDefault[type]));
         } else {
-            return Ext.apply({}, this.fieldDefault[type][this.fieldType]);
+        	var config = {};
+        	if(this.fieldRegEx){
+        		var me = this;
+        		var valueTest = new RegExp(this.fieldRegEx);
+        		config = Ext.apply(config, {
+                    validator: function(value) {
+                        return valueTest.test(value) ? true : me.invalidRegExText;
+                    }
+        		});
+        	}
+        	
+            return Ext.apply(config, this.fieldDefault[type][this.fieldType]);
         }
     },
     
@@ -134,10 +150,13 @@ Ext.define('TolomeoExt.widgets.form.ToloFilterField', {
             }
             this.valueWidgets.removeAll();
             if (type === OpenLayers.Filter.Comparison.BETWEEN) {
-                this.valueWidgets.add(this.addValidation(this.createValueWidget('lower')));
-                this.valueWidgets.add(this.addValidation(this.createValueWidget('upper')));
+//                this.valueWidgets.add(this.addValidation(this.createValueWidget('lower')));
+//                this.valueWidgets.add(this.addValidation(this.createValueWidget('upper')));
+                this.valueWidgets.add(this.createValueWidget('lower'));
+                this.valueWidgets.add(this.createValueWidget('upper'));
             } else {
-                this.valueWidgets.add(this.addValidation(this.createValueWidget('single')));
+//                this.valueWidgets.add(this.addValidation(this.createValueWidget('single')));
+                this.valueWidgets.add(this.createValueWidget('single'));
             }
             
             this.doLayout();
@@ -438,6 +457,8 @@ Ext.define('TolomeoExt.widgets.form.ToloFilterField', {
                 	
                     this.filter.property = record.get("name");
                     this.fieldType = record.get("type");//.split(":")[1];
+                    this.fieldRegEx = record.get("regex");
+                    
                     if(!this.comparisonCombo) {
                         this.comparisonCombo = this.items.get(1);
                     }

@@ -52,7 +52,7 @@ Ext.define('TolomeoExt.widgets.ToloAttributeFilter', {
 //            allowGroups: false
 //        });
 		
-		this.attributeFieldSet = Ext.create('Ext.form.FieldSet',{
+		this.attributeFieldSet = Ext.create('Ext.form.FieldSet', {
 			title: 'Filtro Per Attributo',
 			//anchor: "-1",
 			autoWidth: true,
@@ -80,9 +80,9 @@ Ext.define('TolomeoExt.widgets.ToloAttributeFilter', {
 		var filterBuilder = new TolomeoExt.widgets.ToloFilterBuilder({
 //            attributes: schema,
 			 attributes: Ext.create('Ext.data.Store', {
-                baseParams: {
-                   TYPENAME: "topp:states"
-                },
+//                baseParams: {
+//                   TYPENAME: "topp:states"
+//                },
 	   		    fields: [{
 	   		    	name: 'name',
 	   		    	mapping: 'name'

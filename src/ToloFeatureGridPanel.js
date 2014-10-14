@@ -644,7 +644,7 @@ Ext.define('TolomeoExt.ToloFeatureGridPanel', {
 		    // should be used in order to retrieve the 
 		    // available layer list.
 	       	// ////////////////////////////////////////////
-		    data: schema
+		    data: this.schema
 		});
 		
 		config.store = Ext.create('Ext.data.Store', {

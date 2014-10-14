@@ -176,7 +176,7 @@ Ext.define('TolomeoExt.ToloQueryBuilderExt', {
 		// Adding a Filter Builder passing the feature type name
 		
 		var fparams = {
-				codTPN: record.get('codTPN')
+			codTPN: record.get('codTPN')
 		}; 
 		
 		this.qbFeatureManager.getSchema(fparams);
