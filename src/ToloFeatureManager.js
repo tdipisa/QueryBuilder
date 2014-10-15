@@ -14,40 +14,37 @@ Ext.define('TolomeoExt.ToloFeatureManager', {
 	
 	schema: null,
 	
+	maxFeatures: 10,
+	
+	startIndex: 0,
+	
 	constructor: function(config) {
 		this.callParent(arguments);
 		
 		Ext.apply(this, config);
 		
 		this.addEvents(
-			"layerchange"
+			"layerchange",
+			"loadfeaturesfailure",
+			"loadfeatures"
 		);	
 	},
 	
 	getSchema: function(fparams){
-//    	var fparams = this.formPanelSearch.getForm().getValues();
-//    	fparams.format = "ext";
-    	
     	var submitOpt = {
-    		url: this.TOLOMEOServer + this.TOLOMEOContext + '/AjaxQueryBuilderServlet',
+    		url: this.TOLOMEOServer + this.TOLOMEOContext + '/FilterBuilderMetadataServlet',
     		method: 'POST',
     		params: fparams,
     		waitMsg: 'Ricerca in corso...',
-    		success: this.doAjaxCallback,
+    		success: function(results, store){
+    			this.schema = results;
+    			this.fireEvent("layerchange", results, store);
+    		},
     		failure: this.doAjaxFailure,
     		scope: this
     	};
     	
-    	// Submit ajax della form
-//    	this.waitMask = new Ext.LoadMask(this.id, {msg:"Ricerca in corso...."});
-//    	this.waitMask.show();
-    	
 		new TolomeoExt.ToloCrossAjax().request(submitOpt);
-	},
-	
-	doAjaxCallback: function(results, store){
-		this.schema = results;
-		this.fireEvent("layerchange", results, store);
 	},
 	
     /**
@@ -58,7 +55,30 @@ Ext.define('TolomeoExt.ToloFeatureManager', {
      * store - {} store
      */
 	doAjaxFailure: function (store) {
-    	this.waitMask.hide();
+		this.fireEvent("loadfeaturesfailure", store);
+    },
+    
+    loadFeatures: function(fparams){
+    	
+    	fparams = Ext.apply(fparams, {
+    		maxFeatures: this.maxFeatures,
+    		startIndex: this.startIndex
+    	});
+    	
+    	var submitOpt = {
+    		url: this.TOLOMEOServer + this.TOLOMEOContext + '/SearchExportServlet',
+    		method: 'POST',
+    		params: fparams,
+    		waitMsg: 'Ricerca in corso...',
+    		success: function(results, store){
+    			this.schema = results;
+    			this.fireEvent("loadfeatures", results, store);
+    		},
+    		failure: this.doAjaxFailure,
+    		scope: this
+    	};
+    	
+		new TolomeoExt.ToloCrossAjax().request(submitOpt);
     }
 	
 });

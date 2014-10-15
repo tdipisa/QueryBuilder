@@ -91,8 +91,10 @@ import it.prato.comune.utilita.core.type.ProgvalType;
 import it.prato.comune.utilita.core.type.TsType;
 import it.prato.comune.utilita.logging.interfaces.LogInterface;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -116,6 +118,8 @@ import java.util.NoSuchElementException;
 import java.util.Properties;
 import java.util.Set;
 
+import javax.xml.parsers.ParserConfigurationException;
+
 import org.apache.commons.lang.StringUtils;
 import org.geotools.data.DataStore;
 import org.geotools.data.DataUtilities;
@@ -133,6 +137,8 @@ import org.geotools.feature.DefaultFeatureCollection;
 import org.geotools.feature.Schema;
 import org.geotools.feature.simple.SimpleFeatureBuilder;
 import org.geotools.feature.simple.SimpleFeatureTypeBuilder;
+import org.geotools.filter.text.cql2.CQL;
+import org.geotools.filter.text.cql2.CQLException;
 import org.geotools.jdbc.JDBCDataStore;
 import org.geotools.jdbc.JDBCFeatureStore;
 import org.geotools.jdbc.PreparedFilterToSQL;
@@ -140,6 +146,8 @@ import org.geotools.jdbc.PreparedStatementSQLDialect;
 import org.geotools.jdbc.PrimaryKey;
 import org.geotools.jdbc.PrimaryKeyColumn;
 import org.geotools.referencing.CRS;
+import org.geotools.xml.Configuration;
+import org.geotools.xml.Parser;
 import org.opengis.feature.IllegalAttributeException;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
@@ -157,6 +165,7 @@ import org.opengis.filter.spatial.Touches;
 import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.NoSuchAuthorityCodeException;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
+import org.xml.sax.SAXException;
 
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
@@ -2426,7 +2435,70 @@ public abstract class LayerTerritorio implements Layers, IGetFeatureInfoLayer{
         retVal.setResult(retpol);
         return retVal;            
     }
+    
+    /**
+     * @param ogcFilterVersion 
+     * @param inputStream
+     * @param maxFeatures
+     * @param startIndex
+     * @param sortFields
+     * @return ITPaginatedResult
+     * @throws SITException
+     */
+    public SITPaginatedResult searchByFilter(String filterString, String ogcFilterVersion, 
+    		Integer maxFeatures, Integer startIndex, SortItem[] sortFields) throws SITException{
+    	Filter filter = null;
+    	
+    	try{
+    		filter = CQL.toFilter(filterString);
+    	}catch(CQLException e){
+    		logger.warn("Errore durante in parsing the filtro CQL ", e);
+    		
+    		logger.info("Tentativo di parsing filtro XML OGC...");
+    		
+    		InputStream inputStream = new ByteArrayInputStream(filterString.getBytes());
+    		
+    		//
+    		// Check the OGC filter version
+    		//
+    		Configuration configuration = new org.geotools.filter.v1_0.OGCConfiguration();
+    		if(ogcFilterVersion.equalsIgnoreCase("1.0.0")){
+    			// Parse using v1.0.0
+    			configuration = new org.geotools.filter.v1_0.OGCConfiguration();
+    		}else if(ogcFilterVersion.equalsIgnoreCase("1.1.0")){
+    			// Parse using v1.1.0
+    			configuration = new org.geotools.filter.v1_1.OGCConfiguration();
+    		}else{
+    			// Parse using v2.0
+    			configuration = new org.geotools.filter.v2_0.FESConfiguration();
+    		}
+    		
+        	Parser parser = new Parser(configuration);
+        	
+        	try {
+    			filter = (Filter) parser.parse(inputStream);
+    		} catch (IOException exc) {
+    			logger.error("Errore durante in parsing the filtro OGC ", exc);
+    			throw new SITException(exc.getMessage(), exc);
+    		} catch (SAXException exc) {
+    			logger.error("Errore durante in parsing the filtro OGC ", exc);
+    			throw new SITException(e.getMessage(), exc);
+    		} catch (ParserConfigurationException exc) {
+    			logger.error("Errore durante in parsing the filtro OGC ", exc);
+    			throw new SITException(exc.getMessage(), exc);
+    		}
+    		
+    	}
+    	
+    	if(filtroTotale == null) {
+            filtroTotale = this.getFiltroVuoto();
+        }
 
+        filtroTotale.AndFiltroPriv(filter); 
+        SITPaginatedResult result = cercaFiltro(null, maxFeatures, startIndex, sortFields); 
+        
+    	return result;
+    }
 
     
     /**

@@ -115,7 +115,7 @@ import net.sf.json.JSONObject;
  * @author Tobia Di Pisa at <tobia.dipisa@geo-solutions.it>
  * 
  */
-public class AjaxQueryBuilderServlet extends TolomeoServlet {
+public class FilterBuilderMetadataServlet extends TolomeoServlet {
 
 	private static final long serialVersionUID = -7380651195335942052L;
 
@@ -138,7 +138,7 @@ public class AjaxQueryBuilderServlet extends TolomeoServlet {
         // Recupero i parametri
         Integer codTPN     = getCodTPN(request);
         
-        logger.debug("AjaxQueryBuilderServlet codTPN: " + codTPN);
+        logger.debug("FilterBuilderMetadataServlet codTPN: " + codTPN);
         
         SITLayersManager comunePO = null;
         String risposta     = null;

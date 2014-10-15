@@ -88,7 +88,7 @@ Ext.define('TolomeoExt.widgets.form.ToloFilterField', {
      */ 
     uniqueValuesStore : null,
     
-    valid: null,
+//    valid: null,
     
     pageSize: 5,
     
@@ -438,7 +438,7 @@ Ext.define('TolomeoExt.widgets.form.ToloFilterField', {
         var defAttributesComboConfig = {
             xtype: "combo",
             store: attributes,
-            editable: mode == "local",
+            editable: false, //mode == "local",
             typeAhead: true,
             forceSelection: true,
             mode: mode,
@@ -446,7 +446,7 @@ Ext.define('TolomeoExt.widgets.form.ToloFilterField', {
             ref: "property",
             allowBlank: this.allowBlank,
             displayField: "name",
-            valueField: "name",
+            valueField: "dbname",
             value: this.filter.property,
             listeners: {
                 select: function(combo, records) {
@@ -455,7 +455,7 @@ Ext.define('TolomeoExt.widgets.form.ToloFilterField', {
                 		record = records[0];
                 	}
                 	
-                    this.filter.property = record.get("name");
+                    this.filter.property = record.get("dbname");
                     this.fieldType = record.get("type");//.split(":")[1];
                     this.fieldRegEx = record.get("regex");
                     
@@ -479,7 +479,7 @@ Ext.define('TolomeoExt.widgets.form.ToloFilterField', {
                 // workaround for select event not being fired when tab is hit
                 // after field was autocompleted with forceSelection
                 "blur": function(combo) {
-                    var index = combo.store.findExact("name", combo.getValue());
+                    var index = combo.store.findExact("dbname", combo.getValue());
                     if (index != -1) {
                         combo.fireEvent("select", combo, combo.store.getAt(index));
                     } else if (combo.startValue != null) {
@@ -495,6 +495,7 @@ Ext.define('TolomeoExt.widgets.form.ToloFilterField', {
             xtype: "tolomeo_comparisoncombo",
             ref: "type",
             disabled: true,
+            editable: false,
             allowBlank: this.allowBlank,
             value: this.filter.type,
             listeners: {
@@ -537,10 +538,50 @@ Ext.define('TolomeoExt.widgets.form.ToloFilterField', {
 //                        ]);
 //                    }  
 //                },
+//                expand: function(combo) {
+//                    var store = combo.getStore();
+//                    store.clearFilter();
+//                    if(this.fieldType === "date" || this.fieldType === "dateTime" || this.fieldType === "time" || this.fieldType === "int" || this.fieldType === "double" || this.fieldType === "decimal" || this.fieldType === "integer" || this.fieldType === "long" || this.fieldType === "float" || this.fieldType === "short"){
+//                        store.filter([
+//                          {
+//                            fn   : function(record) {
+//                                return (record.get('text') != "like") || (record.get('text') != "ilike");
+//                            },
+//                            scope: this
+//                          }                      
+//                        ]);
+//                    }else if(this.fieldType === "boolean"){
+//                        store.filter([
+//                          {
+//                            fn   : function(record) {
+//                                return (record.get('name') == "=");
+//                            },
+//                            scope: this
+//                          }                      
+//                        ]);
+//                    }else if(this.fieldType === "string"){
+//                        store.filter([
+//                          {
+//                            fn   : function(record) {
+//                            	return (record.get('text') != "between");
+//                            },
+//                            scope: this
+//                          }                      
+//                        ]);
+//                    }  
+//                },
                 expand: function(combo) {
                     var store = combo.getStore();
                     store.clearFilter();
-                    if(this.fieldType === "date" || this.fieldType === "dateTime" || this.fieldType === "time" || this.fieldType === "int" || this.fieldType === "double" || this.fieldType === "decimal" || this.fieldType === "integer" || this.fieldType === "long" || this.fieldType === "float" || this.fieldType === "short"){
+                    if(this.fieldType === "java.util.Date" || 
+                    		this.fieldType === "java.util.Calendar" || 
+                    		this.fieldType === "'java.math.BigInteger" || 
+                    		this.fieldType === "java.lang.Double" || 
+                    		this.fieldType === "java.math.BigDecimal" || 
+                    		this.fieldType === "java.lang.Integer" || 
+                    		this.fieldType === "java.lang.Long" || 
+                    		this.fieldType === "java.lang.Float" || 
+                    		this.fieldType === "java.lang.Short"){
                         store.filter([
                           {
                             fn   : function(record) {
@@ -549,7 +590,7 @@ Ext.define('TolomeoExt.widgets.form.ToloFilterField', {
                             scope: this
                           }                      
                         ]);
-                    }else if(this.fieldType === "boolean"){
+                    }else if(this.fieldType === "java.lang.Boolean"){
                         store.filter([
                           {
                             fn   : function(record) {
@@ -558,7 +599,7 @@ Ext.define('TolomeoExt.widgets.form.ToloFilterField', {
                             scope: this
                           }                      
                         ]);
-                    }else if(this.fieldType === "string"){
+                    }else if(this.fieldType === "java.lang.String"){
                         store.filter([
                           {
                             fn   : function(record) {
@@ -614,22 +655,23 @@ Ext.define('TolomeoExt.widgets.form.ToloFilterField', {
         this.callParent();
     },
 
-    /**
-     * Method: validateValue
-     * Performs validation checks on the filter field.
-     *
-     * Returns:
-     * {Boolean} True if value is valid. 
-     */
-    validateValue: function(value, preventMark) {
-        if (this.filter.type === OpenLayers.Filter.Comparison.BETWEEN) {
-            return (this.filter.property !== null && this.filter.upperBoundary !== null &&
-                this.filter.lowerBoundary !== null);
-        } else {
-            return (this.filter.property !== null &&
-                this.filter.value !== null && this.filter.type !== null);
-        }
-    },
+// NOT NEEDED ???
+//    /**
+//     * Method: validateValue
+//     * Performs validation checks on the filter field.
+//     *
+//     * Returns:
+//     * {Boolean} True if value is valid. 
+//     */
+//    validateValue: function(value, preventMark) {
+//        if (this.filter.type === OpenLayers.Filter.Comparison.BETWEEN) {
+//            return (this.filter.property !== null && this.filter.upperBoundary !== null &&
+//                this.filter.lowerBoundary !== null);
+//        } else {
+//            return (this.filter.property !== null &&
+//                this.filter.value !== null && this.filter.type !== null);
+//        }
+//    },
     
     /**
      * Method: createDefaultFilter
@@ -682,7 +724,7 @@ Ext.define('TolomeoExt.widgets.form.ToloFilterField', {
             this.filter.matchCase = false;
         }else{
             // default matches case. See OpenLayers.Filter.Comparison#matchCase
-            this.filter.matchCase = true;
+            this.filter.matchCase = !this.caseInsensitiveMatch; //true;
         }
     },
 

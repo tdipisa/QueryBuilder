@@ -618,13 +618,21 @@
 		<servlet-class>it.prato.comune.tolomeo.web.toc.export.qgis.ExportToQgisServlet</servlet-class>
 	</servlet>
     <servlet>
-		<servlet-name>AjaxQueryBuilderServlet</servlet-name>
-		<servlet-class>it.prato.comune.tolomeo.web.AjaxQueryBuilderServlet</servlet-class>
+		<servlet-name>FilterBuilderMetadataServlet</servlet-name>
+		<servlet-class>it.prato.comune.tolomeo.web.FilterBuilderMetadataServlet</servlet-class>
 	</servlet>
 	<servlet-mapping>
-        <servlet-name>AjaxQueryBuilderServlet</servlet-name>
-        <url-pattern>/AjaxQueryBuilderServlet</url-pattern>
-    </servlet-mapping>	
+        <servlet-name>FilterBuilderMetadataServlet</servlet-name>
+        <url-pattern>/FilterBuilderMetadataServlet</url-pattern>
+    </servlet-mapping>
+    <servlet>
+		<servlet-name>SearchExportServlet</servlet-name>
+		<servlet-class>it.prato.comune.tolomeo.web.SearchExportServlet</servlet-class>
+	</servlet>
+	<servlet-mapping>
+        <servlet-name>SearchExportServlet</servlet-name>
+        <url-pattern>/SearchExportServlet</url-pattern>
+    </servlet-mapping>		
 	<servlet>
 		<servlet-name>TestQueryBuilderServlet</servlet-name>
 		<servlet-class>it.prato.comune.tolomeo.servizi.querybuilder.TestQueryBuilderServlet</servlet-class>

@@ -35,12 +35,46 @@ Ext.define('TolomeoExt.ToloQueryBuilderExt', {
 	 */
 	TOLOMEOContext: null,
 	
+	/** 
+	 * Property: filterFormat
+	 * {String}
+	 */
+	filterFormat: "OGC",
+	
+	/** 
+	 * Property: ogcFilterVersion
+	 * {String}
+	 */
+	ogcFilterVersion: "1.1.0",
+	
+	/** 
+	 * Property: caseInsensitiveMatch
+	 * {boolean}
+	 */
+	caseInsensitiveMatch: false,
+	
+	/** 
+	 * Property: config
+	 * {Object}
+	 */
 	config: {
 		qbEventManager: null,
 		layerSelector: null,
 		spatialSelector: null,
 		queryfilter: null
 	}, 
+	
+    noFilterSelectedMsgTitle: "Nessun Filtro Selezionato",
+    
+    noFilterSelectedMsgText: "Si deve selezionare almento un filtro.",
+    
+    invalidRegexFieldMsgTitle: "Campi Invalidi",
+    
+    invalidRegexFieldMsgText: "Uno o più campi della form non sono corretti!",
+    
+    notEnabledFieldMsgTitle: "Campi Non Abilitati",
+    
+    notEnabledFieldMsgText: "Non è possibile inviare la richiesta finchè il layer non è stato selezionato.",
 
 	/**
 	 * initComponent: TolomeoExt.ToloQueryBuilderExt
@@ -52,9 +86,7 @@ Ext.define('TolomeoExt.ToloQueryBuilderExt', {
 	initComponent: function(){	
     	// Applico i default
 		TolomeoExt.Vars.ApplyIfDefaults(this);
-		
-		//this.layout = "fit";
-		//this.layout = "border";
+
 		this.autoScroll = true;
 		this.collapsed = false;
     	
@@ -66,10 +98,16 @@ Ext.define('TolomeoExt.ToloQueryBuilderExt', {
 			listeners:{
 				scope: this,
 				layerchange: function(results, store){
+					this.waitMask.hide();
 					this.queryfilter.addFilterBuilder(results, store);
-				}				
+				},
+				loadfeatures: function(){
+					this.waitMask.hide();
+				},
+				loadfeaturesfailure: function(){
+					this.waitMask.hide();
+				}
 			}
-			
 		});
 		
 		// /////////////////////
@@ -99,8 +137,6 @@ Ext.define('TolomeoExt.ToloQueryBuilderExt', {
 					// /////////////////////////////////////////////////
 					this.spatialSelector.enable();
 					this.enableAttributeFilter(records[0]);
-					
-//					this.queryfilter.enable();
 				}				
 			}
 		});
@@ -118,7 +154,8 @@ Ext.define('TolomeoExt.ToloQueryBuilderExt', {
 		// /////////////////////
 		this.queryfilter = Ext.create('TolomeoExt.widgets.ToloAttributeFilter', {
 			scroll: true,
-			disabled: true
+			disabled: true,
+			caseInsensitiveMatch: this.caseInsensitiveMatch
 		});
 			
 		this.bbar = ["->", {
@@ -129,35 +166,105 @@ Ext.define('TolomeoExt.ToloQueryBuilderExt', {
             	this.spatialSelector.reset();
             	var spatialMethodCombo = this.spatialSelector.getSelectionMethodCombo();
             	spatialMethodCombo.reset();
+            	this.queryfilter.filterBuilder.removeAllConditions();
             }
         }, {
             text: "Cerca",
             //iconCls: "gxp-icon-find",
             handler: function() {
-            	var filters = [];
-            	
-            	var attributeFilter = this.queryfilter.filterBuilder.getFilter();
-            	if(attributeFilter){
-            		filters.push(attributeFilter);	
+            	if(!this.queryfilter.disabled && !this.spatialSelector.disabled){
+            		
+            		// ////////////////////////////////////////////////
+                    // Check if there are some invalid field according 
+            		// to validators regex config
+                    // ////////////////////////////////////////////////
+            		var filterFieldItem = this.query('tolomeo_tolofilterfield');
+                    var invalidItems = 0;
+
+                    for(var x = 0; x<filterFieldItem.length; x++){
+                    	var valueWidgets = filterFieldItem[x].valueWidgets.items.items;
+                    	for(var y=0; y<valueWidgets.length; y++){
+                    		var validateItem = valueWidgets[y];
+                            if(!validateItem.isValid(true)){
+                                invalidItems++;
+                            }
+                    	}
+                    }  
+                    
+                    if(invalidItems == 0){                    	
+                    	var filters = [];
+                    	
+                    	// ///////////////////////
+                    	// Compose the Filter
+                    	// ///////////////////////
+                    	var attributeFilter = this.queryfilter.filterBuilder.getFilter();
+                    	if(attributeFilter){
+                    		filters.push(attributeFilter);	
+                    	}
+                    	
+                        var spatialFilter = this.spatialSelector.getQueryFilter();   
+                        if (spatialFilter) {
+                        	filters.push(spatialFilter);
+                        }
+        					
+                        if(filters.length > 0){
+            				var filter = filters.length > 1 ?
+                                new OpenLayers.Filter.Logical({
+                                    type: OpenLayers.Filter.Logical.AND,
+                                    filters: filters
+                                }) :
+                                filters[0];   
+                            
+                            var serialized_filter = "";
+                            if(this.filterFormat == "OGC"){
+                                node = new OpenLayers.Format.Filter({version: this.ogcFilterVersion}).write(filter);
+                                serialized_filter = new OpenLayers.Format.XML().write(node);
+                            }else{
+                            	serialized_filter = filter.toString();
+                            }
+
+                            var fparams = {
+                				codTPN: this.codTPN,
+                				SRID: this.paramsJS.mappe.SRID,
+                				filter: serialized_filter,
+                				ogcFilterVersion: this.ogcFilterVersion,
+                				format: "ext"
+                			}; 
+                    		
+                    		this.waitMask.show();
+                            this.qbFeatureManager.loadFeatures(fparams);
+                            
+                        }else{
+                            Ext.Msg.show({
+                                title: this.noFilterSelectedMsgTitle,
+                                msg: this.noFilterSelectedMsgText,
+                                buttons: Ext.Msg.OK,
+                                icon: Ext.MessageBox.ERROR
+                            }); 
+                        }
+                    }else{
+                        Ext.Msg.show({
+                            title: this.invalidRegexFieldMsgTitle,
+                            msg: this.invalidRegexFieldMsgText,
+                            buttons: Ext.Msg.OK,
+                            icon: Ext.MessageBox.ERROR
+                        });
+                    }
+                    
+            	}else {
+                    Ext.Msg.show({
+                        title: this.notEnabledFieldMsgTitle,
+                        msg: this.notEnabledFieldMsgText,
+                        buttons: Ext.Msg.OK,
+                        icon: Ext.MessageBox.ERROR
+                    });
             	}
             	
-                var spatialFilter = this.spatialSelector.getQueryFilter();   
-                if (spatialFilter) {
-                	filters.push(spatialFilter);
-                }
-					
-				var filter = filters.length > 1 ?
-                    new OpenLayers.Filter.Logical({
-                        type: OpenLayers.Filter.Logical.AND,
-                        filters: filters
-                    }) :
-                    filters[0];                
-                
             },
             scope: this
         }];
 		
-		//TolomeoExt.ToloQueryBuilderExt.superclass.initComponent.call(this);
+//		TolomeoExt.ToloQueryBuilderExt.superclass.initComponent.call(this);
 		this.callParent();
 	
 		this.add([this.layerSelector, this.spatialSelector, this.queryfilter]);
@@ -170,18 +277,24 @@ Ext.define('TolomeoExt.ToloQueryBuilderExt', {
 		if(layers.length < 1){
 			this.disabled = true;
 		}
+		
+		this.on("afterrender", function(){
+			this.waitMask = new Ext.LoadMask(this.id, {msg: "Ricerca in corso...."});
+		}, this);
+		
 	},
 	
 	enableAttributeFilter: function(record){
 		// Adding a Filter Builder passing the feature type name
+		this.codTPN = record.get('codTPN');
 		
 		var fparams = {
-			codTPN: record.get('codTPN')
+			codTPN: this.codTPN
 		}; 
 		
-		this.qbFeatureManager.getSchema(fparams);
-//		this.queryfilter.addFilterBuilder(record.getValue());
-//		this.queryfilter.enable();
+    	// Submit ajax della form
+    	this.waitMask.show();
+    	this.qbFeatureManager.getSchema(fparams);
 	}
     
 });

@@ -462,6 +462,15 @@ Ext.define('TolomeoExt.widgets.ToloFilterBuilder', {
 		this.fireEvent("change", this);
     },
     
+    removeAllConditions: function(){
+    	var containers = this.query("container[name=filtercondition_container]");
+    	for(var i=0; i<containers.length; i++){
+    		var container = containers[i];
+    		var filter = container.items.items[1].filter;
+    		this.removeCondition(container, filter);
+    	}    	
+    },
+    
     createBuilderTypeCombo: function() {
         var types = this.allowedBuilderTypes || [
             TolomeoExt.widgets.ToloFilterBuilder.ANY_OF, 
@@ -555,6 +564,7 @@ Ext.define('TolomeoExt.widgets.ToloFilterBuilder', {
                 validators: this.validators,
                 autoComplete: this.autoComplete,
                 autoCompleteCfg: this.autoCompleteCfg,
+                caseInsensitiveMatch: this.caseInsensitiveMatch,
                 listeners: {
                     change: function() {
                         this.fireEvent("change", this);
@@ -576,6 +586,7 @@ Ext.define('TolomeoExt.widgets.ToloFilterBuilder', {
                 
             this.childFilterContainer.add(this.newRow(containerCfg));
         }
+        
         return this.childFilterContainer;
     },
 
@@ -590,6 +601,7 @@ Ext.define('TolomeoExt.widgets.ToloFilterBuilder', {
     newRow: function(filterContainer) {
         var ct = Ext.create('Ext.Container', {
             layout: "column",
+            name: "filtercondition_container",
             items: [
                 {
 	                xtype: "container",
@@ -643,6 +655,7 @@ Ext.define('TolomeoExt.widgets.ToloFilterBuilder', {
                 }
             }
         }
+        
         return type;
     },
 

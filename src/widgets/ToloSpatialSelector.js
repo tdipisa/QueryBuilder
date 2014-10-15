@@ -42,7 +42,7 @@ Ext.define('TolomeoExt.widgets.ToloSpatialSelector', {
      * ``String``
      * Property name to prepate the filter.
      */
-	filterGeometryName: null,
+	filterGeometryName: "the_geom",
 
 	/** i18n **/
 

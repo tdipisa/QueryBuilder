@@ -12,6 +12,8 @@ Ext.ns('TolomeoExt.widgets');
 Ext.define('TolomeoExt.widgets.ToloAttributeFilter', {
 
 	extend: 'Ext.Panel',
+	
+	caseInsensitiveMatch: false,
 
 	/**
 	 * initComponent: TolomeoExt.widgets.ToloQueryBuilderExt
@@ -77,8 +79,9 @@ Ext.define('TolomeoExt.widgets.ToloAttributeFilter', {
     addFilterBuilder: function(results, store){
     	var schema = results;
     	
-		var filterBuilder = new TolomeoExt.widgets.ToloFilterBuilder({
+		this.filterBuilder = new TolomeoExt.widgets.ToloFilterBuilder({
 //            attributes: schema,
+			 caseInsensitiveMatch: this.caseInsensitiveMatch,
 			 attributes: Ext.create('Ext.data.Store', {
 //                baseParams: {
 //                   TYPENAME: "topp:states"
@@ -105,7 +108,7 @@ Ext.define('TolomeoExt.widgets.ToloAttributeFilter', {
             allowGroups: false
         });
 		
-		this.attributeFieldSet.add(filterBuilder);
+		this.attributeFieldSet.add(this.filterBuilder);
 		
 		this.enable();
     }
