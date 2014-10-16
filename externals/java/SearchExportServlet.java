@@ -73,24 +73,27 @@
 
 package it.prato.comune.tolomeo.web;
 
-import it.prato.comune.sit.JSGeometry;
-import it.prato.comune.sit.JSGeometryArrayList;
 import it.prato.comune.sit.LayerTerritorio;
+import it.prato.comune.sit.OggettoTerritorio;
 import it.prato.comune.sit.SITException;
-import it.prato.comune.sit.SITExtStore;
 import it.prato.comune.sit.SITLayersManager;
 import it.prato.comune.sit.SITPaginatedResult;
 import it.prato.comune.tolomeo.utility.ExtStoreError;
 import it.prato.comune.utilita.logging.interfaces.LogInterface;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.io.InputStream;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
+import net.sf.json.JSONArray;
+import net.sf.json.JSONObject;
 
 
 /**
@@ -139,7 +142,6 @@ public class SearchExportServlet extends TolomeoServlet {
         String srid       = request.getParameter("SRID");
         String filter     = request.getParameter("filter");
         String ogcFilterVersion     = request.getParameter("ogcFilterVersion");
-//        String filterType = request.getParameter("filterType");
         
         Integer maxFeatures = Integer.parseInt(request.getParameter("maxFeatures"));
         Integer startIndex = Integer.parseInt(request.getParameter("startIndex"));
@@ -159,15 +161,46 @@ public class SearchExportServlet extends TolomeoServlet {
 	        LayerTerritorio layer = comunePO.getLayerByCodTPN(codTPN);
 	        
 	        if (layer != null) {
-//	        	InputStream inputStream = new ByteArrayInputStream(filter.getBytes());
-	        	
 	        	try {
-	        		if((format!=null) && (format.equals("ext"))){
+	        		if((format!=null) && (format.equals("ext"))){	        			
 	        			SITPaginatedResult pagRes = layer.searchByFilter(filter, ogcFilterVersion, maxFeatures, startIndex, null);
 	        			
+	        			List<?> pagResList = pagRes.getResult();
+	        			
+	        			JSONObject obj = new JSONObject();
+	        			obj.put("success", "true");
+	        			obj.put("total", pagRes.getTotalCount());
+	        			
+	        			JSONArray jsonArray = new JSONArray();
+	        			
+	        			Iterator<?> iterator = pagResList.iterator();
+	        			while(iterator.hasNext()){
+	        				OggettoTerritorio ogg = (OggettoTerritorio)iterator.next();
+	        				
+	        				Map<String, String> attributes = layer.getNomiCampi();
+	        				Set<String> attributesKeys = attributes.keySet();
+	        				
+	        				Iterator<String> keysIterator = attributesKeys.iterator();	   
+	        				JSONObject attrObj = new JSONObject();
+	        				while(keysIterator.hasNext()){
+	        					String key = (String) keysIterator.next();
+	        					
+	        					Object attributeValue = ogg.getAttributeByNL(key);
+	        					
+	        					if(!attributes.get(key).contains("FID")){
+	        						attrObj.put(attributes.get(key), attributeValue);
+	        					}
+	        				}
+	        				
+	        				jsonArray.add(attrObj);
+	        			}
+	        			
+	        			obj.put("rows", jsonArray);
+	        			
+	        			resp = obj.toString();
+	        			
 		                // Formato di output per componente ExtJS che supporta la paginazione
-	                	resp = SITExtStore.extStoreFromSITPaginatedResul(pagRes, true, srid, null, logger).toString();
-
+//	                	resp = SITExtStore.extStoreFromSITPaginatedResul(pagRes, true, srid, null, logger).toString();
 	        		}else if((format!=null) && (format.equals("shp"))){
 	        			//TODO 
 	        		}else if((format!=null) && (format.equals("spatialite"))){

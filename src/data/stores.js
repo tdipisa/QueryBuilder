@@ -5,36 +5,36 @@
 // //////////////////////////////////////////////////////////////////// //
 // General Schema for selected data (FeatureGrid, AttriburteFilter ...) //
 // //////////////////////////////////////////////////////////////////// //
-//var schema = [
-//       {
-//          name:"NOME STATO_string",
-//          dbname:"STATE_NAME",
-//          type:"java.lang.String",
-//          restriction:"undefined",
-//          regex:"^([a-zA-Z0-9_\\.\\-])+\\@(([a-zA-Z0-9\\-])+\\.)+([a-zA-Z0-9]{2,4})+$"
-//       },
-//       {
-//          name:"NOME ABBREVIATO_date",
-//          dbname:"STATE_ABBR",
-//          type:"java.util.Date",
-//          restriction:"undefined",
-//          regex:"^([a-zA-Z0-9_\\.\\-])+\\@(([a-zA-Z0-9\\-])+\\.)+([a-zA-Z0-9]{2,4})+$"
-//       },
-//       {
-//           name:"NOME ABBREVIATO_integer",
-//           dbname:"STATE_ABBR",
-//           type:"java.lang.Integer",
-//           restriction:"undefined",
-//           regex:"^([a-zA-Z0-9_\\.\\-])+\\@(([a-zA-Z0-9\\-])+\\.)+([a-zA-Z0-9]{2,4})+$"
-//       },
-//       {
-//            name:"NOME ABBREVIATO_double",
-//            dbname:"STATE_ABBR",
-//            type:"java.lang.Float",
-//            restriction:"undefined",
-//            regex:"^([a-zA-Z0-9_\\.\\-])+\\@(([a-zA-Z0-9\\-])+\\.)+([a-zA-Z0-9]{2,4})+$"
-//       }
-//];
+var schema = [
+       {
+          name:"NOME STATO_string",
+          dbname:"STATE_NAME",
+          type:"java.lang.String",
+          restriction:"undefined",
+          regex:"^([a-zA-Z0-9_\\.\\-])+\\@(([a-zA-Z0-9\\-])+\\.)+([a-zA-Z0-9]{2,4})+$"
+       },
+       {
+          name:"NOME ABBREVIATO_date",
+          dbname:"STATE_ABBR",
+          type:"java.util.Date",
+          restriction:"undefined",
+          regex:"^([a-zA-Z0-9_\\.\\-])+\\@(([a-zA-Z0-9\\-])+\\.)+([a-zA-Z0-9]{2,4})+$"
+       },
+       {
+           name:"NOME ABBREVIATO_integer",
+           dbname:"STATE_ABBR",
+           type:"java.lang.Integer",
+           restriction:"undefined",
+           regex:"^([a-zA-Z0-9_\\.\\-])+\\@(([a-zA-Z0-9\\-])+\\.)+([a-zA-Z0-9]{2,4})+$"
+       },
+       {
+            name:"NOME ABBREVIATO_double",
+            dbname:"STATE_ABBR",
+            type:"java.lang.Float",
+            restriction:"undefined",
+            regex:"^([a-zA-Z0-9_\\.\\-])+\\@(([a-zA-Z0-9\\-])+\\.)+([a-zA-Z0-9]{2,4})+$"
+       }
+];
 
 // ///////////// //
 // LayerSelector //

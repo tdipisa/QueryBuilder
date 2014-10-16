@@ -123,6 +123,13 @@ Ext.define('TolomeoExt.ToloPanelInter', {
 	withQueryPanel : true,	
 	
 	/** 
+	 * Property: withQueryBuilderPanel
+	 * {Boolean}
+	 * 
+	 */
+	withQueryBuilderPanel: false,
+	
+	/** 
 	 * Property: initComponent
 	 * 
 	 */
@@ -193,7 +200,8 @@ Ext.define('TolomeoExt.ToloPanelInter', {
 				});
 			}
 			
-			var items = [this.ricercaPanel, this.queryBuilderPanel]
+			var items = [this.ricercaPanel]
+			if (this.withQueryBuilderPanel) items.push(this.queryBuilderPanel);
 			if (this.withLegendaPanel) items.push(this.legendaPanel);
 			if (this.withDataPanel)    items.push(this.dataPanel);
 			
@@ -224,22 +232,25 @@ Ext.define('TolomeoExt.ToloPanelInter', {
 			this.toolsPanel = Ext.create('Ext.Panel',this.toolsPanelOpt);
 			this.add(this.toolsPanel);
 			
-			// /////////////////////////
-			// Feature Grid Panel
-			// /////////////////////////
-		    var fgItems = [this.featureGridPanel];
-			
-			var fgConfig = {
-				region: 'south',
-				height: 300,
-				minHeight: 200,
-				maxHeight: 400,
-				collapsible: true,
-				items: fgItems
+			if (this.withQueryBuilderPanel){
+				// /////////////////////////
+				// Feature Grid Panel
+				// /////////////////////////
+			    var fgItems = [this.featureGridPanel];
+				
+				var fgConfig = {
+					region: 'south',
+					height: 300,
+					minHeight: 200,
+					maxHeight: 400,
+					collapsible: true,
+					collapsed: true,
+					items: fgItems
+				}
+				
+				this.featureGridContainer = Ext.create('Ext.Panel', fgConfig);
+				this.add(this.featureGridContainer);
 			}
-			
-			this.featureGridContainer = Ext.create('Ext.Panel', fgConfig);
-			this.add(this.featureGridContainer);
 		}
 		
 		this.add(this.mapPanel);

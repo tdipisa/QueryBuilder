@@ -18,6 +18,8 @@ Ext.define('TolomeoExt.ToloFeatureGridPanel', {
 
 	/** api: ptype = tolomeo_featurecomponent */
 	alias: "widget.tolomeo_featurecomponent",
+	
+	id: "tolomeo_featuregrid",
 
 	/** 
 	 * Property: paramsJS
@@ -37,255 +39,258 @@ Ext.define('TolomeoExt.ToloFeatureGridPanel', {
 	 */
 	TOLOMEOContext: null,
 
-	/** private: property[schema]
-	 *  ``GeoExt.data.AttributeStore``
+	/** 
+	 * private: property[schema]
+	 * {JSONObject}
 	 */
 	schema: null,
 
-	/** api: config[showTotalResults]
-	 *  ``Boolean`` If set to true, the total number of records will be shown
-	 *  in the bottom toolbar of the grid, if available.
-	 */
-	showTotalResults: false,
-
-	/** api: config[alwaysDisplayOnMap]
-	 *  ``Boolean`` If set to true, the features that are shown in the grid
-	 *  will always be displayed on the map, and there will be no "Display on
-	 *  map" button in the toolbar. Default is false. If set to true, no
-	 *  "Display on map" button will be shown.
-	 */
-	alwaysDisplayOnMap: false,
-
-	/** api: config[showExportCSV]
-	 *  ``Boolean`` If set to true, show CSV export bottons.
-	 *  Deprecated. Use exportFormats = ["CSV"]
-	 */
-	showExportCSV: false,
-
-	/** api: config[exportFormats]
-	 *  ``Array`` With the extra formats to download.
-	 *  For example: "CSV","shape-zip","excel", "excel2007"
-	 */
-	exportFormats: null,
-
-	/** api: config[exportFormatsConfig]
-	 *  ``Object`` With specific configuration by export format.
-	 *  Allowed configurations are: <ul>
-	 *     <li>`addGeometry`: to append the geometry to the `propertyName` url parameter</li>
-	 *     <li>`exportAll`: to not include `propertyName` url parameter and export all layer data</li>
-	 *  </ul>
-	 *  The default one include a valid configuration for shp-zip export
-	 */
-	exportFormatsConfig:{
-		"shape-zip": {
-			addGeometry: true
-		}
-	},
-
-	/** api: config[exportAction]
-	 *  ``String`` Export action type. 
-	 *  It can be `button` (append one button for each export format) 
-	 *  or `window` (append only one button `Export` and show options in a new window).
-	 *  Default is `window`.
-	 */
-	exportAction: "window",
-
-	/** api: config[displayMode]
-	 *  ``String`` Should we display all features on the map, or only the ones
-	 *  that are currently selected on the grid. Valid values are "all" and
-	 *  "selected". Default is "all".
-	 */
-	displayMode: "all",
-
-	/** api: config[autoExpand]
-	 *  ``Boolean`` If set to true, and when this tool's output is added to a
-	 *  container that can be expanded, it will be expanded when features are
-	 *  loaded. Default is false.
-	 */
-	autoExpand: false,
-
-	/** api: config[autoCollapse]
-	 *  ``Boolean`` If set to true, and when this tool's output is added to a
-	 *  container that can be collapsed, it will be collapsed when no features
-	 *  are to be displayed. Default is false.
-	 */
-	autoCollapse: false,
-
-	/** api: config[selectOnMap]
-	 *  ``Boolean`` If set to true, features can not only be selected on the
-	 *  grid, but also on the map, and multi-selection will be enabled. Only
-	 *  set to true when no feature editor or feature info tool is used with
-	 *  the underlying feature manager. Default is false.
-	 */
-	selectOnMap: false,
-
-	/** api: config[comboFormatTpl]
-	 *  ``String`` Tpl for the export combo in the export window.
-	 */
-	comboFormatTpl: "<tpl for=\".\"><div class=\"x-combo-list-item gxp-icon-featuregrid-export {iconCls}\">{name}</div></tpl>",
-
-	/** api: config[displayFeatureText]
-	 * ``String``
-	 * Text for feature display button (i18n).
-	 */
-	displayFeatureText: "Display on map",
-
-	/** api: config[displayExportCSVText]
-	 * ``String``
-	 * Text for CSV Export buttons (i18n).
-	 */
-	displayExportCSVText: "Export to CSV",
-
-	/** api: config[displayExportText]
-	 * ``String``
-	 * Text for Export buttons (i18n).
-	 */
-	displayExportText: "Export to {0}",
-
-	/** api: config[exportCSVSingleText]
-	 * ``String``
-	 * Text for CSV Export Single Page button (i18n).
-	 */
-	exportCSVSingleText: "Single Page",
-
-	/** api: config[exportCSVMultipleText]
-	 * ``String``
-	 * Text for CSV Export Multiple Pages button (i18n).
-	 */
-	exportCSVMultipleText: "Whole Page",       
-
-	/** api: config[failedExportCSV]
-	 * ``String``
-	 * Text for CSV Export error (i18n).
-	 */
-	failedExportCSV: "Failed to find response for output format CSV",       
-
-	/** api: config[failedExport]
-	 * ``String``
-	 * Text for Export error (i18n).
-	 */
-	failedExport: "Failed to find response for output format {0}",
-
-	/** api: config[nvalidParameterValueErrorText]
-	 * ``String``
-	 * Text for CSV Export error (i18n).
-	 */
-	invalidParameterValueErrorText: "Invalid Parameter Value",    
-
-	/** api: config[zoomFirstPageTip]
-	 *  ``String``
-	 *  Tooltip string for first page action (i18n).
-	 */
-	firstPageTip: "First page",
-
-	/** api: config[previousPageTip]
-	 *  ``String``
-	 *  Tooltip string for previous page action (i18n).
-	 */
-	previousPageTip: "Previous page",
-
-	/** api: config[zoomFirstPageTip]
-	 *  ``String``
-	 *  Tooltip string for zoom to page extent action (i18n).
-	 */
-	zoomPageExtentTip: "Zoom to page extent",
-
-	/** api: config[nextPageTip]
-	 *  ``String``
-	 *  Tooltip string for next page action (i18n).
-	 */
-	nextPageTip: "Next page",
-
-	/** api: config[lastPageTip]
-	 *  ``String``
-	 *  Tooltip string for last page action (i18n).
-	 */
-	lastPageTip: "Last page",
-
-	/** api: config[totalMsg]
-	 *  ``String``
-	 *  String template for showing total number of records (i18n).
-	 */
-	totalMsg: "Total: {0} records",
-
-	/** api: config[comboFormatMethodLabel]
-	 *  ``String``
-	 *  String for the export format label (i18n).
-	 */
-	comboFormatMethodLabel: "Format",
-
-	/** api: config[comboFormatEmptyText]
-	 *  ``String``
-	 *  String for the export format empty combo (i18n).
-	 */
-	comboFormatEmptyText: "Please, select format",
-
-	/** api: config[noFormatTitleText]
-	 *  ``String``
-	 *  SString for the unselected format title (i18n).
-	 */
-	noFormatTitleText: "Incorrect format",
-
-	/** api: config[noFormatBodyText]
-	 *  ``String``
-	 *  String for the unselected format body (i18n).
-	 */
-	noFormatBodyText: "Please, select a valid format",
-
-	/** api: config[exportTitleText]
-	 *  ``String``
-	 *  String for the Export button i18n).
-	 */
-	exportTitleText: "Export",
-
-	/** api: config[title]
-	 *  ``String``
-	 *  Feature Grid title.
-	 */
-	title: "Features",
-
-	/** api: config[defaultComboFormatValue]
-	 *  ``String``
-	 *  Default output format selection for export. Default is 'CSV'
-	 */
-	defaultComboFormatValue: "CSV",
-
-	/** api: config[zoomToFeature]
-	 *  ``String``
-	 */
-	zoomToFeature: "Zoom To Feature",
-
-	/** api: config[exportDoubleCheck]
-	 *  ``Boolean``
-	 *  Do check on feature grid export (one to show a possible error and another one to download the file)
-	 */
-	exportDoubleCheck: true,
-
-	/** api: config[exportCheckLimit]
-	 *  ``integer``
-	 *  if present, limit the number of feature to query for the first check
-	 */
-	exportCheckLimit: null,
-
-	/** api: config[pageLabel]
-	 *  ``String``
-	 */
-	pageLabel: "Page",
-
-	/** api: config[pageOfLabel]
-	 *  ``String``
-	 */
-	pageOfLabel: "of",	
-
-	/** api: config[totalRecordsLabel]
-	 *  ``String``
-	 */
-	totalRecordsLabel: "Total Records",
-
-	/** api: config[filterPropertyNames]
-	 *  ``Boolean``
-	 */
-	filterPropertyNames: true,
+	qbFeatureManager: null,
+	
+//	/** api: config[showTotalResults]
+//	 *  ``Boolean`` If set to true, the total number of records will be shown
+//	 *  in the bottom toolbar of the grid, if available.
+//	 */
+//	showTotalResults: false,
+//
+//	/** api: config[alwaysDisplayOnMap]
+//	 *  ``Boolean`` If set to true, the features that are shown in the grid
+//	 *  will always be displayed on the map, and there will be no "Display on
+//	 *  map" button in the toolbar. Default is false. If set to true, no
+//	 *  "Display on map" button will be shown.
+//	 */
+//	alwaysDisplayOnMap: false,
+//
+//	/** api: config[showExportCSV]
+//	 *  ``Boolean`` If set to true, show CSV export bottons.
+//	 *  Deprecated. Use exportFormats = ["CSV"]
+//	 */
+//	showExportCSV: false,
+//
+//	/** api: config[exportFormats]
+//	 *  ``Array`` With the extra formats to download.
+//	 *  For example: "CSV","shape-zip","excel", "excel2007"
+//	 */
+//	exportFormats: null,
+//
+//	/** api: config[exportFormatsConfig]
+//	 *  ``Object`` With specific configuration by export format.
+//	 *  Allowed configurations are: <ul>
+//	 *     <li>`addGeometry`: to append the geometry to the `propertyName` url parameter</li>
+//	 *     <li>`exportAll`: to not include `propertyName` url parameter and export all layer data</li>
+//	 *  </ul>
+//	 *  The default one include a valid configuration for shp-zip export
+//	 */
+//	exportFormatsConfig:{
+//		"shape-zip": {
+//			addGeometry: true
+//		}
+//	},
+//
+//	/** api: config[exportAction]
+//	 *  ``String`` Export action type. 
+//	 *  It can be `button` (append one button for each export format) 
+//	 *  or `window` (append only one button `Export` and show options in a new window).
+//	 *  Default is `window`.
+//	 */
+//	exportAction: "window",
+//
+//	/** api: config[displayMode]
+//	 *  ``String`` Should we display all features on the map, or only the ones
+//	 *  that are currently selected on the grid. Valid values are "all" and
+//	 *  "selected". Default is "all".
+//	 */
+//	displayMode: "all",
+//
+//	/** api: config[autoExpand]
+//	 *  ``Boolean`` If set to true, and when this tool's output is added to a
+//	 *  container that can be expanded, it will be expanded when features are
+//	 *  loaded. Default is false.
+//	 */
+//	autoExpand: false,
+//
+//	/** api: config[autoCollapse]
+//	 *  ``Boolean`` If set to true, and when this tool's output is added to a
+//	 *  container that can be collapsed, it will be collapsed when no features
+//	 *  are to be displayed. Default is false.
+//	 */
+//	autoCollapse: false,
+//
+//	/** api: config[selectOnMap]
+//	 *  ``Boolean`` If set to true, features can not only be selected on the
+//	 *  grid, but also on the map, and multi-selection will be enabled. Only
+//	 *  set to true when no feature editor or feature info tool is used with
+//	 *  the underlying feature manager. Default is false.
+//	 */
+//	selectOnMap: false,
+//
+//	/** api: config[comboFormatTpl]
+//	 *  ``String`` Tpl for the export combo in the export window.
+//	 */
+//	comboFormatTpl: "<tpl for=\".\"><div class=\"x-combo-list-item gxp-icon-featuregrid-export {iconCls}\">{name}</div></tpl>",
+//
+//	/** api: config[displayFeatureText]
+//	 * ``String``
+//	 * Text for feature display button (i18n).
+//	 */
+//	displayFeatureText: "Display on map",
+//
+//	/** api: config[displayExportCSVText]
+//	 * ``String``
+//	 * Text for CSV Export buttons (i18n).
+//	 */
+//	displayExportCSVText: "Export to CSV",
+//
+//	/** api: config[displayExportText]
+//	 * ``String``
+//	 * Text for Export buttons (i18n).
+//	 */
+//	displayExportText: "Export to {0}",
+//
+//	/** api: config[exportCSVSingleText]
+//	 * ``String``
+//	 * Text for CSV Export Single Page button (i18n).
+//	 */
+//	exportCSVSingleText: "Single Page",
+//
+//	/** api: config[exportCSVMultipleText]
+//	 * ``String``
+//	 * Text for CSV Export Multiple Pages button (i18n).
+//	 */
+//	exportCSVMultipleText: "Whole Page",       
+//
+//	/** api: config[failedExportCSV]
+//	 * ``String``
+//	 * Text for CSV Export error (i18n).
+//	 */
+//	failedExportCSV: "Failed to find response for output format CSV",       
+//
+//	/** api: config[failedExport]
+//	 * ``String``
+//	 * Text for Export error (i18n).
+//	 */
+//	failedExport: "Failed to find response for output format {0}",
+//
+//	/** api: config[nvalidParameterValueErrorText]
+//	 * ``String``
+//	 * Text for CSV Export error (i18n).
+//	 */
+//	invalidParameterValueErrorText: "Invalid Parameter Value",    
+//
+//	/** api: config[zoomFirstPageTip]
+//	 *  ``String``
+//	 *  Tooltip string for first page action (i18n).
+//	 */
+//	firstPageTip: "First page",
+//
+//	/** api: config[previousPageTip]
+//	 *  ``String``
+//	 *  Tooltip string for previous page action (i18n).
+//	 */
+//	previousPageTip: "Previous page",
+//
+//	/** api: config[zoomFirstPageTip]
+//	 *  ``String``
+//	 *  Tooltip string for zoom to page extent action (i18n).
+//	 */
+//	zoomPageExtentTip: "Zoom to page extent",
+//
+//	/** api: config[nextPageTip]
+//	 *  ``String``
+//	 *  Tooltip string for next page action (i18n).
+//	 */
+//	nextPageTip: "Next page",
+//
+//	/** api: config[lastPageTip]
+//	 *  ``String``
+//	 *  Tooltip string for last page action (i18n).
+//	 */
+//	lastPageTip: "Last page",
+//
+//	/** api: config[totalMsg]
+//	 *  ``String``
+//	 *  String template for showing total number of records (i18n).
+//	 */
+//	totalMsg: "Total: {0} records",
+//
+//	/** api: config[comboFormatMethodLabel]
+//	 *  ``String``
+//	 *  String for the export format label (i18n).
+//	 */
+//	comboFormatMethodLabel: "Format",
+//
+//	/** api: config[comboFormatEmptyText]
+//	 *  ``String``
+//	 *  String for the export format empty combo (i18n).
+//	 */
+//	comboFormatEmptyText: "Please, select format",
+//
+//	/** api: config[noFormatTitleText]
+//	 *  ``String``
+//	 *  SString for the unselected format title (i18n).
+//	 */
+//	noFormatTitleText: "Incorrect format",
+//
+//	/** api: config[noFormatBodyText]
+//	 *  ``String``
+//	 *  String for the unselected format body (i18n).
+//	 */
+//	noFormatBodyText: "Please, select a valid format",
+//
+//	/** api: config[exportTitleText]
+//	 *  ``String``
+//	 *  String for the Export button i18n).
+//	 */
+//	exportTitleText: "Export",
+//
+//	/** api: config[title]
+//	 *  ``String``
+//	 *  Feature Grid title.
+//	 */
+//	title: "Features",
+//
+//	/** api: config[defaultComboFormatValue]
+//	 *  ``String``
+//	 *  Default output format selection for export. Default is 'CSV'
+//	 */
+//	defaultComboFormatValue: "CSV",
+//
+//	/** api: config[zoomToFeature]
+//	 *  ``String``
+//	 */
+//	zoomToFeature: "Zoom To Feature",
+//
+//	/** api: config[exportDoubleCheck]
+//	 *  ``Boolean``
+//	 *  Do check on feature grid export (one to show a possible error and another one to download the file)
+//	 */
+//	exportDoubleCheck: true,
+//
+//	/** api: config[exportCheckLimit]
+//	 *  ``integer``
+//	 *  if present, limit the number of feature to query for the first check
+//	 */
+//	exportCheckLimit: null,
+//
+//	/** api: config[pageLabel]
+//	 *  ``String``
+//	 */
+//	pageLabel: "Page",
+//
+//	/** api: config[pageOfLabel]
+//	 *  ``String``
+//	 */
+//	pageOfLabel: "of",	
+//
+//	/** api: config[totalRecordsLabel]
+//	 *  ``String``
+//	 */
+//	totalRecordsLabel: "Total Records",
+//
+//	/** api: config[filterPropertyNames]
+//	 *  ``Boolean``
+//	 */
+//	filterPropertyNames: true,
 
 //	/** private: method[displayTotalResults]
 //	 */
@@ -524,7 +529,18 @@ Ext.define('TolomeoExt.ToloFeatureGridPanel', {
 //				bbar.push(this.getExportButton("CSV"));
 //			}
 //		}
-
+		
+		this.qbFeatureManager.setProxy();
+		this.qbFeatureManager.featureStore = Ext.create('Ext.data.JsonStore', {
+			fields: [],
+			pageSize: this.qbFeatureManager.maxFeatures,
+			proxy: this.qbFeatureManager.getProxy()
+		});
+		
+    	this.qbFeatureManager.featureStore.on("load", function(store, records, successful, eOpts){
+    		// TODO ???
+    	});
+		
 		config = Ext.apply({
 			xtype: "tolomeo_featuregrid",
 // Not restore this
@@ -535,8 +551,17 @@ Ext.define('TolomeoExt.ToloFeatureGridPanel', {
 			header: {
 				hidden: true
 			},
+			height: 250,
 			border: false,
-			title: this.title//,
+			title: this.title,
+			store: this.qbFeatureManager.featureStore,
+			colums: [],
+		    dockedItems: [{
+		        xtype: 'pagingtoolbar',
+		        store: this.qbFeatureManager.featureStore,   // same store GridPanel is using
+		        dock: 'bottom',
+		        displayInfo: true
+		    }]
 			//bbar: bbar,
 //			listeners: {
 //				"added": function(cmp, ownerCt) {
@@ -627,46 +652,79 @@ Ext.define('TolomeoExt.ToloFeatureGridPanel', {
 //		if (this.alwaysDisplayOnMap || this.selectOnMap) {
 //			featureManager.showLayer(this.id, this.displayMode);
 //		}
+
+//		--------------------------------------------------------   //
+//		config.schema = Ext.create('Ext.data.Store', {
+//   		    fields: [{
+//   		    	name: 'name',
+//   		    	mapping: 'name'
+//   		    },{
+//   		    	name: 'type', 
+//   		    	mapping: 'type'
+//   		    },{
+//   		    	name: 'restriction', 
+//   		    	mapping: 'restriction'
+//   		    },{
+//   		    	name: 'regex', 
+//   		    	mapping: 'regex'
+//   		    },{
+//   		    	name: 'dbname', 
+//   		    	mapping: 'dbname'
+//   		    }],
+//	       	// TODO ///////////////////////////////////////
+//	        // Now we use a local store. The proper service 
+//		    // should be used in order to retrieve the 
+//		    // available layer list.
+//	       	// ////////////////////////////////////////////
+//		    data: schema
+//		});
 		
-		config.schema = Ext.create('Ext.data.Store', {
-		    fields: [{
-		    	name: 'name',
-		    	mapping: 'name'
-		    },{
-		    	name: 'type', 
-		    	mapping: 'type'
-		    },{
-		    	name: 'restriction', 
-		    	mapping: 'restriction'
-		    }],
-	       	// TODO ///////////////////////////////////////
-	        // Now we use a local store. The proper service 
-		    // should be used in order to retrieve the 
-		    // available layer list.
-	       	// ////////////////////////////////////////////
-		    data: this.schema
-		});
-		
-		config.store = Ext.create('Ext.data.Store', {
-		    fields: ['name', 'code', 'date'],
-	       	// TODO ///////////////////////////////////////
-	        // Now we use a local store. The proper service 
-		    // should be used in order to retrieve the 
-		    // available layer list.
-	       	// ////////////////////////////////////////////
-		    data: gridStore,
-		    proxy: {
-		        type: 'memory',
-		        reader: {
-		            type: 'json',
-		            root: 'items'
-		        }
-		    }
-		});
+//		config.store = Ext.create('Ext.data.Store', {
+//		    fields: ['name', 'code', 'date'],
+//	       	// TODO ///////////////////////////////////////
+//	        // Now we use a local store. The proper service 
+//		    // should be used in order to retrieve the 
+//		    // available layer list.
+//	       	// ////////////////////////////////////////////
+//		    data: gridStore,
+//		    proxy: {
+//		        type: 'memory',
+//		        reader: {
+//		            type: 'json',
+//		            root: 'items'
+//		        }
+//		    }
+//		});
+//		--------------------------------------------------------   //
 		
 		this.items = [config];
 		this.callParent();
+		
+		this.on("afterrender", function(){
+			this.waitMask = new Ext.LoadMask(this.id, {msg: "Ricerca in corso..."});
+		}, this);
 
+		this.qbFeatureManager.on({
+			scope: this,
+			layerchange: function(results/*, store*/){
+//				this.waitMask.hide();
+				this.ownerCt.expand();
+				
+				var featureGrid = this.query("tolomeo_featuregrid")[0];
+				featureGrid.setStore(featureGrid.store, results);
+			},
+			loadfeatures: function(results, store){
+				this.waitMask.hide();
+				this.ownerCt.expand();
+			},
+			beforeloadfeatures: function(){
+				this.waitMask.show();
+			},
+			loadfeaturesfailure: function(){
+				this.waitMask.hide();
+			}
+		});
+		
 		// /////////////////////////////////////
 		// FeatureManager events's listeners
 		// /////////////////////////////////////

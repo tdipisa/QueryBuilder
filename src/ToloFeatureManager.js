@@ -11,12 +11,14 @@ Ext.define('TolomeoExt.ToloFeatureManager', {
 	TOLOMEOServer: null,
 	
 	TOLOMEOContext: null,
-	
-	schema: null,
+
+	featureStore: null,
 	
 	maxFeatures: 10,
 	
 	startIndex: 0,
+	
+	proxy: null,
 	
 	constructor: function(config) {
 		this.callParent(arguments);
@@ -26,25 +28,36 @@ Ext.define('TolomeoExt.ToloFeatureManager', {
 		this.addEvents(
 			"layerchange",
 			"loadfeaturesfailure",
-			"loadfeatures"
+			"loadfeatures",
+			"beforeloadfeatures"
 		);	
 	},
 	
 	getSchema: function(fparams){
-    	var submitOpt = {
-    		url: this.TOLOMEOServer + this.TOLOMEOContext + '/FilterBuilderMetadataServlet',
-    		method: 'POST',
-    		params: fparams,
-    		waitMsg: 'Ricerca in corso...',
-    		success: function(results, store){
-    			this.schema = results;
-    			this.fireEvent("layerchange", results, store);
-    		},
-    		failure: this.doAjaxFailure,
-    		scope: this
-    	};
-    	
-		new TolomeoExt.ToloCrossAjax().request(submitOpt);
+        if (!this.schemaCache) {
+            this.schemaCache = {};
+        }
+        
+        var schema = this.schemaCache[fparams.codTPN];
+        if(schema){
+			this.fireEvent("layerchange", schema);
+        }else{
+        	var submitOpt = {
+        		url: this.TOLOMEOServer + this.TOLOMEOContext + '/FilterBuilderMetadataServlet',
+        		method: 'POST',
+        		params: fparams,
+        		waitMsg: 'Ricerca in corso...',
+        		success: function(results, store){
+        			var schema = results;
+        			this.schemaCache[fparams.codTPN] = schema;
+        			this.fireEvent("layerchange", results/*, store*/);
+        		},
+        		failure: this.doAjaxFailure,
+        		scope: this
+        	};
+        	
+    		new TolomeoExt.ToloCrossAjax().request(submitOpt);
+        }        
 	},
 	
     /**
@@ -58,27 +71,34 @@ Ext.define('TolomeoExt.ToloFeatureManager', {
 		this.fireEvent("loadfeaturesfailure", store);
     },
     
-    loadFeatures: function(fparams){
+    loadFeatures: function(fparams){       	
+    	//
+    	// Prepare the proxy params
+    	//
+		this.proxy.extraParams = this.proxy.extraParams || {};
+		this.proxy.startParam = "startIndex";
+		this.proxy.limitParam = "maxFeatures";
+		this.proxy.actionMethods = "POST";
+		
+    	Ext.apply(this.proxy.extraParams, fparams); 
     	
-    	fparams = Ext.apply(fparams, {
-    		maxFeatures: this.maxFeatures,
-    		startIndex: this.startIndex
+    	this.featureStore.load({
+    	    params:{
+    	        start: this.startIndex,
+    	        limit: this.maxFeatures
+    	    }
     	});
-    	
-    	var submitOpt = {
-    		url: this.TOLOMEOServer + this.TOLOMEOContext + '/SearchExportServlet',
-    		method: 'POST',
-    		params: fparams,
-    		waitMsg: 'Ricerca in corso...',
-    		success: function(results, store){
-    			this.schema = results;
-    			this.fireEvent("loadfeatures", results, store);
-    		},
-    		failure: this.doAjaxFailure,
-    		scope: this
-    	};
-    	
-		new TolomeoExt.ToloCrossAjax().request(submitOpt);
+    },
+    
+    setProxy: function(){
+		this.proxy = TolomeoExt.ToloCrossAjaxUtil.getProxy(null, this.TOLOMEOServer + this.TOLOMEOContext + '/SearchExportServlet');
+		var reader = this.proxy.getReader();
+		reader.root = "rows";
+		reader.totalProperty = "total";
+    },
+    
+    getProxy: function(){
+    	return this.proxy;
     }
 	
 });

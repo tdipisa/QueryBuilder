@@ -12,23 +12,17 @@ Ext.define('TolomeoExt.widgets.grid.ToloFeatureGrid', {
 	
     alias: "widget.tolomeo_featuregrid",
 
-    /** api: config[map]
-     *  ``OpenLayers.Map`` If provided, a layer with the features from this
-     *  grid will be added to the map.
-     */
-    map: null,
-
-    /** api: config[ignoreFields]
-     *  ``Array`` of field names from the store's records that should not be
-     *  displayed in the grid.
-     */
-    ignoreFields: null,
+//    /** api: config[ignoreFields]
+//     *  ``Array`` of field names from the store's records that should not be
+//     *  displayed in the grid.
+//     */
+//    ignoreFields: null,
     
-    /** api: config[layer]
-     *  ``OpenLayers.Layer.Vector``
-     *  The vector layer that will be synchronized with the layer store.
-     *  If the ``map`` config property is provided, this value will be ignored.
-     */
+//    /** api: config[layer]
+//     *  ``OpenLayers.Layer.Vector``
+//     *  The vector layer that will be synchronized with the layer store.
+//     *  If the ``map`` config property is provided, this value will be ignored.
+//     */
     
     /** api: config[schema]
      *  ``GeoExt.data.AttributeStore``
@@ -46,11 +40,11 @@ Ext.define('TolomeoExt.widgets.grid.ToloFeatureGrid', {
      *  ``Ext.form.TimeField.prototype.format``.
      */
 
-    /** private: property[layer]
-     *  ``OpenLayers.Layer.Vector`` layer displaying features from this grid's
-     *  store
-     */
-    layer: null,
+//    /** private: property[layer]
+//     *  ``OpenLayers.Layer.Vector`` layer displaying features from this grid's
+//     *  store
+//     */
+//    layer: null,
 	
 	actionTooltip: "Zoom To Feature",
     
@@ -58,8 +52,6 @@ Ext.define('TolomeoExt.widgets.grid.ToloFeatureGrid', {
      *  Initializes the FeatureGrid.
      */
     initComponent: function(){
-        this.ignoreFields = ["feature", "state", "fid"].concat(this.ignoreFields);
-       
         if (!this.dateFormat) {
             this.dateFormat = Ext.form.DateField.prototype.format;
         }
@@ -69,29 +61,8 @@ Ext.define('TolomeoExt.widgets.grid.ToloFeatureGrid', {
         
         if(this.store) {
             this.cm = this.createColumnModel(this.store);
-// Not restore this
-//            //layer automatically added if map provided, otherwise check for
-//            //layer in config
-//            if(this.map) {
-//                this.layer = new OpenLayers.Layer.Vector(this.id + "_layer");
-//                this.map.addLayer(this.layer);
-//            }
-        } else {
-            this.store = Ext.create('Ext.data.Store');
-            this.cm = Ext.create('Ext.grid.ColumnModel', {
-                columns: []
-            });
         }
-//        if(this.layer) {
-//            this.sm = this.sm || new GeoExt.grid.FeatureSelectionModel({
-//                layerFromStore: false,
-//                layer: this.layer
-//            });
-//            if(this.store instanceof GeoExt.data.FeatureStore) {
-//                this.store.bind(this.layer);
-//            }
-//        }
-//        gxp.grid.FeatureGrid.superclass.initComponent.call(this);  
+        
         this.callParent();
     },
     
@@ -99,13 +70,6 @@ Ext.define('TolomeoExt.widgets.grid.ToloFeatureGrid', {
      *  Clean up anything created here before calling super onDestroy.
      */
     onDestroy: function() {
-// Not restore this
-//        if(this.initialConfig && this.initialConfig.map
-//           && !this.initialConfig.layer) {
-//            // we created the layer, let's destroy it
-//            this.layer.destroy();
-//            delete this.layer;
-//        }
         TolomeoExt.widgets.grid.FeatureGrid.superclass.onDestroy.apply(this, arguments);
     },
     
@@ -120,21 +84,9 @@ Ext.define('TolomeoExt.widgets.grid.ToloFeatureGrid', {
         if (schema) {
             this.schema = schema;
         }
+        
         if (store) {
-// Not restore this
-//            if(this.store instanceof GeoExt.data.FeatureStore) {
-//                this.store.unbind();
-//            }
-//            if(this.layer) {
-//                this.layer.destroyFeatures();
-//                store.bind(this.layer);
-//            }
             this.reconfigure(store, this.createColumnModel(store));
-        } else {
-            this.reconfigure(
-                new Ext.data.Store(),
-                new Ext.grid.ColumnModel({columns: []})
-            );
         }
     },
 
@@ -190,42 +142,52 @@ Ext.define('TolomeoExt.widgets.grid.ToloFeatureGrid', {
 		}];
 				
 		var name, type, xtype, format, renderer;	
-        (this.schema || store/*.fields*/).each(function(f) {
-            if (this.schema) {
-                name = f.get("name");
-                type = f.get("type").split(":").pop();
-                format = null;
-                switch (type) {
-                    case "date":
-                        format = this.dateFormat;
-                    case "datetime":
-                        format = format ? format : this.dateFormat + " " + this.timeFormat;
-                        xtype = undefined;
-                        renderer = Ext.util.Format.dateRenderer(format) //getRenderer(format);
-                        break;
-                    case "boolean":
-                        xtype = "booleancolumn";
-                        break;
-                    case "string":
-                        xtype = "gridcolumn";
-                        break;
-                    default:
-                        xtype = "numbercolumn";
-                }
-            } else {
-                name = f.name;
-            }
-            if (this.ignoreFields.indexOf(name) === -1) {
+		
+		if(this.schema){			
+			var fields = this.store.model.prototype.fields;
+			
+			for(var i=0; i<this.schema.length; i++){
+				var item = this.schema[i];
+				
+	            if (item) {
+	                name = item.get("name");
+	                dbname = item.get("dbname");
+	                type = item.get("type");
+	                format = null;
+	                switch (type) {
+	                    case "java.util.Date":
+	                        format = this.dateFormat;
+	                    case "java.util.Calendar":
+	                        format = format ? format : this.dateFormat + " " + this.timeFormat;
+	                        xtype = undefined;
+	                        renderer = Ext.util.Format.dateRenderer(format) //getRenderer(format);
+	                        break;
+	                    case "java.lang.Boolean":
+	                        xtype = "booleancolumn";
+	                        break;
+	                    case "java.lang.String":
+	                        xtype = "gridcolumn";
+	                        break;
+	                    default:
+	                        xtype = "numbercolumn";
+	                }
+	            } 
                 columns.push({
-                    dataIndex: name,
+                    dataIndex: dbname,
                     header: name,
                     sortable: true,
                     xtype: xtype,
                     format: format,
                     renderer: xtype ? undefined : renderer
                 });
-            }
-        }, this);
+                
+                fields.add(Ext.create("Ext.data.Field", {
+	   		    	name: dbname,
+	   		    	mapping: dbname
+				}));
+			}
+		}
+        
         return columns;
     },
     
@@ -234,7 +196,8 @@ Ext.define('TolomeoExt.widgets.grid.ToloFeatureGrid', {
      *  :return: ``Ext.grid.ColumnModel``
      */
     createColumnModel: function(store) {
-        this.columns = this.getColumns(store);
-        return new Ext.grid.ColumnModel(this.columns);
+    	 this.columns = this.getColumns(store);
+    	 return this.columns;
     }
+    
 });

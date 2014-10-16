@@ -64,6 +64,8 @@ Ext.define('TolomeoExt.ToloQueryBuilderExt', {
 		queryfilter: null
 	}, 
 	
+	qbFeatureManager: null,
+	
     noFilterSelectedMsgTitle: "Nessun Filtro Selezionato",
     
     noFilterSelectedMsgText: "Si deve selezionare almento un filtro.",
@@ -92,21 +94,42 @@ Ext.define('TolomeoExt.ToloQueryBuilderExt', {
     	
 		this.qbEventManager = Ext.create('TolomeoExt.events.ToloQueryBuilderEvtManager');
 		
-		this.qbFeatureManager = Ext.create('TolomeoExt.ToloFeatureManager', {
-			TOLOMEOServer: this.TOLOMEOServer,
-			TOLOMEOContext: this.TOLOMEOContext,
-			listeners:{
-				scope: this,
-				layerchange: function(results, store){
-					this.waitMask.hide();
-					this.queryfilter.addFilterBuilder(results, store);
-				},
-				loadfeatures: function(){
-					this.waitMask.hide();
-				},
-				loadfeaturesfailure: function(){
-					this.waitMask.hide();
-				}
+//		this.qbFeatureManager = Ext.create('TolomeoExt.ToloFeatureManager', {
+//			TOLOMEOServer: this.TOLOMEOServer,
+//			TOLOMEOContext: this.TOLOMEOContext,
+//			listeners:{
+//				scope: this,
+//				layerchange: function(results, store){
+//					this.waitMask.hide();
+//					this.queryfilter.addFilterBuilder(results, store);
+//				},
+//				loadfeatures: function(){
+//					this.waitMask.hide();
+//					
+//					// Expand the FeatureGrit in order to show results
+//					var featureGrid = Ext.getCmp("tolomeo_featuregrid");
+//					featureGrid.ownerCt.expand();
+//				},
+//				loadfeaturesfailure: function(){
+//					this.waitMask.hide();
+//				}
+//			}
+//		});
+		
+		this.qbFeatureManager.on({
+			scope: this,
+			layerchange: function(results/*, store*/){
+				this.waitMask.hide();
+				this.queryfilter.addFilterBuilder(results/*, store*/);
+			},
+			loadfeatures: function(results, store){
+				this.waitMask.hide();
+			},
+			beforeloadfeatures: function(){
+				this.waitMask.show();
+			},
+			loadfeaturesfailure: function(){
+				this.waitMask.hide();
 			}
 		});
 		
@@ -182,12 +205,14 @@ Ext.define('TolomeoExt.ToloQueryBuilderExt', {
                     var invalidItems = 0;
 
                     for(var x = 0; x<filterFieldItem.length; x++){
-                    	var valueWidgets = filterFieldItem[x].valueWidgets.items.items;
-                    	for(var y=0; y<valueWidgets.length; y++){
-                    		var validateItem = valueWidgets[y];
-                            if(!validateItem.isValid(true)){
-                                invalidItems++;
-                            }
+                    	if(filterFieldItem[x].valueWidgets){
+                        	var valueWidgets = filterFieldItem[x].valueWidgets.items.items;
+                        	for(var y=0; y<valueWidgets.length; y++){
+                        		var validateItem = valueWidgets[y];
+                                if(!validateItem.isValid(true)){
+                                    invalidItems++;
+                                }
+                        	}
                     	}
                     }  
                     
@@ -231,7 +256,6 @@ Ext.define('TolomeoExt.ToloQueryBuilderExt', {
                 				format: "ext"
                 			}; 
                     		
-                    		this.waitMask.show();
                             this.qbFeatureManager.loadFeatures(fparams);
                             
                         }else{

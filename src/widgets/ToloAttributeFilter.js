@@ -76,7 +76,7 @@ Ext.define('TolomeoExt.widgets.ToloAttributeFilter', {
 		
     },
     
-    addFilterBuilder: function(results, store){
+    addFilterBuilder: function(results/*, store*/){
     	var schema = results;
     	
 		this.filterBuilder = new TolomeoExt.widgets.ToloFilterBuilder({
