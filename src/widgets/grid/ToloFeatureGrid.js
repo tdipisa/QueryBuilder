@@ -123,18 +123,23 @@ Ext.define('TolomeoExt.widgets.grid.ToloFeatureGrid', {
 				handler: function(grid, rowIndex, colIndex){
 					var store = grid.getStore();
 					var row = store.getAt(rowIndex);
-					var feature = row.data.feature;
+					var feature = row.data;
 					if(feature){
-						var bounds = feature.geometry.getBounds();
+						
+						var geometry = OpenLayers.Geometry.fromWKT(feature.geometry);
+						var bounds = geometry.getBounds();
 						if(bounds){
-							this.map.zoomToExtent(bounds);
+//							this.map.zoomToExtent(bounds);
 							
-							var showButton = Ext.getCmp("showButton");
-							if(!showButton.pressed){
-								showButton.toggle(true);								
-							}
+							this.fireEvent("zoomtofeatureextent", {dataExtent: bounds});
 							
-							grid.getSelectionModel().selectRow(rowIndex);					
+//							var showButton = Ext.getCmp("showButton");
+//							if(!showButton.pressed){
+//								showButton.toggle(true);								
+//							}
+
+// RESTORE THIS
+//							grid.getSelectionModel().selectRow(rowIndex);					
 						}
 					}
 				}
@@ -172,6 +177,7 @@ Ext.define('TolomeoExt.widgets.grid.ToloFeatureGrid', {
 	                        xtype = "numbercolumn";
 	                }
 	            } 
+	            
                 columns.push({
                     dataIndex: dbname,
                     header: name,
@@ -181,11 +187,22 @@ Ext.define('TolomeoExt.widgets.grid.ToloFeatureGrid', {
                     renderer: xtype ? undefined : renderer
                 });
                 
-                fields.add(Ext.create("Ext.data.Field", {
-	   		    	name: dbname,
-	   		    	mapping: dbname
-				}));
+                // TODO
+                // Maybe fields should be cleaned up before adding new elements on it?
+                // Test with more layers in combobox.
+//                fields.add(Ext.create("Ext.data.Field", {
+//	   		    	name: dbname,
+//	   		    	mapping: dbname
+//				}));
 			}
+			
+			//
+			// Additional field to represent geometry as WKT
+			//
+//	        fields.add(Ext.create("Ext.data.Field", {
+//		    	name: "geometry",
+//		    	mapping: "geometry"
+//	        }));
 		}
         
         return columns;

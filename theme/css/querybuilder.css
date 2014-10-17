@@ -11,6 +11,11 @@
     background-image: url(../img/delete.png);
 }
 
+
+.filterviewupdate{
+	 background-image: url(../img/arrow_refresh.png);
+}
+
 /*****************
  **BBOX FieldSet**
  *****************/
@@ -32,10 +37,32 @@
 	margin: auto;
 }
 
-/********************
- ** Buffer Fieldset**
- ********************/
+/*********************
+ ** Buffer Fieldset **
+ *********************/
  
 .gx-cursor{
     background-image: url(../img/cursor.png);
+}
+
+/*********************
+ **   FeatureGrid   **
+ *********************/
+
+.x-action-col-cell  .zoomaction{
+	background-image: url(../img/magnifier.png) !important;
+	width: 16px;
+	height: 16px;
+}
+
+.pageviewonmap{
+	background-image: url(../img/map_add.png) !important;
+	width: 16px;
+	height: 16px;
+}
+
+.pagezoomonmap{
+	background-image: url(../img/magnifier.png) !important;
+	width: 16px;
+	height: 16px;
 }

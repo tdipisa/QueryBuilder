@@ -92,29 +92,16 @@ Ext.define('TolomeoExt.ToloQueryBuilderExt', {
 		this.autoScroll = true;
 		this.collapsed = false;
     	
-		this.qbEventManager = Ext.create('TolomeoExt.events.ToloQueryBuilderEvtManager');
+		if(!this.qbEventManager){
+			this.qbEventManager = Ext.create('TolomeoExt.events.ToloQueryBuilderEvtManager');
+		}
 		
-//		this.qbFeatureManager = Ext.create('TolomeoExt.ToloFeatureManager', {
-//			TOLOMEOServer: this.TOLOMEOServer,
-//			TOLOMEOContext: this.TOLOMEOContext,
-//			listeners:{
-//				scope: this,
-//				layerchange: function(results, store){
-//					this.waitMask.hide();
-//					this.queryfilter.addFilterBuilder(results, store);
-//				},
-//				loadfeatures: function(){
-//					this.waitMask.hide();
-//					
-//					// Expand the FeatureGrit in order to show results
-//					var featureGrid = Ext.getCmp("tolomeo_featuregrid");
-//					featureGrid.ownerCt.expand();
-//				},
-//				loadfeaturesfailure: function(){
-//					this.waitMask.hide();
-//				}
-//			}
-//		});
+		if(!this.qbFeatureManager){
+			this.qbFeatureManager = Ext.create('TolomeoExt.ToloFeatureManager', {
+				TOLOMEOServer: this.TOLOMEOServer,
+				TOLOMEOContext: this.TOLOMEOContext
+			});
+		}
 		
 		this.qbFeatureManager.on({
 			scope: this,
@@ -126,6 +113,9 @@ Ext.define('TolomeoExt.ToloQueryBuilderExt', {
 				this.waitMask.hide();
 			},
 			beforeloadfeatures: function(){
+				this.waitMask.show();
+			},
+			beforelayerchange: function(){
 				this.waitMask.show();
 			},
 			loadfeaturesfailure: function(){
@@ -159,6 +149,7 @@ Ext.define('TolomeoExt.ToloQueryBuilderExt', {
 					// in order to allow filter composition.
 					// /////////////////////////////////////////////////
 					this.spatialSelector.enable();
+					this.filterView.enable();
 					this.enableAttributeFilter(records[0]);
 				}				
 			}
@@ -180,110 +171,66 @@ Ext.define('TolomeoExt.ToloQueryBuilderExt', {
 			disabled: true,
 			caseInsensitiveMatch: this.caseInsensitiveMatch
 		});
+		
+		this.filterView = Ext.create('TolomeoExt.widgets.ToloFilterView', {
+			scroll: true,
+			disabled: true,
+			listeners:{
+				scope: this,
+				typeselected: function(records){
+					var filter = this.getFilter();
+					if(filter){
+						var record = records;
+						
+						if(records instanceof Array){
+							record = records[0];
+						}
+						
+						var serialized_filter = this.getFilterString(filter, record.get("name"));
+						this.filterView.setFilter(serialized_filter);
+					}
+				}
+			}
+		});
 			
 		this.bbar = ["->", {
             text: "Cancella",
             //iconCls: "cancel",
             scope: this,
             handler: function() {
+            	// Spatial Selector Reset
             	this.spatialSelector.reset();
             	var spatialMethodCombo = this.spatialSelector.getSelectionMethodCombo();
             	spatialMethodCombo.reset();
+            	
+            	// Attribute Form Reset
             	this.queryfilter.filterBuilder.removeAllConditions();
+            	
+            	// Attribute Filter Reset
+            	this.filterView.resetView();
+            	
+            	// Feature Grid Reset
+            	this.qbFeatureManager.fireEvent("resetquery");
             }
         }, {
             text: "Cerca",
             //iconCls: "gxp-icon-find",
             handler: function() {
-            	if(!this.queryfilter.disabled && !this.spatialSelector.disabled){
-            		
-            		// ////////////////////////////////////////////////
-                    // Check if there are some invalid field according 
-            		// to validators regex config
-                    // ////////////////////////////////////////////////
-            		var filterFieldItem = this.query('tolomeo_tolofilterfield');
-                    var invalidItems = 0;
-
-                    for(var x = 0; x<filterFieldItem.length; x++){
-                    	if(filterFieldItem[x].valueWidgets){
-                        	var valueWidgets = filterFieldItem[x].valueWidgets.items.items;
-                        	for(var y=0; y<valueWidgets.length; y++){
-                        		var validateItem = valueWidgets[y];
-                                if(!validateItem.isValid(true)){
-                                    invalidItems++;
-                                }
-                        	}
-                    	}
-                    }  
-                    
-                    if(invalidItems == 0){                    	
-                    	var filters = [];
-                    	
-                    	// ///////////////////////
-                    	// Compose the Filter
-                    	// ///////////////////////
-                    	var attributeFilter = this.queryfilter.filterBuilder.getFilter();
-                    	if(attributeFilter){
-                    		filters.push(attributeFilter);	
-                    	}
-                    	
-                        var spatialFilter = this.spatialSelector.getQueryFilter();   
-                        if (spatialFilter) {
-                        	filters.push(spatialFilter);
-                        }
-        					
-                        if(filters.length > 0){
-            				var filter = filters.length > 1 ?
-                                new OpenLayers.Filter.Logical({
-                                    type: OpenLayers.Filter.Logical.AND,
-                                    filters: filters
-                                }) :
-                                filters[0];   
-                            
-                            var serialized_filter = "";
-                            if(this.filterFormat == "OGC"){
-                                node = new OpenLayers.Format.Filter({version: this.ogcFilterVersion}).write(filter);
-                                serialized_filter = new OpenLayers.Format.XML().write(node);
-                            }else{
-                            	serialized_filter = filter.toString();
-                            }
-
-                            var fparams = {
-                				codTPN: this.codTPN,
-                				SRID: this.paramsJS.mappe.SRID,
-                				filter: serialized_filter,
-                				ogcFilterVersion: this.ogcFilterVersion,
-                				format: "ext"
-                			}; 
-                    		
-                            this.qbFeatureManager.loadFeatures(fparams);
-                            
-                        }else{
-                            Ext.Msg.show({
-                                title: this.noFilterSelectedMsgTitle,
-                                msg: this.noFilterSelectedMsgText,
-                                buttons: Ext.Msg.OK,
-                                icon: Ext.MessageBox.ERROR
-                            }); 
-                        }
-                    }else{
-                        Ext.Msg.show({
-                            title: this.invalidRegexFieldMsgTitle,
-                            msg: this.invalidRegexFieldMsgText,
-                            buttons: Ext.Msg.OK,
-                            icon: Ext.MessageBox.ERROR
-                        });
-                    }
-                    
-            	}else {
-                    Ext.Msg.show({
-                        title: this.notEnabledFieldMsgTitle,
-                        msg: this.notEnabledFieldMsgText,
-                        buttons: Ext.Msg.OK,
-                        icon: Ext.MessageBox.ERROR
-                    });
-            	}
+            	var filter = this.getFilter();
             	
+            	if(filter){
+            		var serialized_filter = this.getFilterString(filter, null);
+
+                    var fparams = {
+        				codTPN: this.codTPN,
+        				SRID: this.paramsJS.mappe.SRID,
+        				filter: serialized_filter,
+        				ogcFilterVersion: this.ogcFilterVersion,
+        				format: "ext"
+        			}; 
+            		
+                    this.qbFeatureManager.loadFeatures(fparams);
+            	}
             },
             scope: this
         }];
@@ -291,7 +238,7 @@ Ext.define('TolomeoExt.ToloQueryBuilderExt', {
 //		TolomeoExt.ToloQueryBuilderExt.superclass.initComponent.call(this);
 		this.callParent();
 	
-		this.add([this.layerSelector, this.spatialSelector, this.queryfilter]);
+		this.add([this.layerSelector, this.spatialSelector, this.queryfilter, this.filterView]);
 		
 		this.spatialSelector.reset();
 		
@@ -317,8 +264,104 @@ Ext.define('TolomeoExt.ToloQueryBuilderExt', {
 		}; 
 		
     	// Submit ajax della form
-    	this.waitMask.show();
+//    	this.waitMask.show();
     	this.qbFeatureManager.getSchema(fparams);
+	},
+	
+	getFilterString: function(filter, type){
+        var format = this.filterFormat;        
+        if(type){
+        	format = type;
+        }
+        
+        var serialized_filter = "";
+        if(format == "OGC" ){
+            node = new OpenLayers.Format.Filter({version: this.ogcFilterVersion}).write(filter);
+            serialized_filter = new OpenLayers.Format.XML().write(node);
+        }else{
+        	serialized_filter = filter.toString();
+        }
+        
+        return serialized_filter;
+	},
+	
+	getFilter: function(){
+		var filter = null;
+		
+    	if(!this.queryfilter.disabled && !this.spatialSelector.disabled){
+    		
+    		// ////////////////////////////////////////////////
+            // Check if there are some invalid field according 
+    		// to validators regex config
+            // ////////////////////////////////////////////////
+    		var filterFieldItem = this.query('tolomeo_tolofilterfield');
+            var invalidItems = 0;
+
+            for(var x = 0; x<filterFieldItem.length; x++){
+            	if(filterFieldItem[x].valueWidgets){
+                	var valueWidgets = filterFieldItem[x].valueWidgets.items.items;
+                	for(var y=0; y<valueWidgets.length; y++){
+                		var validateItem = valueWidgets[y];
+                        if(!validateItem.isValid(true)){
+                            invalidItems++;
+                        }
+                	}
+            	}
+            }  
+            
+            if(invalidItems == 0){                    	
+            	var filters = [];
+            	
+            	// ///////////////////////
+            	// Compose the Filter
+            	// ///////////////////////
+            	var attributeFilter = this.queryfilter.filterBuilder.getFilter();
+            	if(attributeFilter){
+            		filters.push(attributeFilter);	
+            	}
+            	
+                var spatialFilter = this.spatialSelector.getQueryFilter();   
+                if (spatialFilter) {
+                	filters.push(spatialFilter);
+                }
+					
+                if(filters.length > 0){
+    				var filter = filters.length > 1 ?
+                        new OpenLayers.Filter.Logical({
+                            type: OpenLayers.Filter.Logical.AND,
+                            filters: filters
+                        }) :
+                        filters[0];   
+                        
+                    return filter;
+                    
+                }else{
+                    Ext.Msg.show({
+                        title: this.noFilterSelectedMsgTitle,
+                        msg: this.noFilterSelectedMsgText,
+                        buttons: Ext.Msg.OK,
+                        icon: Ext.MessageBox.ERROR
+                    }); 
+                }
+            }else{
+                Ext.Msg.show({
+                    title: this.invalidRegexFieldMsgTitle,
+                    msg: this.invalidRegexFieldMsgText,
+                    buttons: Ext.Msg.OK,
+                    icon: Ext.MessageBox.ERROR
+                });
+            }
+            
+    	}else {
+            Ext.Msg.show({
+                title: this.notEnabledFieldMsgTitle,
+                msg: this.notEnabledFieldMsgText,
+                buttons: Ext.Msg.OK,
+                icon: Ext.MessageBox.ERROR
+            });
+    	}
+    	
+    	return filter;
 	}
     
 });

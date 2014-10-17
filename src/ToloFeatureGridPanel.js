@@ -1,8 +1,3 @@
-/**
- * requires plugins/ClickableFeatures.js
- * include widgets/grid/FeatureGrid.js
- */
-
 Ext.ns("TolomeoExt.widgets");
 
 /** api: constructor
@@ -313,198 +308,8 @@ Ext.define('TolomeoExt.ToloFeatureGridPanel', {
 		//////////////////////////////////////////////////////////////////
 		//TODO: Restore commented fragments (if not otherwise specified)//
 		//////////////////////////////////////////////////////////////////
-		
-//		var featureManager = this.target.tools[this.featureManager];
-//		var map = this.target.mapPanel.map, smCfg;
-//		// a minimal SelectFeature control - used just to provide select and
-//		// unselect, won't be added to the map unless selectOnMap is true
-//		this.selectControl = new OpenLayers.Control.SelectFeature(featureManager.featureLayer);
-//
-//		if (this.selectOnMap) {
-//			if (featureManager.paging) {
-//				this.selectControl.events.on({
-//					"activate": function() {
-//						map.events.register(
-//								"click", this, this.noFeatureClick
-//						);
-//					},
-//					"deactivate": function() {
-//						map.events.unregister(
-//								"click", this, this.noFeatureClick
-//						);
-//					},
-//					scope: this
-//				});
-//			}
-//			map.addControl(this.selectControl);
-//			smCfg = {
-//					selectControl: this.selectControl
-//			};
-//		} else {
-//			smCfg = {
-//				selectControl: this.selectControl,
-//				singleSelect: false,
-//				autoActivateControl: false,
-//				listeners: {
-//					"beforerowselect": function() {
-//						if(this.selectControl.active || featureManager.featureStore.getModifiedRecords().length) {
-//							return false;
-//						}
-//					},
-//					scope: this
-//				}
-//			};
-//		}
 
-// /////////////////////
-// not restore this
-// /////////////////////
-//		this.displayItem = new Ext.Toolbar.TextItem({});
-//
-//		var toolbarElements = [];
-//		toolbarElements.push(
-//				{
-//					iconCls: "x-tbar-page-first",
-//					ref: "../firstPageButton",
-//					tooltip: this.firstPageTip,
-//					disabled: true,
-//					handler: function() {
-//						featureManager.setPage({index: 0});
-//					}
-//				}, {
-//					iconCls: "x-tbar-page-prev",
-//					ref: "../prevPageButton",
-//					tooltip: this.previousPageTip,
-//					disabled: true,
-//					handler: function() {
-//						featureManager.previousPage();
-//					}
-//				}
-//		);
-//
-//
-//		if(featureManager.pagingType == 1){
-//			toolbarElements.push(				
-//					'-'
-//					, {
-//						xtype: 'compositefield',
-//						width: 120,
-//						items: [{
-//							xtype: 'label',
-//							text: this.pageLabel,
-//							autoWidth: true,
-//							style: {
-//								marginTop: '3px'
-//							}
-//						},{
-//							ref: "../../currentPage",
-//							xtype: "textfield",
-//							width: 40,
-//							value: "0",
-//							disabled: true,
-//							enableKeyEvents: true,
-//							listeners:{
-//								scope: this,
-//								keypress: function(field, e){
-//									var charCode = e.getCharCode();
-//									if(charCode == 13){
-//										var value = field.getValue();
-//										featureManager.setPage({index: value - 1})
-//									}
-//								}
-//							}
-//						},{
-//							xtype: 'label',
-//							width: 15,
-//							text: this.pageOfLabel,
-//							style: {
-//								marginTop: '3px'
-//							}
-//						},{
-//							xtype: 'label',
-//							ref: "../../numberOfPagesLabel",
-//							width: 20,
-//							text: '0',
-//							style: {
-//								marginTop: '3px'
-//							}
-//						}]
-//					}
-//			);
-//
-//			if(this.showNumberOfRecords === true){
-//				toolbarElements.push(
-//						{
-//							xtype: 'label',
-//							text: "{" + this.totalRecordsLabel + " - ",
-//							autoWidth: true,
-//							style: {
-//								marginTop: '3px'
-//							}
-//						}, {
-//							xtype: 'label',
-//							ref: "../totalRecords",
-//							width: 20,
-//							text: "0}",
-//							style: {
-//								marginTop: '3px'
-//							}
-//						}
-//						/*]
-//					}*/
-//				);
-//			}
-//		}
-//
-//		toolbarElements.push(
-//				'-',
-//				{
-//					iconCls: "gxp-icon-zoom-to",
-//					ref: "../zoomToPageButton",
-//					tooltip: this.zoomPageExtentTip,
-//					disabled: true,
-//					hidden: featureManager.autoZoomPage,
-//					handler: function() {
-//						map.zoomToExtent(featureManager.getPageExtent());
-//					}
-//				}, 
-//				'-'
-//				, {
-//					iconCls: "x-tbar-page-next",
-//					ref: "../nextPageButton",
-//					tooltip: this.nextPageTip,
-//					disabled: true,
-//					handler: function() {
-//						featureManager.nextPage();
-//					}
-//				}, {
-//					iconCls: "x-tbar-page-last",
-//					ref: "../lastPageButton",
-//					tooltip: this.lastPageTip,
-//					disabled: true,
-//					handler: function() {
-//						featureManager.setPage({index: "last"});
-//					}
-//				}, {
-//					xtype: 'tbspacer', 
-//					width: 10
-//				}, 
-//				this.displayItem
-//		);
-//
-//		var bbar = (featureManager.paging ? [toolbarElements] : []).concat(["->"].concat(!this.alwaysDisplayOnMap ? [{
-//			text: this.displayFeatureText,
-//			id: "showButton",
-//			iconCls: "gxp-icon-addtomap",
-//			enableToggle: true,
-//			toggleHandler: function(btn, pressed) {
-//				this.selectOnMap && this.selectControl[pressed ? "activate" : "deactivate"]();
-//				featureManager[pressed ? "showLayer" : "hideLayer"](this.id, this.displayMode);
-//			},
-//			scope: this
-//		}] : [])).concat(["->"]);
-
-		// Export formats 
+// restore this ???		// Export formats 
 //		if(this.exportFormats){
 //			if(this.exportAction == 'window'){
 //				bbar.push(this.getExportWindowButton());
@@ -530,23 +335,25 @@ Ext.define('TolomeoExt.ToloFeatureGridPanel', {
 //			}
 //		}
 		
+		if(!this.featureLayer){
+			this.featureLayer = new OpenLayers.Layer.Vector("gridFeatureLayer", {
+				displayInLayerSwitcher: false
+			});
+		}
+		
+		if(!this.qbEventManager){
+			this.qbEventManager = Ext.create('TolomeoExt.events.ToloQueryBuilderEvtManager');
+		}
+		
 		this.qbFeatureManager.setProxy();
-		this.qbFeatureManager.featureStore = Ext.create('Ext.data.JsonStore', {
+		this.qbFeatureManager.setFeatureStore(Ext.create('Ext.data.JsonStore', {
 			fields: [],
 			pageSize: this.qbFeatureManager.maxFeatures,
 			proxy: this.qbFeatureManager.getProxy()
-		});
-		
-    	this.qbFeatureManager.featureStore.on("load", function(store, records, successful, eOpts){
-    		// TODO ???
-    	});
+		}));
 		
 		config = Ext.apply({
 			xtype: "tolomeo_featuregrid",
-// Not restore this
-//			actionTooltip: this.zoomToFeature,
-//			map: this.target.mapPanel.map,
-//			sm: new GeoExt.grid.FeatureSelectionModel(smCfg),
 			autoScroll: true,
 			header: {
 				hidden: true
@@ -560,143 +367,38 @@ Ext.define('TolomeoExt.ToloFeatureGridPanel', {
 		        xtype: 'pagingtoolbar',
 		        store: this.qbFeatureManager.featureStore,   // same store GridPanel is using
 		        dock: 'bottom',
-		        displayInfo: true
-		    }]
-			//bbar: bbar,
-//			listeners: {
-//				"added": function(cmp, ownerCt) {
-//					var onClear = OpenLayers.Function.bind(function() {
-//						if(this.exportFormats){
-//							if(this.exportAction == 'window'){
-//								this.output[0]["exportButton"].disable();
-//							}else{
-//								for (var i = 0; i < this.exportFormats.length; i++){
-//									var format = this.exportFormats[i];
-//									this.output[0]["export" + format + "Button"].disable();
-//								}
-//							}
-//						}else if(this.showExportCSV){
-//							this.output[0].exportCSVButton.disable();
-//						}
-//						this.displayTotalResults();
-//						this.selectOnMap && this.selectControl.deactivate();
-//						this.autoCollapse && typeof ownerCt.collapse == "function" &&
-//						ownerCt.collapse();
-//					}, this);
-//					var onPopulate = OpenLayers.Function.bind(function() {
-//						if(this.exportFormats){
-//							if(this.exportAction == 'window'){
-//								this.output[0]["exportButton"].enable();
-//							}else{
-//								for (var i = 0; i < this.exportFormats.length; i++){
-//									var format = this.exportFormats[i];
-//									this.output[0]["export" + format + "Button"].enable();
-//								}
-//							}
-//						}else if(this.showExportCSV){
-//							this.output[0].exportCSVButton.enable();
-//						}
-//						this.displayTotalResults();
-//						this.selectOnMap && this.selectControl.activate();
-//						this.autoExpand && typeof ownerCt.expand == "function" &&
-//						ownerCt.expand();
-//					}, this);
-//					featureManager.on({
-//						"query": function(tool, store) {
-//							store && store.getCount() ? onPopulate() : onClear();
-//						},
-//						"layerchange": onClear,
-//						"clearfeatures": onClear
-//					});
-//				},
-//				contextmenu: function(event) {
-//					if (featureGrid.contextMenu.items.getCount() > 0) {
-//						var rowIndex = featureGrid.getView().findRowIndex(event.getTarget());
-//						if (rowIndex !== false) {
-//							featureGrid.getSelectionModel().selectRow(rowIndex);
-//							featureGrid.contextMenu.showAt(event.getXY());
-//							event.stopEvent();
-//						}
-//					}
-//				},
-//				scope: this
-//			},
-//			contextMenu: new Ext.menu.Menu({items: [{
-//				text: this.zoomToFeature,
-//				tooltip: this.zoomToFeature,
-//				iconCls: 'gxp-icon-zoom-to',
-//				scope: this,
-//				handler: function(cmp){
-//					var grid = this.output[0];
-//					var selection = grid.getSelectionModel().getSelections()[0];
-//					var feature = selection.data.feature;
-//					if(feature){
-//						var bounds = feature.geometry.getBounds();
-//						if(bounds){
-//							this.target.mapPanel.map.zoomToExtent(bounds);
-//
-//							var showButton = Ext.getCmp("showButton");
-//							if(!showButton.pressed){
-//								showButton.toggle(true);
-//								this.selectControl.select(feature);
-//							}
-//						}
-//					}
-//				}               
-//			}]})
+		        displayInfo: true,
+		        disabled: true,
+		        items: [
+					{
+						tooltip: "Visualizza su Mappa",
+						name: "viewOnMapButton",
+						enableToggle: true,
+						iconCls: "pageviewonmap",
+						handler: function(button){
+							this.updateLayerOnMap(this.qbFeatureManager.featureStore, button.pressed);
+						},
+						scope: this
+					},
+					{
+						tooltip: "Zoom alla Pagina",
+						name: "zoomOnPageButton",
+					    iconCls: "pagezoomonmap",
+						handler: function(){
+							this.qbEventManager.fireEvent("zoomtomapextent", {dataExtent: this.pageBBOx});
+						}, 
+						scope: this
+					}
+		        ]
+		    }],
+		    listeners:{
+		    	scope: this,
+		    	zoomtofeatureextent: function(evt){
+		    		this.qbEventManager.fireEvent("zoomtomapextent", evt);
+		    	}
+		    }
 		}, config || {});
 
-// Not restore this		
-//		var featureGrid = gxp.plugins.FeatureGrid.superclass.addOutput.call(this, config);
-//
-//		if (this.alwaysDisplayOnMap || this.selectOnMap) {
-//			featureManager.showLayer(this.id, this.displayMode);
-//		}
-
-//		--------------------------------------------------------   //
-//		config.schema = Ext.create('Ext.data.Store', {
-//   		    fields: [{
-//   		    	name: 'name',
-//   		    	mapping: 'name'
-//   		    },{
-//   		    	name: 'type', 
-//   		    	mapping: 'type'
-//   		    },{
-//   		    	name: 'restriction', 
-//   		    	mapping: 'restriction'
-//   		    },{
-//   		    	name: 'regex', 
-//   		    	mapping: 'regex'
-//   		    },{
-//   		    	name: 'dbname', 
-//   		    	mapping: 'dbname'
-//   		    }],
-//	       	// TODO ///////////////////////////////////////
-//	        // Now we use a local store. The proper service 
-//		    // should be used in order to retrieve the 
-//		    // available layer list.
-//	       	// ////////////////////////////////////////////
-//		    data: schema
-//		});
-		
-//		config.store = Ext.create('Ext.data.Store', {
-//		    fields: ['name', 'code', 'date'],
-//	       	// TODO ///////////////////////////////////////
-//	        // Now we use a local store. The proper service 
-//		    // should be used in order to retrieve the 
-//		    // available layer list.
-//	       	// ////////////////////////////////////////////
-//		    data: gridStore,
-//		    proxy: {
-//		        type: 'memory',
-//		        reader: {
-//		            type: 'json',
-//		            root: 'items'
-//		        }
-//		    }
-//		});
-//		--------------------------------------------------------   //
-		
 		this.items = [config];
 		this.callParent();
 		
@@ -704,10 +406,12 @@ Ext.define('TolomeoExt.ToloFeatureGridPanel', {
 			this.waitMask = new Ext.LoadMask(this.id, {msg: "Ricerca in corso..."});
 		}, this);
 
+		// /////////////////////////////////////
+		// FeatureManager events's listeners
+		// /////////////////////////////////////
 		this.qbFeatureManager.on({
 			scope: this,
-			layerchange: function(results/*, store*/){
-//				this.waitMask.hide();
+			layerchange: function(results){
 				this.ownerCt.expand();
 				
 				var featureGrid = this.query("tolomeo_featuregrid")[0];
@@ -717,73 +421,83 @@ Ext.define('TolomeoExt.ToloFeatureGridPanel', {
 				this.waitMask.hide();
 				this.ownerCt.expand();
 			},
-			beforeloadfeatures: function(){
-				this.waitMask.show();
-			},
 			loadfeaturesfailure: function(){
 				this.waitMask.hide();
+			},
+			resetfeaturelayer: function(){
+				this.updateLayerOnMap(null, false);
+				
+				//
+        		// Disable the paging toolbar
+        		//
+        		this.query("pagingtoolbar")[0].disable();
+        		
+        		// Collapse the Grid
+        		this.ownerCt.collapse();
 			}
 		});
 		
-		// /////////////////////////////////////
-		// FeatureManager events's listeners
-		// /////////////////////////////////////
-//		var me = this;
-//		featureManager.paging && featureManager.on("setpage", function(mgr, condition, callback, scope, pageIndex, numPages) {
-//			var paging = (mgr.page && (mgr.page.numFeatures > 0)) || numPages > 1;
-//			featureGrid.zoomToPageButton.setDisabled(!paging);
-//			var prev = (paging && (pageIndex !== 0));
-//			featureGrid.firstPageButton.setDisabled(!prev);
-//			featureGrid.prevPageButton.setDisabled(!prev);
-//			var next = (paging && (pageIndex !== numPages-1));
-//			featureGrid.lastPageButton.setDisabled(!next);
-//			featureGrid.nextPageButton.setDisabled(!next);
-//
-//			if(featureManager.pagingType == 1){
-//				featureGrid.currentPage.enable();
-//				featureGrid.currentPage.setValue(featureManager.pageIndex + 1);
-//				featureGrid.numberOfPagesLabel.setText(featureManager.numPages);
-//
-//				if(me.showNumberOfRecords === true){
-//					featureGrid.totalRecords.setText(featureManager.numberOfFeatures + "}");
-//			}
-//			}
-//		}, this);
-//
-//		featureManager.on("layerchange", function(mgr, rec, schema) {		
-//			if(featureManager.pagingType == 1){
-//				featureGrid.currentPage.disable();
-//				featureGrid.currentPage.setValue("0");
-//				featureGrid.numberOfPagesLabel.setText("0");
-//
-//				if(me.showNumberOfRecords === true){
-//					featureGrid.totalRecords.setText("0}");
-//				}
-//			}
-//
-//			//TODO use schema instead of store to configure the fields
-//			var ignoreFields = ["feature", "state", "fid"];
-//			schema && schema.each(function(r) {
-//				r.get("type").indexOf("gml:") == 0 && ignoreFields.push(r.get("name"));
-//			});
-//			featureGrid.ignoreFields = ignoreFields;
-//			featureGrid.setStore(featureManager.featureStore, schema);
-//		}, this);
-//
-//		featureManager.on("clearfeatures", function(mgr, rec, schema) {		
-//			if(featureManager.pagingType == 1){
-//				featureGrid.currentPage.disable();
-//				featureGrid.currentPage.setValue("0");
-//				featureGrid.numberOfPagesLabel.setText("0");
-//
-//				if(me.showNumberOfRecords === true){
-//					featureGrid.totalRecords.setText("0}");
-//				}
-//			}
-//		}, this);
-//
-//		return featureGrid;
+    	this.qbFeatureManager.featureStore.on("load", function(store, records, successful, eOpts){
+    		if(records.length > 0){
+        		var proxy = store.getProxy();
+        		var reader = proxy.getReader();
+        		var metadata = reader.metaData;
+        		
+        		this.pageBBOx = OpenLayers.Geometry.fromWKT(metadata.pageBBOX).getBounds();
+        		
+        		//
+        		// Enable the paging toolbar
+        		//
+        		this.query("pagingtoolbar")[0].enable();
+        		
+        		//
+        		// Check if the vector layers on map should be updated
+        		//
+        		var button = this.query("[name=viewOnMapButton]")[0];
+        		if(button.pressed){
+        			this.updateLayerOnMap(store, button.pressed);
+        		}
+    		}else{
+                Ext.Msg.show({
+                    title: "Informazioni sul Risultato",
+                    msg: "La ricerca non ha prodotto risultati.",
+                    buttons: Ext.Msg.OK,
+                    icon: Ext.MessageBox.INFO
+                });
+    		}
+    	}, this);
 	},
+	
+	updateLayerOnMap: function(store, pressed){
+		if(pressed){
+			var store = this.qbFeatureManager.featureStore;
+			var count = store.getCount(); // the elements inside the current page
+			var records = store.getRange(0, count-1);
+			
+			// Create the OL features vector
+			var features = [];
+			for(var i=0; i<records.length; i++){
+				var record = records[i];
+				
+				var attributes = {};
+				for(key in record.data){
+					if(key != "geometry"){
+						attributes[key] = record.data[key];
+					}
+				}
+				
+				var geometry = OpenLayers.Geometry.fromWKT(record.data.geometry);
+				var feature = new OpenLayers.Feature.Vector(geometry, attributes, null);
+				features.push(feature);						
+			}
+			
+			this.featureLayer.removeAllFeatures();
+			this.featureLayer.addFeatures(features);
+			this.qbEventManager.fireEvent("addlayer", this.featureLayer);
+		}else{
+			this.qbEventManager.fireEvent("removelayer", this.featureLayer);
+		}
+	}
 
 //	/** api: method[getExportWindowButton]
 //	 *  Generate a export button to open a new dialog with the configured formats

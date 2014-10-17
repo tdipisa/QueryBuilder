@@ -45,6 +45,7 @@
  		<script type="text/javascript" src="/tolomeobinj/js/tolomeoExt/query_builder/src/widgets/ToloFilterBuilder.js" charset="utf-8" ></script>
  		<script type="text/javascript" src="/tolomeobinj/js/tolomeoExt/query_builder/src/widgets/ToloSpatialSelector.js" charset="utf-8" ></script>
  		<script type="text/javascript" src="/tolomeobinj/js/tolomeoExt/query_builder/src/widgets/ToloLayerSelector.js" charset="utf-8" ></script>
+ 		<script type="text/javascript" src="/tolomeobinj/js/tolomeoExt/query_builder/src/widgets/ToloFilterView.js" charset="utf-8" ></script>
  		<script type="text/javascript" src="/tolomeobinj/js/tolomeoExt/query_builder/src/widgets/ToloAttributeFilter.js" charset="utf-8" ></script>
  		<script type="text/javascript" src="/tolomeobinj/js/tolomeoExt/query_builder/src/widgets/grid/ToloFeatureGrid.js" charset="utf-8" ></script>
  		

@@ -130,6 +130,7 @@ import org.geotools.data.FeatureWriter;
 import org.geotools.data.Query;
 import org.geotools.data.jdbc.FilterToSQLException;
 import org.geotools.data.shapefile.ShapefileDataStore;
+import org.geotools.data.simple.SimpleFeatureCollection;
 import org.geotools.data.simple.SimpleFeatureSource;
 import org.geotools.factory.GeoTools;
 import org.geotools.factory.Hints;
@@ -2271,6 +2272,12 @@ public abstract class LayerTerritorio implements Layers, IGetFeatureInfoLayer{
             FeatureSource<SimpleFeatureType, SimpleFeature> features = store.getFeatureSource(configBean.getTypeName());            
             Query query = new Query(configBean.getTypeName(), filtroTotale.getFiltro());            
             iRet = features.getCount(query);
+ 
+            if( iRet == -1 ){
+        	  // Information was not available in the header!
+        	  SimpleFeatureCollection collection = (SimpleFeatureCollection) features.getFeatures( query );
+        	  iRet = collection.size();
+        	}
 
         } catch (Exception e) {                
             logger.error("Eccezione durante tentativo di recuperare il numero delle features",e);

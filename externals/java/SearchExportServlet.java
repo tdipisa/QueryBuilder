@@ -73,11 +73,15 @@
 
 package it.prato.comune.tolomeo.web;
 
+import it.prato.comune.sit.JSGeometry;
+import it.prato.comune.sit.JSGeometryArrayList;
 import it.prato.comune.sit.LayerTerritorio;
 import it.prato.comune.sit.OggettoTerritorio;
 import it.prato.comune.sit.SITException;
 import it.prato.comune.sit.SITLayersManager;
 import it.prato.comune.sit.SITPaginatedResult;
+import it.prato.comune.sit.SortItem;
+import it.prato.comune.sit.SortItem.Dir;
 import it.prato.comune.tolomeo.utility.ExtStoreError;
 import it.prato.comune.utilita.logging.interfaces.LogInterface;
 
@@ -162,39 +166,102 @@ public class SearchExportServlet extends TolomeoServlet {
 	        
 	        if (layer != null) {
 	        	try {
-	        		if((format!=null) && (format.equals("ext"))){	        			
-	        			SITPaginatedResult pagRes = layer.searchByFilter(filter, ogcFilterVersion, maxFeatures, startIndex, null);
+	        		if((format!=null) && (format.equals("ext"))){	        
+	        			Map<String, String> attributes = layer.getNomiCampi();
+        				Set<String> attributesKeys = attributes.keySet();
+        				
+// Manages the order of the features to return
+//        				Iterator<String> keyIterator = attributesKeys.iterator();
+//        				
+//        				int size = attributes.size();
+//        				SortItem[] sortItems = new SortItem[size];
+//        				int i = 0;
+//	        			while(keyIterator.hasNext() && i<size){
+//	        				String key = (String)keyIterator.next();
+//	        				
+//	        				SortItem sortItem = new SortItem();
+//	        				sortItem.setNomeLogico(key);
+//	        				sortItem.setOrdine(Dir.DECRESCENTE);
+//	        				
+//	        				sortItems[i] = sortItem;
+//	        				i++;
+//	        			}	   
 	        			
-	        			List<?> pagResList = pagRes.getResult();
+	        			SITPaginatedResult pagRes = layer.searchByFilter(filter, ogcFilterVersion, maxFeatures, startIndex, null);
+	        			List<? extends OggettoTerritorio> pagResList = pagRes.getResult();
 	        			
 	        			JSONObject obj = new JSONObject();
 	        			obj.put("success", "true");
 	        			obj.put("total", pagRes.getTotalCount());
+
+	        			//
+	        			// Retrieve the page bbox information
+	        			//
+	        			JSGeometryArrayList<JSGeometry> geometryList = JSGeometryArrayList.toJSGeometryArrayList(pagResList, srid, logger, true);
+	        			String pageBBOX = geometryList.getBoundingbox();
+	        			
+	        			JSONObject metadataObj = new JSONObject();
+	        			metadataObj.put("pageBBOX", pageBBOX);	        			
 	        			
 	        			JSONArray jsonArray = new JSONArray();
+	        			JSONArray metadataFields = new JSONArray();
 	        			
-	        			Iterator<?> iterator = pagResList.iterator();
+	        			//
+	        			// Populate the JSON object of the features to return as response for the store
+	        			//
+	        			Iterator<?  extends OggettoTerritorio> iterator = pagResList.iterator();
+//	        			Map<String, String> attributes = layer.getNomiCampi();
+//	        			Set<String> attributesKeys = attributes.keySet();
 	        			while(iterator.hasNext()){
 	        				OggettoTerritorio ogg = (OggettoTerritorio)iterator.next();
-	        				
-	        				Map<String, String> attributes = layer.getNomiCampi();
-	        				Set<String> attributesKeys = attributes.keySet();
-	        				
-	        				Iterator<String> keysIterator = attributesKeys.iterator();	   
+	        				   
 	        				JSONObject attrObj = new JSONObject();
+	        				
+		        			Iterator<String> keysIterator = attributesKeys.iterator();	
 	        				while(keysIterator.hasNext()){
 	        					String key = (String) keysIterator.next();
+	        					String attrName = attributes.get(key);
 	        					
+	        					// Populate the result list
 	        					Object attributeValue = ogg.getAttributeByNL(key);
 	        					
-	        					if(!attributes.get(key).contains("FID")){
-	        						attrObj.put(attributes.get(key), attributeValue);
+	        					if(!attrName.contains("FID")){
+	        						attrObj.put(attrName, attributeValue);
+	        					}
+	        					
+	        					String geometry = ogg.getGeometryAttributeWKT();
+	        					if(geometry != null){
+	        						attrObj.put("geometry", geometry);
 	        					}
 	        				}
-	        				
+
 	        				jsonArray.add(attrObj);
 	        			}
 	        			
+	        			// Populate the metadata list
+        				Iterator<String> keysIterator = attributesKeys.iterator();	
+        				while(keysIterator.hasNext()){
+        					String key = (String) keysIterator.next();
+        					String attrName = attributes.get(key);
+        					
+        					JSONObject metadataField = new JSONObject();
+        					if(!attributes.get(key).contains("FID")){
+        						metadataField.put("name", attrName);
+        						metadataField.put("mapping", attrName);
+        						metadataFields.add(metadataField);
+        					}
+        				}
+
+        				// Finish populating the metadata list with the geometry field
+	        			JSONObject metadataField = new JSONObject();
+    					metadataField.put("name", "geometry");
+    					metadataField.put("mapping", "geometry");
+    					
+    					metadataFields.add(metadataField);
+    					
+    					metadataObj.put("fields", metadataFields);	
+    					
+    					obj.put("metaData", metadataObj);       			
 	        			obj.put("rows", jsonArray);
 	        			
 	        			resp = obj.toString();

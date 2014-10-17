@@ -39,12 +39,6 @@ Ext.define('TolomeoExt.widgets.ToloLayerSelector', {
 		    	name: 'codTPN', 
 		    	mapping: 'codTPN'
 		    }],
-	       	// TODO ///////////////////////////////////////
-	        // Now we use a local store. The proper service 
-		    // should be used in order to retrieve the 
-		    // available layer list.
-	       	// ////////////////////////////////////////////
-//		    data: layerStore
 		    data: this.layers
 		});
 
@@ -65,12 +59,6 @@ Ext.define('TolomeoExt.widgets.ToloLayerSelector', {
 		    listeners:{
 		         scope: this,
 		         select: function(combo, records, eOpts){
-		        	 // TODO ///////////////////////////////////////
-		        	 // Manage here the event for the request 
-		        	 // to retrieve the FeatureType schema 
-		        	 // (attribute type and definition for the 
-		        	 // QueryFilter component). 
-		        	 // ////////////////////////////////////////////
 		        	 this.fireEvent("layerselected", records);
 		         }
 		    }
@@ -84,10 +72,8 @@ Ext.define('TolomeoExt.widgets.ToloLayerSelector', {
 			items:[this.layerSelectorCombo]
 		});
 		
-//		TolomeoExt.widgets.ToloLayerSelector.superclass.initComponent.call(this);
 		this.callParent();
 		
 		this.add(this.layerFieldSet);
     }   
-    
 });

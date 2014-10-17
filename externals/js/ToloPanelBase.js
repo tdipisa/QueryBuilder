@@ -304,6 +304,14 @@ Ext.define('TolomeoExt.ToloPanelBase', {
 		}
 		
 		if (this.queryBuilderPanelOpt) {
+			
+			var qbEventManager = Ext.create('TolomeoExt.events.ToloQueryBuilderEvtManager');
+			
+			var qbFeatureManager = Ext.create('TolomeoExt.ToloFeatureManager', {
+				TOLOMEOServer: this.TOLOMEOServer,
+				TOLOMEOContext: this.TOLOMEOContext
+			});
+			
     		TolomeoExt.applyIfEmpty(this.queryBuilderPanelOpt, {
     			title     : 'Query Builder',
 			    autoScroll: 'true',
@@ -311,6 +319,9 @@ Ext.define('TolomeoExt.ToloPanelBase', {
 			    paramsJS  : this.paramsJS, 
 				TOLOMEOServer : this.TOLOMEOServer,
 				TOLOMEOContext: this.TOLOMEOContext,
+				caseInsensitiveMatch: false,
+				qbFeatureManager: qbFeatureManager,
+				qbEventManager: qbEventManager,
 			    items     : new Array()
     		});
 			this.queryBuilderPanel = Ext.create('TolomeoExt.ToloQueryBuilderExt',  this.queryBuilderPanelOpt);
@@ -320,6 +331,8 @@ Ext.define('TolomeoExt.ToloPanelBase', {
 			    autoScroll: 'true',
 				border: false,
 			    paramsJS  : this.paramsJS, 
+			    qbFeatureManager: qbFeatureManager,
+			    qbEventManager: qbEventManager,
 			    items     : new Array()
     		});
 			this.featureGridPanel = Ext.create('TolomeoExt.ToloFeatureGridPanel',  this.featureGridPanelOpt);

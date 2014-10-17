@@ -29,14 +29,28 @@ Ext.define('TolomeoExt.ToloFeatureManager', {
 			"layerchange",
 			"loadfeaturesfailure",
 			"loadfeatures",
-			"beforeloadfeatures"
+			"beforeloadfeatures",
+			"resetquery",
+			"beforelayerchange"
 		);	
+		
+		this.on("resetquery", this.resetQuery);
+	},
+	
+	setFeatureStore: function(store){
+		this.featureStore = store
+		
+		this.featureStore.on("load", function(){
+			this.fireEvent("loadfeatures");
+		}, this);
 	},
 	
 	getSchema: function(fparams){
         if (!this.schemaCache) {
             this.schemaCache = {};
         }
+        
+        this.fireEvent("beforelayerchange");
         
         var schema = this.schemaCache[fparams.codTPN];
         if(schema){
@@ -50,7 +64,7 @@ Ext.define('TolomeoExt.ToloFeatureManager', {
         		success: function(results, store){
         			var schema = results;
         			this.schemaCache[fparams.codTPN] = schema;
-        			this.fireEvent("layerchange", results/*, store*/);
+        			this.fireEvent("layerchange", results);
         		},
         		failure: this.doAjaxFailure,
         		scope: this
@@ -82,6 +96,8 @@ Ext.define('TolomeoExt.ToloFeatureManager', {
 		
     	Ext.apply(this.proxy.extraParams, fparams); 
     	
+    	this.fireEvent("beforeloadfeatures");
+    	
     	this.featureStore.load({
     	    params:{
     	        start: this.startIndex,
@@ -99,6 +115,16 @@ Ext.define('TolomeoExt.ToloFeatureManager', {
     
     getProxy: function(){
     	return this.proxy;
+    },
+    
+    resetQuery: function(){
+    	this.maxFeatures = 10;
+    	this.startIndex = 0;
+    	
+    	if(this.featureStore){
+    		this.featureStore.removeAll();
+    	}
+    	this.fireEvent("resetfeaturelayer");
     }
-	
+
 });

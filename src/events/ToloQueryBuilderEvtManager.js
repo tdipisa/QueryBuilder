@@ -57,13 +57,15 @@ Ext.define('TolomeoExt.events.ToloQueryBuilderEvtManager', {
 				"drawbuffer",
 				"polygonSpatialSelectorActive",
 				"setmapvaluefield",
-				"mapmoved"
+				"mapmoved",
+				"addvectorlayer"
 		);	
 		
 		this.on("afterboxlayout", this.onAfterBoxLayout);
 		this.on("zoomtomapextent", this.zoomToMapExtent);
 //		this.on("ongeneratesummary", this.onGenerateSummary);		
 		this.on("removelayer", this.removeLayer);
+		this.on("addlayer", this.addLayer);
 //		this.on("aftercoordinatepickerinit", this.afterCoordinatePickerInit),
 //		this.on("addcontrol", this.addControlToMap),
 		this.on("addcoordinatepickercontrol", this.addCoordinatePickerControl);
@@ -86,9 +88,43 @@ Ext.define('TolomeoExt.events.ToloQueryBuilderEvtManager', {
 //		}
 //	}
 	
+	addLayer: function(layer){
+		if(layer && this.map){
+			//
+			// check if already exists if yes remove it
+			//
+			var lay = this.map.getLayersByName(layer.name)[0];    	        
+	        if(lay){
+	            this.map.removeLayer(lay);
+	        }	        
+	        
+			this.map.addLayer(layer);
+		}
+	},
+	
+	removeLayer: function(layer){
+		if(layer && this.map){
+			var lay;
+			if(typeof layer === 'string'){
+				lay = this.map.getLayersByName(layer)[0];
+			}else{
+				lay = layer;
+			}        
+	        
+			var remove = lay ? true : false;
+			if(lay && lay instanceof OpenLayers.Layer.Vector && lay.features.length < 1){
+				remove = false;
+			}
+			
+	        if(remove){
+	            this.map.removeLayer(lay);
+	        }
+		}
+	}, 
+	
 	zoomToMapExtent: function(evt){
 		if(evt.dataExtent){
-			this.map.zoomToExtent(map.dataExtent, closest=false);
+			this.map.zoomToExtent(evt.dataExtent, closest=false);
 		}
 	},
 	
@@ -144,23 +180,6 @@ Ext.define('TolomeoExt.events.ToloQueryBuilderEvtManager', {
         map.addControl(scope.selectBBOX);
         map.enebaleMapEvent = true;
 	},
-	
-	removeLayer: function(layer){
-//		var scope = evt.scope;
-		
-		if(layer && this.map){
-			var lay;
-			if(typeof layer === 'string'){
-				lay = this.map.getLayersByName(layer)[0];
-			}else{
-				lay = layer;
-			}        
-	        
-	        if(lay){
-	            this.map.removeLayer(lay);
-	        }
-		}
-	}, 
 	
 	addCoordinatePickerControl: function(scope){
 		var map = this.map;
