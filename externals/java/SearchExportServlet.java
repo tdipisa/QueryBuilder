@@ -78,13 +78,15 @@ import it.prato.comune.sit.JSGeometryArrayList;
 import it.prato.comune.sit.LayerTerritorio;
 import it.prato.comune.sit.OggettoTerritorio;
 import it.prato.comune.sit.SITException;
+import it.prato.comune.sit.SITExtStore;
 import it.prato.comune.sit.SITLayersManager;
 import it.prato.comune.sit.SITPaginatedResult;
-import it.prato.comune.sit.SortItem;
-import it.prato.comune.sit.SortItem.Dir;
 import it.prato.comune.tolomeo.utility.ExtStoreError;
 import it.prato.comune.utilita.logging.interfaces.LogInterface;
 
+import java.io.DataInputStream;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.Iterator;
 import java.util.List;
@@ -92,7 +94,9 @@ import java.util.Map;
 import java.util.Set;
 
 import javax.servlet.ServletConfig;
+import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
+import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -102,18 +106,21 @@ import net.sf.json.JSONObject;
 
 /**
  * Questa classe implementa la servlet di default che viene utilizzata da Tolomeo per 
- * reperire i metadati relativi agli attributi, ed e' pensata per essere richiamata via ajax.
- * <br/>il risultato, in formato JSON extjs compatibile 
- * può essere utilizzato per tools che richiedono tali tipo di informazioni per l'inizializzazione dei sottocomponenti. 
+ * come servizio di ricerca e export delle features, ed e' pensata per essere richiamata via ajax.
+ * <br/>Il formato del risultato dipende dalla richiesta e può essere: in formato JSON extjs compatibile,
+ * shp o spatialite. 
  * 
  * 
  * Accetta i seguenti parametri passati in get o post:
  * <ul>
  *  <li>codTPN - codice identificativo (nel package it.prato.comune.sit) del layer sul quale viene fatta l'interrogazione</li>
+ *  <li>SRID - sistema di rifermimento dei dato in output</li>
+ *  <li>filter - filtro OGC o CQL da usare per la ricerca</li>
+ *  <li>ogcFilterVersion - in caso di filtro OGC identifica la versione da usare per il parsing</li>
+ *  <li>maxFeatures - numero di features per pagina</li>
+ *  <li>startIndex - pagina da ritornarte al client</li>
+ *  <li>format - Identofica il tipo di output (JSON, SHP o Spatialite)</li>
  * </ul>
- *  
- * Fornisce come risultato (direttamente nella response, essendo fatta per essere chiamata via ajax) la stringa JSON che rappresenta un
- * oggetto di tipo {@link net.sf.json.JSONObject} JSONObject.
  * 
  * In caso di errore, oltre a scrive sul log, setta lo status della response a HttpServletResponse.SC_INTERNAL_SERVER_ERROR 
  * e ritorna un messaggio di errore nella response stessa.
@@ -125,14 +132,66 @@ public class SearchExportServlet extends TolomeoServlet {
 
 	private static final long serialVersionUID = -7380651195335942052L;
 
+	private static final int BUFSIZE = 4096;
+	
 	@Override
     public void init(ServletConfig config) throws ServletException {
         super.init(config);           
     }
     
     @Override
-    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        doPost(req, resp);
+    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    	// Recupero il logger
+        LogInterface logger = getLogger(request);
+        
+//        String code = request.getParameter("code");
+        String filename = request.getParameter("filename");
+        
+        if(filename != null && !filename.isEmpty()){
+        	String tempdirpath = System.getProperty("java.io.tmpdir");
+        	File tempDir = new File(tempdirpath);
+        	
+            ServletOutputStream outStream = null;
+            DataInputStream in = null;
+            File file = null;
+            try {
+    			file = new File(tempDir, filename);
+                int length   = 0;
+                
+            	outStream = response.getOutputStream();
+	            ServletContext context  = getServletConfig().getServletContext();
+	            String mimetype = context.getMimeType(file.getPath());
+	            
+	            // sets response content type
+	            if (mimetype == null) {
+	                mimetype = "application/octet-stream";
+	            }
+	            response.setContentType(mimetype);
+	            response.setContentLength((int)file.length());
+	            String fileName = (new File(file.getPath())).getName();
+	            
+	            // sets HTTP header
+	            response.setHeader("Content-Disposition", "attachment; filename=\"" + fileName + "\"");
+	            
+	            byte[] byteBuffer = new byte[BUFSIZE];
+	            in = new DataInputStream(new FileInputStream(file));
+	            
+	            while ((in != null) && ((length = in.read(byteBuffer)) != -1))
+	            {
+	                outStream.write(byteBuffer, 0, length);
+	            }
+            }catch(IOException ex){
+            	String errMsg = "Errore riscontrato scaricando il file";
+                logger.error(errMsg, ex);
+            } finally {
+                in.close();
+                outStream.close();
+                
+                file.delete();
+            }
+        }else{
+        	doPost(request, response);
+        }
     }
 
     @Override
@@ -148,7 +207,9 @@ public class SearchExportServlet extends TolomeoServlet {
         String ogcFilterVersion     = request.getParameter("ogcFilterVersion");
         
         Integer maxFeatures = Integer.parseInt(request.getParameter("maxFeatures"));
+        maxFeatures = maxFeatures == -1 ? null : maxFeatures;
         Integer startIndex = Integer.parseInt(request.getParameter("startIndex"));
+        startIndex = startIndex == -1 ? null : startIndex;
         
         String format = request.getParameter("format");
         
@@ -169,23 +230,6 @@ public class SearchExportServlet extends TolomeoServlet {
 	        		if((format!=null) && (format.equals("ext"))){	        
 	        			Map<String, String> attributes = layer.getNomiCampi();
         				Set<String> attributesKeys = attributes.keySet();
-        				
-// Manages the order of the features to return
-//        				Iterator<String> keyIterator = attributesKeys.iterator();
-//        				
-//        				int size = attributes.size();
-//        				SortItem[] sortItems = new SortItem[size];
-//        				int i = 0;
-//	        			while(keyIterator.hasNext() && i<size){
-//	        				String key = (String)keyIterator.next();
-//	        				
-//	        				SortItem sortItem = new SortItem();
-//	        				sortItem.setNomeLogico(key);
-//	        				sortItem.setOrdine(Dir.DECRESCENTE);
-//	        				
-//	        				sortItems[i] = sortItem;
-//	        				i++;
-//	        			}	   
 	        			
 	        			SITPaginatedResult pagRes = layer.searchByFilter(filter, ogcFilterVersion, maxFeatures, startIndex, null);
 	        			List<? extends OggettoTerritorio> pagResList = pagRes.getResult();
@@ -210,8 +254,6 @@ public class SearchExportServlet extends TolomeoServlet {
 	        			// Populate the JSON object of the features to return as response for the store
 	        			//
 	        			Iterator<?  extends OggettoTerritorio> iterator = pagResList.iterator();
-//	        			Map<String, String> attributes = layer.getNomiCampi();
-//	        			Set<String> attributesKeys = attributes.keySet();
 	        			while(iterator.hasNext()){
 	        				OggettoTerritorio ogg = (OggettoTerritorio)iterator.next();
 	        				   
@@ -266,10 +308,13 @@ public class SearchExportServlet extends TolomeoServlet {
 	        			
 	        			resp = obj.toString();
 	        			
-		                // Formato di output per componente ExtJS che supporta la paginazione
-//	                	resp = SITExtStore.extStoreFromSITPaginatedResul(pagRes, true, srid, null, logger).toString();
 	        		}else if((format!=null) && (format.equals("shp"))){
-	        			//TODO 
+	        			String tempdirpath = System.getProperty("java.io.tmpdir");
+	        			File shp = layer.shpExport(filter, ogcFilterVersion, maxFeatures, startIndex, null, tempdirpath);
+
+	        			JSONObject obj = SITExtStore.extStoreFromString(shp.getName());
+	        			
+	        			resp = obj.toString();
 	        		}else if((format!=null) && (format.equals("spatialite"))){
 	        			//TODO 
 	        		}

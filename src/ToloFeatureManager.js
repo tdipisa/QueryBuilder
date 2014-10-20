@@ -31,10 +31,43 @@ Ext.define('TolomeoExt.ToloFeatureManager', {
 			"loadfeatures",
 			"beforeloadfeatures",
 			"resetquery",
-			"beforelayerchange"
+			"beforelayerchange",
+			"exportpage",
+			"beforedataexport"
 		);	
 		
 		this.on("resetquery", this.resetQuery);
+		this.on("exportpage", this.exportPage);
+	},
+	
+	exportPage: function(options){
+        this.fireEvent("beforedataexport");
+		
+		var params = {
+			filter: this.proxy.extraParams.filter,
+			codTPN: this.proxy.extraParams.codTPN,
+			format: options.format,
+			startIndex: options.items == "all" ? -1 :  this.startIndex,
+			maxFeatures: options.items == "all" ? -1 :  this.maxFeatures,
+			ogcFilterVersion: this.proxy.extraParams.ogcFilterVersion
+		};
+		
+    	var submitOpt = {
+    		url: this.TOLOMEOServer + this.TOLOMEOContext + '/SearchExportServlet',
+    		method: 'POST',
+    		params: params,
+    		waitMsg: 'Export in corso...',
+    		success: function(results, store){
+    			var result = results[0];
+    			if(result){
+    				location.href = this.TOLOMEOServer + this.TOLOMEOContext + '/SearchExportServlet?filename=' + result.data.Descrizione;
+    			}
+    		},
+    		failure: this.doAjaxFailure(),
+    		scope: this
+    	};
+    	
+		new TolomeoExt.ToloCrossAjax().request(submitOpt);
 	},
 	
 	setFeatureStore: function(store){

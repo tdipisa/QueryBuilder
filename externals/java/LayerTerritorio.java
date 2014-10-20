@@ -123,15 +123,20 @@ import javax.xml.parsers.ParserConfigurationException;
 import org.apache.commons.lang.StringUtils;
 import org.geotools.data.DataStore;
 import org.geotools.data.DataUtilities;
+import org.geotools.data.DefaultTransaction;
 import org.geotools.data.FeatureReader;
 import org.geotools.data.FeatureSource;
 import org.geotools.data.FeatureStore;
 import org.geotools.data.FeatureWriter;
+import org.geotools.data.FileDataStoreFactorySpi;
+import org.geotools.data.FileDataStoreFinder;
 import org.geotools.data.Query;
+import org.geotools.data.Transaction;
 import org.geotools.data.jdbc.FilterToSQLException;
 import org.geotools.data.shapefile.ShapefileDataStore;
 import org.geotools.data.simple.SimpleFeatureCollection;
 import org.geotools.data.simple.SimpleFeatureSource;
+import org.geotools.data.simple.SimpleFeatureStore;
 import org.geotools.factory.GeoTools;
 import org.geotools.factory.Hints;
 import org.geotools.feature.DefaultFeatureCollection;
@@ -1617,11 +1622,13 @@ public abstract class LayerTerritorio implements Layers, IGetFeatureInfoLayer{
 
                 String szBaseName = shpFile.substring(0, shpFile.length()-4);
 
-                String[] files = new String[3];
+                String[] files = new String[5];
 
                 files[0] = szBaseName + ".shp";
                 files[1] = szBaseName + ".dbf";
                 files[2] = szBaseName + ".shx";
+                files[3] = szBaseName + ".prj";
+                files[4] = szBaseName + ".fix";
 
                 jZip.compress_file(files,outFile, logger);
 
@@ -1634,6 +1641,10 @@ public abstract class LayerTerritorio implements Layers, IGetFeatureInfoLayer{
                 f = new File(files[1]);
                 f.delete();
                 f = new File(files[2]);
+                f.delete();
+                f = new File(files[3]);
+                f.delete();
+                f = new File(files[4]);
                 f.delete();
 
                 return true;
@@ -2443,17 +2454,7 @@ public abstract class LayerTerritorio implements Layers, IGetFeatureInfoLayer{
         return retVal;            
     }
     
-    /**
-     * @param ogcFilterVersion 
-     * @param inputStream
-     * @param maxFeatures
-     * @param startIndex
-     * @param sortFields
-     * @return ITPaginatedResult
-     * @throws SITException
-     */
-    public SITPaginatedResult searchByFilter(String filterString, String ogcFilterVersion, 
-    		Integer maxFeatures, Integer startIndex, SortItem[] sortFields) throws SITException{
+    private Filter parseFilter(String filterString, String ogcFilterVersion) throws SITException{
     	Filter filter = null;
     	
     	try{
@@ -2494,8 +2495,23 @@ public abstract class LayerTerritorio implements Layers, IGetFeatureInfoLayer{
     			logger.error("Errore durante in parsing the filtro OGC ", exc);
     			throw new SITException(exc.getMessage(), exc);
     		}
-    		
     	}
+    	
+    	return filter;
+    }
+    
+    /**
+     * @param ogcFilterVersion 
+     * @param inputStream
+     * @param maxFeatures
+     * @param startIndex
+     * @param sortFields
+     * @return ITPaginatedResult
+     * @throws SITException
+     */
+    public SITPaginatedResult searchByFilter(String filterString, String ogcFilterVersion, 
+    		Integer maxFeatures, Integer startIndex, SortItem[] sortFields) throws SITException{
+    	Filter filter = parseFilter(filterString, ogcFilterVersion);
     	
     	if(filtroTotale == null) {
             filtroTotale = this.getFiltroVuoto();
@@ -2505,6 +2521,122 @@ public abstract class LayerTerritorio implements Layers, IGetFeatureInfoLayer{
         SITPaginatedResult result = cercaFiltro(null, maxFeatures, startIndex, sortFields); 
         
     	return result;
+    }
+    
+    /**
+     * @param filterString
+     * @param ogcFilterVersion
+     * @param maxFeatures
+     * @param startIndex
+     * @param sortFields
+     * @param tempdirpath 
+     * @return File
+     * @throws SITException
+     */
+    public File shpExport(String filterString, String ogcFilterVersion, 
+    		Integer maxFeatures, Integer startIndex, SortItem[] sortFields, String tempdirpath) throws SITException{
+    	Filter filter = parseFilter(filterString, ogcFilterVersion);
+    	
+    	if(filtroTotale == null) {
+            filtroTotale = this.getFiltroVuoto();
+        }
+
+    	filtroTotale.AndFiltroPriv(filter);
+    	
+        SITTransaction transaction = null;
+        File shpZip = null;
+        
+        try {
+        	DataStore store = getDataStore();
+            
+        	if(store == null){
+                store = getDataStore();
+            }
+
+            SimpleFeatureSource featureSource = store.getFeatureSource(this.getTypeName());
+            SimpleFeatureType ft = featureSource.getSchema();
+            
+            String fileName = ft.getTypeName();
+            File file = new File(tempdirpath, fileName + ".shp");
+            
+            Map<String, java.io.Serializable> creationParams = new HashMap<String, java.io.Serializable>();
+            creationParams.put("url", DataUtilities.fileToURL(file));
+            
+            FileDataStoreFactorySpi factory = FileDataStoreFinder.getDataStoreFactory("shp");
+            DataStore dataStore = factory.createNewDataStore(creationParams);
+            
+            dataStore.createSchema(ft);
+            
+            transaction = new SITDefaultTransaction();
+            Query query = new Query(configBean.getTypeName(), filtroTotale.getFiltro());  
+            
+            // Paginazione
+            if (maxFeatures!=null && maxFeatures > 0) {
+	            query.setMaxFeatures(maxFeatures);
+	            if (startIndex!=null && startIndex>0) query.setStartIndex(startIndex);
+            } 
+            
+            // Ordinamento
+            if (sortFields!=null && sortFields.length>0) {
+	            SortBy[] sortBy = new SortBy[sortFields.length];
+	            int i=0;
+	            for (SortItem si: sortFields) {
+	            	SortOrder so = (si.getOrdine()==Dir.CRESCENTE) ? SortOrder.ASCENDING : SortOrder.DESCENDING;
+	            	SortBy sort = SITFilterFactory.filterFactory.sort(getNomiCampi( si.getNomeLogico()), so);
+	            	sortBy[i]= sort;
+	            	i++;
+	            }
+	            query.setSortBy(sortBy);
+            }
+            
+            if(filtroTotale.getFiltro() != null){
+                logger.debug("Filtro: " + filtroTotale.getFiltro().toString());
+            }
+            
+            ArrayList<OggettoTerritorio> retpol = new ArrayList<OggettoTerritorio>();
+            FeatureReader<?, SimpleFeature> features = (FeatureReader<?, SimpleFeature>)store.getFeatureReader(query, transaction);                
+            
+            try {
+                while(features.hasNext()){
+                    SimpleFeature curFeat = features.next();                        
+                    retpol.add(creaOggetto(curFeat));
+                }
+            }catch(Exception e){
+                logger.error("Errore durante la lettura delle features",e);
+            }finally {
+                features.close();
+            }
+            
+            shpZip = new File(tempdirpath, fileName + ".zip");
+            this.CopiaSuSHPZip(shpZip, file.getName(), retpol);
+                
+        } catch (Exception e) {  
+            if(transaction != null){
+                try{
+                	transaction.rollback();
+                    logger.error("Rollback");
+                }catch(IOException ioe){
+                    logger.error("Errore durante rollback della transazione",ioe);                    
+                }
+            }
+
+            String errMsg = "Errore durante la ricerca del filtro"; 
+            logger.error(errMsg,e);
+            throw new SITException(errMsg,e);
+
+        } finally {
+            if(transaction != null){
+                try{                    
+                	transaction.commit();
+                	transaction.close();
+                }catch(IOException ioe){
+                    logger.error("Errore durante il commit della transazione",ioe);
+                }
+            }
+        }   
+
+        filtroTotale.ResetFiltro();  
+        return shpZip;
     }
 
     

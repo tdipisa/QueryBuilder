@@ -352,6 +352,50 @@ Ext.define('TolomeoExt.ToloFeatureGridPanel', {
 			proxy: this.qbFeatureManager.getProxy()
 		}));
 		
+		var exportMenu = Ext.create('Ext.button.Split', {
+            tooltip: 'Esporta Dati',
+            iconCls: "pageexport",
+            menu : {
+                items: [{
+                    text: 'Esporta SHP',
+                    menu: {
+                        showSeparator: false,
+                        items: [{
+							text: "Tutte le pagine",
+							handler: function(){
+								this.qbFeatureManager.fireEvent("exportpage", {format: "shp", items: "all"});
+							}, 
+							scope: this
+						}, {
+							text: "Pagina corrente",
+							handler: function(){
+								this.qbFeatureManager.fireEvent("exportpage", {format: "shp", items: "single"});
+							}, 
+							scope: this
+						}]
+                    }
+                }, {
+                    text: 'Esporta Spatialite',
+                    menu: {
+                      showSeparator: false,
+                      items: [{
+							text: "Tutte le pagine",
+							handler: function(){
+								this.qbFeatureManager.fireEvent("exportpage", {format: "spatialite", items: "all"});
+							}, 
+							scope: this
+					   }, {
+							text: "Pagina corrente",
+							handler: function(){
+								this.qbFeatureManager.fireEvent("exportpage", {format: "spatialite", items: "single"});
+							}, 
+							scope: this
+					   }]
+                    }
+                }]
+            }
+		});
+        
 		config = Ext.apply({
 			xtype: "tolomeo_featuregrid",
 			autoScroll: true,
@@ -388,7 +432,7 @@ Ext.define('TolomeoExt.ToloFeatureGridPanel', {
 							this.qbEventManager.fireEvent("zoomtomapextent", {dataExtent: this.pageBBOx});
 						}, 
 						scope: this
-					}
+					}, "-", exportMenu
 		        ]
 		    }],
 		    listeners:{
@@ -437,6 +481,13 @@ Ext.define('TolomeoExt.ToloFeatureGridPanel', {
 			}
 		});
 		
+    	this.qbFeatureManager.featureStore.on("beforeload", function(store, operation, eOpts){
+    		if(operation){
+    			this.qbFeatureManager.maxFeatures = operation.limit;
+    			this.qbFeatureManager.startIndex = operation.start;
+    		}
+    	}, this);
+    	
     	this.qbFeatureManager.featureStore.on("load", function(store, records, successful, eOpts){
     		if(records.length > 0){
         		var proxy = store.getProxy();

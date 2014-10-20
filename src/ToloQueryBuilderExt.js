@@ -204,7 +204,9 @@ Ext.define('TolomeoExt.ToloQueryBuilderExt', {
             	spatialMethodCombo.reset();
             	
             	// Attribute Form Reset
-            	this.queryfilter.filterBuilder.removeAllConditions();
+            	if(this.queryfilter.filterBuilder){
+            		this.queryfilter.filterBuilder.removeAllConditions();
+            	}
             	
             	// Attribute Filter Reset
             	this.filterView.resetView();
