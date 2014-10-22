@@ -308,15 +308,13 @@ public class SearchExportServlet extends TolomeoServlet {
 	        			
 	        			resp = obj.toString();
 	        			
-	        		}else if((format!=null) && (format.equals("shp"))){
+	        		}else if(format!=null){
 	        			String tempdirpath = System.getProperty("java.io.tmpdir");
-	        			File shp = layer.shpExport(filter, ogcFilterVersion, maxFeatures, startIndex, null, tempdirpath);
+	        			File shp = layer.exportData(filter, ogcFilterVersion, maxFeatures, startIndex, null, tempdirpath, format);
 
 	        			JSONObject obj = SITExtStore.extStoreFromString(shp.getName());
 	        			
 	        			resp = obj.toString();
-	        		}else if((format!=null) && (format.equals("spatialite"))){
-	        			//TODO 
 	        		}
 				} catch (SITException e) {
 	            	String errMsg = "SITException in SearchExportServlet durante la ricerca";

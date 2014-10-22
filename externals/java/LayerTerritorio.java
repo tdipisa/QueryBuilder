@@ -91,10 +91,13 @@ import it.prato.comune.utilita.core.type.ProgvalType;
 import it.prato.comune.utilita.core.type.TsType;
 import it.prato.comune.utilita.logging.interfaces.LogInterface;
 
+import java.io.BufferedWriter;
 import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStreamWriter;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -107,23 +110,28 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.NoSuchElementException;
 import java.util.Properties;
 import java.util.Set;
+import java.util.regex.Pattern;
 
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.apache.commons.lang.StringUtils;
+import org.eclipse.xsd.XSDElementDeclaration;
+import org.eclipse.xsd.impl.XSDElementDeclarationImpl;
 import org.geotools.data.DataStore;
 import org.geotools.data.DataUtilities;
-import org.geotools.data.DefaultTransaction;
 import org.geotools.data.FeatureReader;
 import org.geotools.data.FeatureSource;
 import org.geotools.data.FeatureStore;
@@ -131,18 +139,19 @@ import org.geotools.data.FeatureWriter;
 import org.geotools.data.FileDataStoreFactorySpi;
 import org.geotools.data.FileDataStoreFinder;
 import org.geotools.data.Query;
-import org.geotools.data.Transaction;
 import org.geotools.data.jdbc.FilterToSQLException;
 import org.geotools.data.shapefile.ShapefileDataStore;
 import org.geotools.data.simple.SimpleFeatureCollection;
 import org.geotools.data.simple.SimpleFeatureSource;
-import org.geotools.data.simple.SimpleFeatureStore;
+import org.geotools.data.spatialite.SpatiaLiteDataStoreFactory;
 import org.geotools.factory.GeoTools;
 import org.geotools.factory.Hints;
 import org.geotools.feature.DefaultFeatureCollection;
+import org.geotools.feature.FeatureIterator;
 import org.geotools.feature.Schema;
 import org.geotools.feature.simple.SimpleFeatureBuilder;
 import org.geotools.feature.simple.SimpleFeatureTypeBuilder;
+import org.geotools.feature.type.DateUtil;
 import org.geotools.filter.text.cql2.CQL;
 import org.geotools.filter.text.cql2.CQLException;
 import org.geotools.jdbc.JDBCDataStore;
@@ -154,11 +163,14 @@ import org.geotools.jdbc.PrimaryKeyColumn;
 import org.geotools.referencing.CRS;
 import org.geotools.xml.Configuration;
 import org.geotools.xml.Parser;
+import org.opengis.feature.Feature;
 import org.opengis.feature.IllegalAttributeException;
+import org.opengis.feature.Property;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.feature.type.AttributeDescriptor;
 import org.opengis.feature.type.AttributeType;
+import org.opengis.feature.type.PropertyDescriptor;
 import org.opengis.filter.Filter;
 import org.opengis.filter.Id;
 import org.opengis.filter.sort.SortBy;
@@ -2377,32 +2389,7 @@ public abstract class LayerTerritorio implements Layers, IGetFeatureInfoLayer{
             }
 
             //, new String[]{"nprov", "prov_istat" }
-            Query query = new Query(configBean.getTypeName(), filtroTotale.getFiltro());  
-            
-            //ALE query.setCoordinateSystem(system);
-            
-            // Paginazione
-            if (maxFeatures!=null && maxFeatures > 0) {
-	            query.setMaxFeatures(maxFeatures);
-	            if (startIndex!=null && startIndex>0) query.setStartIndex(startIndex);
-            } 
-            
-            // Ordinamento
-            if (sortFields!=null && sortFields.length>0) {
-	            SortBy[] sortBy = new SortBy[sortFields.length];
-	            int i=0;
-	            for (SortItem si: sortFields) {
-	            	SortOrder so = (si.getOrdine()==Dir.CRESCENTE) ? SortOrder.ASCENDING : SortOrder.DESCENDING;
-	            	SortBy sort = SITFilterFactory.filterFactory.sort(getNomiCampi( si.getNomeLogico()), so);
-	            	sortBy[i]= sort;
-	            	i++;
-	            }
-	            query.setSortBy(sortBy);
-            }
-            
-            if(filtroTotale.getFiltro() != null){
-                logger.debug("Filtro: " + filtroTotale.getFiltro().toString());
-            }
+            Query query = this.buildQuery(maxFeatures, startIndex, sortFields);
             
             FeatureReader<?, SimpleFeature> features = (FeatureReader<?, SimpleFeature>)store.getFeatureReader(query,tmpTransaction); //tmpTransaction                
             
@@ -2454,6 +2441,12 @@ public abstract class LayerTerritorio implements Layers, IGetFeatureInfoLayer{
         return retVal;            
     }
     
+    /**
+     * @param filterString
+     * @param ogcFilterVersion
+     * @return Filter
+     * @throws SITException
+     */
     private Filter parseFilter(String filterString, String ogcFilterVersion) throws SITException{
     	Filter filter = null;
     	
@@ -2520,6 +2513,7 @@ public abstract class LayerTerritorio implements Layers, IGetFeatureInfoLayer{
         filtroTotale.AndFiltroPriv(filter); 
         SITPaginatedResult result = cercaFiltro(null, maxFeatures, startIndex, sortFields); 
         
+        filtroTotale.ResetFiltro(); 
     	return result;
     }
     
@@ -2533,32 +2527,79 @@ public abstract class LayerTerritorio implements Layers, IGetFeatureInfoLayer{
      * @return File
      * @throws SITException
      */
-    public File shpExport(String filterString, String ogcFilterVersion, 
-    		Integer maxFeatures, Integer startIndex, SortItem[] sortFields, String tempdirpath) throws SITException{
-    	Filter filter = parseFilter(filterString, ogcFilterVersion);
+    public File exportData(String filterString, String ogcFilterVersion, 
+    		Integer maxFeatures, Integer startIndex, SortItem[] sortFields, 
+    		String tempdirpath, String format) throws SITException{
     	
-    	if(filtroTotale == null) {
-            filtroTotale = this.getFiltroVuoto();
-        }
+    	if(filterString != null){
+        	Filter filter = parseFilter(filterString, ogcFilterVersion);
+        	
+        	if(filtroTotale == null) {
+                filtroTotale = this.getFiltroVuoto();
+            }
 
-    	filtroTotale.AndFiltroPriv(filter);
+        	filtroTotale.AndFiltroPriv(filter);
+    	}
     	
-        SITTransaction transaction = null;
-        File shpZip = null;
-        
+        File file = null;        
         try {
         	DataStore store = getDataStore();
             
         	if(store == null){
                 store = getDataStore();
             }
+            
+            // //////////////////////////////////////////////////
+            // Build the Query accordingly the given filter
+            // //////////////////////////////////////////////////
+            Query query = this.buildQuery(maxFeatures, startIndex, sortFields);
+            
+            // //////////////////////////////////////////////////
+            // Esporta i dati secondo il formato richiesto
+            // //////////////////////////////////////////////////
+            if(format.equals("shp")){            	
+            	file = this.shpExport(store, query, tempdirpath);
+            }else if(format.equals("csv")){
+            	file = this.csvExport(store, query, tempdirpath);
+            }else if(format.equals("spatialite")){
+            	file = this.spatialiteExport(store, query, tempdirpath);
+            }else{
+            	throw new Exception("Il formato di export: " + format + " non è conosciuto o non supportato");
+            }
+            
+        } catch (Exception e) {  
+            String errMsg = "Errore durante la ricerca del filtro"; 
+            logger.error(errMsg,e);
+            throw new SITException(errMsg,e);
+        } 
 
+        filtroTotale.ResetFiltro();  
+        return file;
+    }
+
+    /**
+     * @param store
+     * @param query
+     * @param tempdirpath
+     * @return File
+     * @throws SITException
+     */
+    public File shpExport(DataStore store, Query query, String tempdirpath) throws SITException{
+    	
+        SITTransaction transaction = null;
+        File shpZip = null;
+        
+        try {
             SimpleFeatureSource featureSource = store.getFeatureSource(this.getTypeName());
             SimpleFeatureType ft = featureSource.getSchema();
             
             String fileName = ft.getTypeName();
+            
             File file = new File(tempdirpath, fileName + ".shp");
             
+            //
+            // Preparazione dello store di export
+            //
             Map<String, java.io.Serializable> creationParams = new HashMap<String, java.io.Serializable>();
             creationParams.put("url", DataUtilities.fileToURL(file));
             
@@ -2567,33 +2608,11 @@ public abstract class LayerTerritorio implements Layers, IGetFeatureInfoLayer{
             
             dataStore.createSchema(ft);
             
-            transaction = new SITDefaultTransaction();
-            Query query = new Query(configBean.getTypeName(), filtroTotale.getFiltro());  
-            
-            // Paginazione
-            if (maxFeatures!=null && maxFeatures > 0) {
-	            query.setMaxFeatures(maxFeatures);
-	            if (startIndex!=null && startIndex>0) query.setStartIndex(startIndex);
-            } 
-            
-            // Ordinamento
-            if (sortFields!=null && sortFields.length>0) {
-	            SortBy[] sortBy = new SortBy[sortFields.length];
-	            int i=0;
-	            for (SortItem si: sortFields) {
-	            	SortOrder so = (si.getOrdine()==Dir.CRESCENTE) ? SortOrder.ASCENDING : SortOrder.DESCENDING;
-	            	SortBy sort = SITFilterFactory.filterFactory.sort(getNomiCampi( si.getNomeLogico()), so);
-	            	sortBy[i]= sort;
-	            	i++;
-	            }
-	            query.setSortBy(sortBy);
-            }
-            
-            if(filtroTotale.getFiltro() != null){
-                logger.debug("Filtro: " + filtroTotale.getFiltro().toString());
-            }
-            
+            //
+            // Interrogazione sulla base della query passata
+            //
             ArrayList<OggettoTerritorio> retpol = new ArrayList<OggettoTerritorio>();
+            transaction = new SITDefaultTransaction();
             FeatureReader<?, SimpleFeature> features = (FeatureReader<?, SimpleFeature>)store.getFeatureReader(query, transaction);                
             
             try {
@@ -2607,6 +2626,9 @@ public abstract class LayerTerritorio implements Layers, IGetFeatureInfoLayer{
                 features.close();
             }
             
+            //
+            // Preparazione dello zip di output
+            //
             shpZip = new File(tempdirpath, fileName + ".zip");
             this.CopiaSuSHPZip(shpZip, file.getName(), retpol);
                 
@@ -2638,7 +2660,328 @@ public abstract class LayerTerritorio implements Layers, IGetFeatureInfoLayer{
         filtroTotale.ResetFiltro();  
         return shpZip;
     }
+    
+    /**
+     * @param store
+     * @param query
+     * @param tempdirpath
+     * @return File
+     * @throws SITException
+     */
+    public File spatialiteExport(DataStore store, Query query, String tempdirpath) throws SITException{
+    	
+        SITTransaction transaction = null;
+        
+        File spatialite = null;
+        try {
+            SimpleFeatureSource featureSource = store.getFeatureSource(this.getTypeName());
+            SimpleFeatureType ft = featureSource.getSchema();
+            
+            String fileName = ft.getTypeName();
+            
+            spatialite = new File(tempdirpath, fileName + ".db");
+            
+//            System.setProperty("java.library.path", "C:/spatialite_libs");
+            
+            //
+            // Preparazione dello store di export
+            //
+            SpatiaLiteDataStoreFactory dsFactory = new SpatiaLiteDataStoreFactory();
+            
+            if (!dsFactory.isAvailable()) {
+              throw new SITException("SpatiaLite support not avaialable, ensure all required " + "native libraries are installed");
+            }
+            
+            Map dbParams = new HashMap();
+            dbParams.put(SpatiaLiteDataStoreFactory.DBTYPE.key, "spatialite");
+            dbParams.put(SpatiaLiteDataStoreFactory.DATABASE.key, spatialite.getAbsolutePath());
+            
+            DataStore dataStore = dsFactory.createDataStore(dbParams);
+            dataStore.createSchema(ft);
+            
+            //
+            // Interrogazione sulla base della query passata
+            //
+            ArrayList<OggettoTerritorio> retpol = new ArrayList<OggettoTerritorio>();
+            transaction = new SITDefaultTransaction();
+            FeatureReader<?, SimpleFeature> features = (FeatureReader<?, SimpleFeature>)store.getFeatureReader(query, transaction);                
+            
+            try {
+                while(features.hasNext()){
+                    SimpleFeature curFeat = features.next();                        
+                    retpol.add(creaOggetto(curFeat));
+                }
+            }catch(Exception e){
+                logger.error("Errore durante la lettura delle features",e);
+            }finally {
+                features.close();
+            }
+            
+            //
+            // Popolamento dello store di export
+            //
+            this.CopiaSuDs(dataStore, retpol);
+                
+        } catch (Exception e) {  
+            if(transaction != null){
+                try{
+                	transaction.rollback();
+                    logger.error("Rollback");
+                }catch(IOException ioe){
+                    logger.error("Errore durante rollback della transazione",ioe);                    
+                }
+            }
 
+            String errMsg = "Errore durante la ricerca del filtro"; 
+            logger.error(errMsg,e);
+            throw new SITException(errMsg,e);
+
+        } finally {
+            if(transaction != null){
+                try{                    
+                	transaction.commit();
+                	transaction.close();
+                }catch(IOException ioe){
+                    logger.error("Errore durante il commit della transazione",ioe);
+                }
+            }
+        }   
+
+        filtroTotale.ResetFiltro();  
+        return spatialite;
+	}
+    
+    /**
+     * @param store
+     * @param query
+     * @param tempdirpath
+     * @return File
+     * @throws SITException
+     */
+    public File csvExport(DataStore store, Query query, String tempdirpath) throws SITException{
+    	
+        File csvFile = null;        
+        try {
+            SimpleFeatureSource featureSource = store.getFeatureSource(this.getTypeName());
+            SimpleFeatureType ft = featureSource.getSchema();
+            
+            String fileName = ft.getTypeName();
+            
+            csvFile = new File(tempdirpath, fileName + ".csv");
+            
+            // //////////////////////////////////////////////////
+            // Creazione del writer da usare per il CSV finale
+            // //////////////////////////////////////////////////
+            BufferedWriter w = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(csvFile, false)));
+            
+            SimpleFeatureCollection collection = featureSource.getFeatures(query);
+
+            if (collection.getSchema() instanceof SimpleFeatureType) {
+                // Scrittura dell'intestazione
+                SimpleFeatureType featureType = (SimpleFeatureType) collection.getSchema();
+                w.write("FID,");
+                for ( int i = 0; i < ft.getAttributeCount(); i++ ) {
+                    AttributeDescriptor ad = featureType.getDescriptor( i );
+                    w.write( prepCSVField(ad.getLocalName()) );
+                       
+                    if ( i < ft.getAttributeCount()-1 ) {
+                       w.write( "," );
+                    }
+                }
+            } else {
+                // Features complesse
+                w.write("gml:id,");
+
+                int i = 0;
+                for (PropertyDescriptor att : collection.getSchema().getDescriptors()) {
+                    // Escludere attributi temporanei
+                    if (!att.getName().getLocalPart().startsWith("FEATURE_LINK")) {
+                        if (i > 0) {
+                            w.write(",");
+                        }
+                        String elName = att.getName().toString();
+                        Object xsd = att.getUserData().get(XSDElementDeclaration.class);
+                        if (xsd != null && xsd instanceof XSDElementDeclarationImpl) {
+                            // ////////////////////////////////////////////////////////////////////////
+                        	// Ottenere il nome del prefisso, se possibile, altrimenti il default 
+                        	// è il nome completo dello spazio dei nomi con URI
+                        	// ////////////////////////////////////////////////////////////////////////
+                            XSDElementDeclarationImpl xsdEl = (XSDElementDeclarationImpl) xsd;
+                            elName = xsdEl.getQName();
+                        }
+                        
+                        w.write(prepCSVField(elName));
+                        i++;
+                    }
+                }
+            }
+            
+            w.write( "\r\n" );
+            
+            //
+            // Preparare il formatter per i campi numerici
+            //
+            NumberFormat coordFormatter = NumberFormat.getInstance(Locale.US);
+            coordFormatter.setMaximumFractionDigits(3);
+            coordFormatter.setGroupingUsed(false);
+               
+            //
+            // Scrivere le features per compilare il file CSV finale
+            // 
+            FeatureIterator<?> i = collection.features();
+            try {
+                while( i.hasNext() ) {                
+                    Feature f = i.next();
+                    // Recupero del fid
+                    w.write(prepCSVField(f.getIdentifier().getID()));
+                    w.write(",");
+                    if (f instanceof SimpleFeature) {
+                        // Resupero degli attributi
+                        for ( int j = 0; j < ((SimpleFeature) f).getAttributeCount(); j++ ) {
+                            Object att = ((SimpleFeature) f).getAttribute( j );
+                            if ( att != null ) {
+                                String value = formatToString(att, coordFormatter);
+                                w.write( prepCSVField(value) );
+                            }
+                            if ( j < ((SimpleFeature) f).getAttributeCount()-1 ) {
+                                w.write(",");    
+                            }
+                        }
+                    } else {
+                        // Features complesse
+                        Iterator<PropertyDescriptor> descriptors = collection.getSchema().getDescriptors().iterator();
+                        
+                        // Resupero degli attributi
+                        int j = 0;
+                        while (descriptors.hasNext()) {
+                            PropertyDescriptor desc = descriptors.next();
+                            
+                            if (desc.getName().getLocalPart().startsWith("FEATURE_LINK")) {
+                                // Saltare attributi temporanei
+                                continue;
+                            }
+                            if (j > 0) {
+                                w.write(",");
+                            }
+                            j++;
+                            
+                            // Proprietà multivalore non sono supportate, solamente per SF0 per adesso
+                            Collection<Property> values = f.getProperties(desc.getName());
+                            if (values.size() > 1) {
+                                throw new UnsupportedOperationException(
+                                        "Proprietà multivalore non sono supportate per il formato CSV!");
+                            }
+
+                            Object att = null;
+                            if (!values.isEmpty()) {
+                                att = values.iterator().next().getValue();
+                            }
+
+                            if (att != null) {
+                                String value = formatToString(att, coordFormatter);
+                                w.write(prepCSVField(value));
+                            }     
+                        }
+                    }
+
+                    w.write("\r\n");
+                }
+                
+            } finally {
+                i.close();
+            }
+               
+            w.flush();
+            
+        } catch (Exception e) {  
+            String errMsg = "Errore durante la ricerca del filtro"; 
+            logger.error(errMsg,e);
+            throw new SITException(errMsg,e);
+        } 
+
+        filtroTotale.ResetFiltro();  
+        return csvFile;
+	}
+    
+    /**
+     * @param field
+     * @return String
+     */
+    private String prepCSVField(String field){
+    	// I caratteri tra virgolette devono essere rappresentati da una coppia di doppie virgolette 
+    	String mod = field.replaceAll("\"", "\"\"");
+    	
+    	// Racchiudere la stringa tra doppi apici se contiene doppi apici, virgole o ritorni a capo
+    	Pattern csv_escapes = Pattern.compile("[\"\n,\r]");
+        if (csv_escapes.matcher(mod).find()) {
+            mod = "\"" + mod + "\"";
+    	}
+    	
+		return mod;
+    }
+    
+    /**
+     * @param att
+     * @param coordFormatter
+     * @return String
+     */
+    private String formatToString(Object att, NumberFormat coordFormatter) {
+        String value = null;
+        
+        if (att instanceof Number) {
+            // Don't allow scientific notation in the output, as OpenOffice won't
+            // recognize that as a number
+            value = coordFormatter.format(att);
+        } else if (att instanceof Date) {
+            // Serialize dates in ISO format
+            if (att instanceof java.sql.Date)
+                value = DateUtil.serializeSqlDate((java.sql.Date) att);
+            else if (att instanceof java.sql.Time)
+                value = DateUtil.serializeSqlTime((java.sql.Time) att);
+            else
+                value = DateUtil.serializeDateTime((Date) att);
+        } else {
+            // Everything else we just "toString"
+            value = att.toString();
+        }
+        
+        return value;
+    }
+    
+    /**
+     * @param maxFeatures
+     * @param startIndex
+     * @param sortFields
+     * @return Query
+     */
+    private Query buildQuery(Integer maxFeatures, Integer startIndex, SortItem[] sortFields){
+        Query query = new Query(configBean.getTypeName(), filtroTotale.getFiltro());  
+        
+        // Paginazione
+        if (maxFeatures!=null && maxFeatures > 0) {
+            query.setMaxFeatures(maxFeatures);
+            if (startIndex!=null && startIndex>0) query.setStartIndex(startIndex);
+        } 
+        
+        // Ordinamento
+        if (sortFields!=null && sortFields.length>0) {
+            SortBy[] sortBy = new SortBy[sortFields.length];
+            int i=0;
+            for (SortItem si: sortFields) {
+            	SortOrder so = (si.getOrdine()==Dir.CRESCENTE) ? SortOrder.ASCENDING : SortOrder.DESCENDING;
+            	SortBy sort = SITFilterFactory.filterFactory.sort(getNomiCampi( si.getNomeLogico()), so);
+            	sortBy[i]= sort;
+            	i++;
+            }
+            query.setSortBy(sortBy);
+        }
+        
+        if(filtroTotale.getFiltro() != null){
+            logger.debug("Filtro: " + filtroTotale.getFiltro().toString());
+        }
+        
+        return query;
+    }
     
     /**
      * Restituisce un oggetto vuoto del tipo contenuto nel layer corrente.<br> 

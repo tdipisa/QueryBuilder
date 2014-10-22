@@ -32,12 +32,12 @@ Ext.define('TolomeoExt.ToloFeatureManager', {
 			"beforeloadfeatures",
 			"resetquery",
 			"beforelayerchange",
-			"exportpage",
+			"export",
 			"beforedataexport"
 		);	
 		
 		this.on("resetquery", this.resetQuery);
-		this.on("exportpage", this.exportPage);
+		this.on("export", this.exportPage);
 	},
 	
 	exportPage: function(options){

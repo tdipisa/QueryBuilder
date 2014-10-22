@@ -363,13 +363,13 @@ Ext.define('TolomeoExt.ToloFeatureGridPanel', {
                         items: [{
 							text: "Tutte le pagine",
 							handler: function(){
-								this.qbFeatureManager.fireEvent("exportpage", {format: "shp", items: "all"});
+								this.qbFeatureManager.fireEvent("export", {format: "shp", items: "all"});
 							}, 
 							scope: this
 						}, {
 							text: "Pagina corrente",
 							handler: function(){
-								this.qbFeatureManager.fireEvent("exportpage", {format: "shp", items: "single"});
+								this.qbFeatureManager.fireEvent("export", {format: "shp", items: "single"});
 							}, 
 							scope: this
 						}]
@@ -381,13 +381,31 @@ Ext.define('TolomeoExt.ToloFeatureGridPanel', {
                       items: [{
 							text: "Tutte le pagine",
 							handler: function(){
-								this.qbFeatureManager.fireEvent("exportpage", {format: "spatialite", items: "all"});
+								this.qbFeatureManager.fireEvent("export", {format: "spatialite", items: "all"});
 							}, 
 							scope: this
 					   }, {
 							text: "Pagina corrente",
 							handler: function(){
-								this.qbFeatureManager.fireEvent("exportpage", {format: "spatialite", items: "single"});
+								this.qbFeatureManager.fireEvent("export", {format: "spatialite", items: "single"});
+							}, 
+							scope: this
+					   }]
+                    }
+                }, {
+                    text: 'Esporta CSV',
+                    menu: {
+                      showSeparator: false,
+                      items: [{
+							text: "Tutte le pagine",
+							handler: function(){
+								this.qbFeatureManager.fireEvent("export", {format: "csv", items: "all"});
+							}, 
+							scope: this
+					   }, {
+							text: "Pagina corrente",
+							handler: function(){
+								this.qbFeatureManager.fireEvent("export", {format: "csv", items: "single"});
 							}, 
 							scope: this
 					   }]
