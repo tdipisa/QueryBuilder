@@ -225,7 +225,6 @@ Ext.define('TolomeoExt.widgets.form.spatialselector.ToloSpatialSelectorMethod', 
 	constructor : function(config) {
 		Ext.apply(this, config);
 		
-		//return TolomeoExt.widgets.form.spatialselector.ToloSpatialSelectorMethod.superclass.constructor.call(this, arguments);		
 		this.callParent(arguments);
 	},
 
@@ -261,7 +260,6 @@ Ext.define('TolomeoExt.widgets.form.spatialselector.ToloSpatialSelectorMethod', 
 				"geometrySelect"
 		);	
 		
-		//TolomeoExt.widgets.form.spatialselector.ToloSpatialSelectorMethod.superclass.initComponent.call(this);
 		this.callParent();
 		
         this.on("added", function(scope){
@@ -394,10 +392,6 @@ Ext.define('TolomeoExt.widgets.form.spatialselector.ToloSpatialSelectorMethod', 
     reset: function(){
     	this.currentGeometry = null;
     	this.currentFilter = null;
-
-//		if(this.featureSummary && this.featureSummary.isVisible()){
-//			this.featureSummary.hide();
-//		}
     },
 
 	/** api: method[setCurrentGeometry]
@@ -412,181 +406,17 @@ Ext.define('TolomeoExt.widgets.form.spatialselector.ToloSpatialSelectorMethod', 
 				var dataExtent = geometry.getBounds();
 				
 				// create an event to manage the zoom to extent
-//				this.target.mapPanel.map.zoomToExtent(dataExtent, closest=false);
 				this.qbEventManager.fireEvents("zoomtomapextent", {dataExtent: dataExtent});
 			}
 
-			//this.addFeatureSummary(geometry);
 			this.output.fireEvent("geometrySelect", geometry);
 		} 
     },
-
-// Not Restore this
-//	/** api: method[addFeatureSummary]
-//     *  :arg geometry: ``Object`` The geometry to be setted as current geometry.
-//     *  Add feature summary if needed
-//	 */
-//    addFeatureSummary: function(geometry){
-//		if(this.showSelectionSummary){
-//			if(this.featureSummary && this.featureSummary.isVisible()){
-//				this.featureSummary.hide();
-//			}
-//			this.featureSummary = new Ext.ToolTip({
-//				xtype : 'tooltip',
-//				target : Ext.getBody(),
-//				html : this.getSummary(geometry),
-//				title : this.selectionSummary,
-//				autoHide : false,
-//				closable : true,
-//				draggable : false,
-//				mouseOffset : [0, 0],
-//				showDelay : 1,
-//				listeners : {
-//					scope : this,
-//					hide : function(cmp) {
-//						this.featureSummary.destroy();
-//					}
-//				}
-//			});
-//
-//			var vertex = geometry.getVertices();
-//			var point;
-//			if ( geometry instanceof OpenLayers.Bounds) {
-//				point = vertex[1];
-//			} else{
-//				point = vertex[vertex.length - 1];
-//			}
-//
-//			var px = this.target.mapPanel.map.getPixelFromLonLat(new OpenLayers.LonLat(point.x, point.y));
-//			var p0 = this.target.mapPanel.getPosition();
-//
-//			this.featureSummary.targetXY = [p0[0] + px.x, p0[1] + px.y];
-//			this.featureSummary.show();
-//		}
-//    },
-//
-//	/** api: method[getSummary]
-//     *  :arg geometry: ``Object`` The geometry to be setted as current geometry.
-//     *  Obtain selection summary
-//	 */
-//    getSummary: function(geometry){
-//
-//		var summary = "", metricUnit = this.metricUnit;
-//
-//		var area = this.getArea(geometry, metricUnit);
-//		var length = this.getLength(geometry, metricUnit);
-//		if (area) {
-//			summary += this.areaLabel + ": " + area + " " + metricUnit + '<sup>2</sup>' + '<br />';
-//		}else if (length) {
-//			summary += this.lengthLabel + ": " + length + " " + metricUnit + '<br />';
-//		}else if(geometry instanceof OpenLayers.Geometry.Point){
-//			summary += "X: " + geometry.x + ", Y:" + geometry.y + '<sup>2</sup>' + '<br />';
-//		}
-//
-//		return summary;
-//    },
-//
-//	/**
-//	 * Method: getArea
-//	 *
-//	 * Parameters:
-//	 * geometry - {<OpenLayers.Geometry>}
-//	 * units - {String} Unit abbreviation
-//	 *
-//	 * Returns:
-//	 * {Float} The geometry area in the given units.
-//	 */
-//	getArea : function(geometry, units) {
-//		var area, geomUnits;
-//		area = geometry.getArea();
-//		if(area > 0){
-//			area = geometry.getGeodesicArea(this.target.mapPanel.map.getProjectionObject());
-//			geomUnits = "m";
-//
-//			var inPerDisplayUnit = OpenLayers.INCHES_PER_UNIT[units];
-//			if (inPerDisplayUnit) {
-//				var inPerMapUnit = OpenLayers.INCHES_PER_UNIT[geomUnits];
-//				area *= Math.pow((inPerMapUnit / inPerDisplayUnit), 2);
-//			}
-//		}
-//		return area;
-//	},
-//
-//	/**
-//	 * Method: getLength
-//	 *
-//	 * Parameters:
-//	 * geometry - {<OpenLayers.Geometry>}
-//	 * units - {String} Unit abbreviation
-//	 *
-//	 * Returns:
-//	 * {Float} The geometry length in the given units.
-//	 */
-//	getLength : function(geometry, units) {
-//		var length, geomUnits;
-//		length = geometry.getLength();
-//		if(length){
-//			length = geometry.getGeodesicLength(this.target.mapPanel.map.getProjectionObject());
-//			geomUnits = "m";
-//
-//			var inPerDisplayUnit = OpenLayers.INCHES_PER_UNIT[units];
-//			if (inPerDisplayUnit) {
-//				var inPerMapUnit = OpenLayers.INCHES_PER_UNIT[geomUnits];
-//				length *= (inPerMapUnit / inPerDisplayUnit);
-//			}
-//		}
-//		return length;
-//	},
 
 	/** api: method[getGeometryOperationCombo]
      *  Obtain the geometry operation combo
 	 */
 	getGeometryOperationCombo : function() {
-// Not restore this
-//		var geometryOperationMethodCombo = Ext.create('Ext.form.ComboBox', {
-//			//xtype : 'combo',
-//			ref : '../geometryOperation',
-//			fieldLabel : this.geometryOperationText,
-//			typeAhead : true,
-//			triggerAction : 'all',
-//			lazyRender : false,
-//			mode : 'local',
-//			name : 'geometryOperation',
-//			forceSelected : true,
-//			value: this.defaultGeometryOperation,
-//			emptyText : this.geometryOperationEmptyText,
-//			allowBlank : false,
-//			autoLoad : true,
-//			displayField : 'label',
-//			valueField : 'value',
-//			editable : false,
-//			readOnly : false,
-//			store : Ext.create('Ext.data.JsonStore', {
-//				fields : [{
-//					name : 'name',
-//					dataIndex : 'name'
-//				}, {
-//					name : 'label',
-//					dataIndex : 'label'
-//				}, {
-//					name : 'value',
-//					dataIndex : 'value'
-//				}],
-//				data : this.geometryOperations
-//			}),
-//			listeners : {
-//				// SHOW /Hide distance units for DWITHIN
-//				select : function(c, record, index) {
-//					if(c.getValue() == OpenLayers.Filter.Spatial.DWITHIN){
-//						this.distanceFieldset.show();
-//					}else if(this.distanceFieldset.isVisible()){
-//						this.distanceFieldset.hide();
-//					}
-//				},
-//				scope : this
-//			}
-//		});
-		
 		var geometryOperationMethodCombo = Ext.create('Ext.form.ComboBox', {
 			ref : 'geometryOperation',
 			typeAhead : true,
@@ -604,7 +434,6 @@ Ext.define('TolomeoExt.widgets.form.spatialselector.ToloSpatialSelectorMethod', 
 			lazyRender : false,
 			value: this.defaultGeometryOperation,
 			allowBlank : false,
-			//autoLoad : true,
 			store : Ext.create('Ext.data.JsonStore', {
 				autoLoad : true,
 				fields : [{
@@ -650,7 +479,6 @@ Ext.define('TolomeoExt.widgets.form.spatialselector.ToloSpatialSelectorMethod', 
 				name: "dunits",
 				ref: "dunits",
 				labelStyle: 'width: 130px;',
-				//value: null, //this.target.mapPanel.map.units,
 				allowBlank: false
 			},{
 				xtype: "numberfield",

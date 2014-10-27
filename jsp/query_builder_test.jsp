@@ -37,6 +37,9 @@
  		
 		<script type="text/javascript" src="/tolomeobinj/js/tolomeoExt/query_builder/src/events/ToloQueryBuilderEvtManager.js" charset="utf-8" ></script>
 
+		<script type="text/javascript" src="/tolomeobinj/js/tolomeoExt/query_builder/src/data/ToloUniqueValuesStore.js" charset="utf-8" ></script>
+
+		<script type="text/javascript" src="/tolomeobinj/js/tolomeoExt/query_builder/src/widgets/form/ToloUniqueValuesCombo.js" charset="utf-8" ></script>
  		<script type="text/javascript" src="/tolomeobinj/js/tolomeoExt/query_builder/src/widgets/form/ToloBBOXFieldset.js" charset="utf-8" ></script>
  		<script type="text/javascript" src="/tolomeobinj/js/tolomeoExt/query_builder/src/widgets/form/ToloBufferFieldset.js" charset="utf-8" ></script>
  		<script type="text/javascript" src="/tolomeobinj/js/tolomeoExt/query_builder/src/widgets/form/ToloCoordinatePicker.js" charset="utf-8" ></script>

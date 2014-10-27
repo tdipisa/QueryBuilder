@@ -632,6 +632,14 @@
 	<servlet-mapping>
         <servlet-name>SearchExportServlet</servlet-name>
         <url-pattern>/SearchExportServlet</url-pattern>
+    </servlet-mapping>	
+    <servlet>
+		<servlet-name>UniqueValueServlet</servlet-name>
+		<servlet-class>it.prato.comune.tolomeo.web.UniqueValueServlet</servlet-class>
+	</servlet>
+	<servlet-mapping>
+        <servlet-name>UniqueValueServlet</servlet-name>
+        <url-pattern>/UniqueValueServlet</url-pattern>
     </servlet-mapping>		
 	<servlet>
 		<servlet-name>TestQueryBuilderServlet</servlet-name>

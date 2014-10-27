@@ -176,10 +176,10 @@ public class SearchExportServlet extends TolomeoServlet {
 	            byte[] byteBuffer = new byte[BUFSIZE];
 	            in = new DataInputStream(new FileInputStream(file));
 	            
-	            while ((in != null) && ((length = in.read(byteBuffer)) != -1))
-	            {
+	            while ((in != null) && ((length = in.read(byteBuffer)) != -1)){
 	                outStream.write(byteBuffer, 0, length);
 	            }
+	            
             }catch(IOException ex){
             	String errMsg = "Errore riscontrato scaricando il file";
                 logger.error(errMsg, ex);

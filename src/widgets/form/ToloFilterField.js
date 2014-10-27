@@ -1,14 +1,4 @@
 
-/**
- * include widgets/form/ToloComparisonComboBox.js
- * 
- * include data/WPSUniqueValuesReader.js
- * include data/WPSUniqueValuesProxy.js
- * include data/WPSUniqueValuesStore.js
- * include widgets/form/WPSUniqueValuesCombo.js
- * requires GeoExt/data/AttributeStore.js
- */
-
 Ext.ns('TolomeoExt.widgets.form');
 
 /** api: constructor
@@ -18,7 +8,6 @@ Ext.ns('TolomeoExt.widgets.form');
  */
 Ext.define('TolomeoExt.widgets.form.ToloFilterField', {
 	
-	//extend: 'Ext.form.CompositeField',
 	extend: 'Ext.form.FieldContainer',
 	
 	alias: 'widget.tolomeo_tolofilterfield',
@@ -88,43 +77,23 @@ Ext.define('TolomeoExt.widgets.form.ToloFilterField', {
      */ 
     uniqueValuesStore : null,
     
-//    valid: null,
-    
     pageSize: 5,
     
-//    addValidation: function(config) {
-//        //Add VTYPE validation according to validators config
-//        var feature = this.attributes.baseParams.TYPENAME.split(":")[1];
-//        var fieldName = this.filter.property;
-//        if(this.validators && this.validators[feature] && this.validators[feature][fieldName]) {
-//            var validator = this.validators[feature][fieldName];
-//            // currently we support only regex based validation
-//            if(validator.type === 'regex') {
-//                var valueTest = new RegExp(validator.value);
-//                
-//                Ext.apply(config,{
-//                    validator: function(value) {
-//                        return valueTest.test(value) ? true : validator.invalidText;
-//                    }
-//                });
-//            }
-//        }
-//        return config;
-//    },
-    
-    /*addAutocompleteStore: function(config) {
-        var uniqueValuesStore = new gxp.data.WPSUniqueValuesStore({
-            pageSize: this.autoCompleteCfg.pageSize || this.pageSize
+    addAutocompleteStore: function(config) {
+        var uniqueValuesStore = new TolomeoExt.data.ToloUniqueValuesStore({
+            pageSize: this.autoCompleteCfg.pageSize || this.pageSize,
+			TOLOMEOServer: this.TOLOMEOServer,
+			TOLOMEOContext: this.TOLOMEOContext
         });
         
-        this.initUniqueValuesStore(uniqueValuesStore, this.autoCompleteCfg.url || this.attributes.url, this.attributes.baseParams.TYPENAME, this.attributes.format.namespaces, this.filter.property);
+        this.initUniqueValuesStore(uniqueValuesStore, this.autoCompleteCfg.url, this.layerCodeTPN, this.filter.property);
         
         return Ext.apply(Ext.apply({}, config), {store: uniqueValuesStore});
-    },*/
+    },
     
     createValueWidget: function(type) {
         if(this.autoComplete && this.fieldType === 'java.lang.String') {
-            //return Ext.apply({}, this.addAutocompleteStore(this.autoCompleteDefault[type]));
+            return Ext.apply({}, this.addAutocompleteStore(this.autoCompleteDefault[type]));
         } else {
         	var config = {};
         	if(this.fieldRegEx){
@@ -150,12 +119,9 @@ Ext.define('TolomeoExt.widgets.form.ToloFilterField', {
             }
             this.valueWidgets.removeAll();
             if (type === OpenLayers.Filter.Comparison.BETWEEN) {
-//                this.valueWidgets.add(this.addValidation(this.createValueWidget('lower')));
-//                this.valueWidgets.add(this.addValidation(this.createValueWidget('upper')));
                 this.valueWidgets.add(this.createValueWidget('lower'));
                 this.valueWidgets.add(this.createValueWidget('upper'));
             } else {
-//                this.valueWidgets.add(this.addValidation(this.createValueWidget('single')));
                 this.valueWidgets.add(this.createValueWidget('single'));
             }
             
@@ -170,7 +136,6 @@ Ext.define('TolomeoExt.widgets.form.ToloFilterField', {
             'single': {
                 validateOnBlur: false,
                 ref: "value",
-                //value: this.filter.value,
                 grow: true,
                 growMin: 80,
                 width: 80,
@@ -189,8 +154,6 @@ Ext.define('TolomeoExt.widgets.form.ToloFilterField', {
             },
             
            'lower': {
-                //value: this.filter.lowerBoundary,
-                //tooltip: this.lowerBoundaryTip,
                 grow: true,
                 growMin: 80,
                 width: 80,
@@ -287,12 +250,11 @@ Ext.define('TolomeoExt.widgets.form.ToloFilterField', {
             };
         }
         
-        /*this.autoCompleteDefault = {
+        this.autoCompleteDefault = {
         
             'single': Ext.applyIf({
-                xtype: "gxp_wpsuniquevaluescb",
-                mode: "remote", // required as the combo store shouldn't be loaded before a field name is selected
-                //store: this.uniqueValuesStore,
+                xtype: "tolomeo_uniquevaluescb",
+                queryMode: "remote", // required as the combo store shouldn't be loaded before a field name is selected
                 pageSize: this.autoCompleteCfg.pageSize || this.pageSize,
                 typeAhead: false,
                 forceSelection: false,
@@ -314,19 +276,17 @@ Ext.define('TolomeoExt.widgets.form.ToloFilterField', {
                     },
                     beforequery: function(evt) {
                         evt.combo.store.baseParams.start = 0;
+                        evt.combo.store.baseParams.query =  evt.combo.getValue();
                     },
                     scope: this
                 },
+                matchFieldWidth: false,
                 width: 80,
-                listWidth: 250,
-                grow: true,
-                growMin: 50,
                 anchor: "100%"
             },this.defaultItemsProp['single']),
             'lower': Ext.applyIf({
-                xtype: "gxp_wpsuniquevaluescb",
-                mode: "remote", // required as the combo store shouldn't be loaded before a field name is selected
-                //store: this.uniqueValuesStore,
+                xtype: "tolomeo_uniquevaluescb",
+                queryMode: "remote", // required as the combo store shouldn't be loaded before a field name is selected
                 pageSize: this.autoCompleteCfg.pageSize || this.pageSize,
                 typeAhead: false,
                 forceSelection: false,
@@ -348,19 +308,17 @@ Ext.define('TolomeoExt.widgets.form.ToloFilterField', {
                     },
                     beforequery: function(evt) {
                         evt.combo.store.baseParams.start = 0;
+                        evt.combo.store.baseParams.query =  evt.combo.getValue();
                     },
                     scope: this
                 },
+                matchFieldWidth: false,
                 width: 50,
-                listWidth: 250,
-                grow: true,
-                growMin: 50,
                 anchor: "100%"
             },this.defaultItemsProp['lower']),
             'upper': Ext.applyIf({
-                xtype: "gxp_wpsuniquevaluescb",
-                mode: "remote", // required as the combo store shouldn't be loaded before a field name is selected
-                //store: this.uniqueValuesStore,
+                xtype: "tolomeo_uniquevaluescb",
+                queryMode: "remote", // required as the combo store shouldn't be loaded before a field name is selected
                 pageSize: this.autoCompleteCfg.pageSize || this.pageSize,
                 typeAhead: false,
                 forceSelection: false,
@@ -376,24 +334,21 @@ Ext.define('TolomeoExt.widgets.form.ToloFilterField', {
                         this.filter.upperBoundary = combo.getValue();
                         this.fireEvent("change", this.filter);
                     },
-                    beforequery: function(evt) {
-                        evt.combo.store.baseParams.start = 0;
-                    },
                     blur: function(combo) {
                         this.filter.upperBoundary = combo.getValue();
                         this.fireEvent("change", this.filter);
                     },
+                    beforequery: function(evt) {
+                        evt.combo.store.baseParams.start = 0;
+                        evt.combo.store.baseParams.query =  evt.combo.getValue();
+                    },
                     scope: this
                 },
+                matchFieldWidth: false,
                 width: 50,
-                listWidth: 250,
-                grow: true,
-                growMin: 50,
                 anchor: "100%"
             },this.defaultItemsProp['upper'])        
-         
-        };*/        
-        
+        };      
     },
     
     initComponent: function() {
@@ -411,25 +366,6 @@ Ext.define('TolomeoExt.widgets.form.ToloFilterField', {
             this.filter = this.createDefaultFilter();
         }
         
-        // TODO THIS ??? ////////////////////////////////
-        // Maintain compatibility with QueryPanel, which relies on "remote"
-        // mode and the filterBy filter applied in it's attributeStore's load
-        // listener *after* the initial combo filtering.
-        //TODO Assume that the AttributeStore is already loaded and always
-        // create a new one without geometry fields.
-        //var mode = "remote", attributes = new GeoExt.data.AttributeStore();
-        //if (this.attributes) {
-        //    if (this.attributes.getCount() != 0) {
-        //        mode = "local";
-        //        this.attributes.each(function(r) {
-        //            var match = /gml:((Multi)?(Point|Line|Polygon|Curve|Surface|Geometry)).*/.exec(r.get("type"));
-        //            match || attributes.add([r]);
-        //        });
-        //    } else {
-        //        attributes = this.attributes;
-        //    }
-        //}
-
         var mode = "local";
         var attributes = this.attributes;
         
@@ -438,10 +374,10 @@ Ext.define('TolomeoExt.widgets.form.ToloFilterField', {
         var defAttributesComboConfig = {
             xtype: "combo",
             store: attributes,
-            editable: false, //mode == "local",
+            editable: false,
             typeAhead: true,
             forceSelection: true,
-            mode: mode,
+            queryMode: mode,
             triggerAction: "all",
             ref: "property",
             allowBlank: this.allowBlank,
@@ -456,8 +392,9 @@ Ext.define('TolomeoExt.widgets.form.ToloFilterField', {
                 	}
                 	
                     this.filter.property = record.get("dbname");
-                    this.fieldType = record.get("type");//.split(":")[1];
+                    this.fieldType = record.get("type");
                     this.fieldRegEx = record.get("regex");
+                    this.layerCodeTPN = record.get("codTPN");
                     
                     if(!this.comparisonCombo) {
                         this.comparisonCombo = this.items.get(1);
@@ -506,70 +443,6 @@ Ext.define('TolomeoExt.widgets.form.ToloFilterField', {
                 	}
                     this.createValueWidgets(record.get("value"));
                 },
-//                expand: function(combo) {
-//                    var store = combo.getStore();
-//                    store.clearFilter();
-//                    if(this.fieldType === "date" || this.fieldType === "dateTime" || this.fieldType === "time" || this.fieldType === "int" || this.fieldType === "double" || this.fieldType === "decimal" || this.fieldType === "integer" || this.fieldType === "long" || this.fieldType === "float" || this.fieldType === "short"){
-//                        store.filter([
-//                          {
-//                            fn   : function(record) {
-//                                return (record.get('text') === "=") || (record.get('text') === "<>") || (record.get('text') === "<") || (record.get('text') === ">") || (record.get('text') === "<=") || (record.get('text') === ">=") || (record.get('text') === "between");
-//                            },
-//                            scope: this
-//                          }                      
-//                        ]);
-//                    }else if(this.fieldType === "boolean"){
-//                        store.filter([
-//                          {
-//                            fn   : function(record) {
-//                                return (record.get('name') === "=");
-//                            },
-//                            scope: this
-//                          }                      
-//                        ]);
-//                    }else if(this.fieldType === "string"){
-//                        store.filter([
-//                          {
-//                            fn   : function(record) {
-//                            	return (record.get('text') === "=") || (record.get('text') === "<>") || (record.get('text') === "<") || (record.get('text') === ">") || (record.get('text') === "<=") || (record.get('text') === ">=") || (record.get('text') === "like") || (record.get('text') === "ilike");
-//                            },
-//                            scope: this
-//                          }                      
-//                        ]);
-//                    }  
-//                },
-//                expand: function(combo) {
-//                    var store = combo.getStore();
-//                    store.clearFilter();
-//                    if(this.fieldType === "date" || this.fieldType === "dateTime" || this.fieldType === "time" || this.fieldType === "int" || this.fieldType === "double" || this.fieldType === "decimal" || this.fieldType === "integer" || this.fieldType === "long" || this.fieldType === "float" || this.fieldType === "short"){
-//                        store.filter([
-//                          {
-//                            fn   : function(record) {
-//                                return (record.get('text') != "like") || (record.get('text') != "ilike");
-//                            },
-//                            scope: this
-//                          }                      
-//                        ]);
-//                    }else if(this.fieldType === "boolean"){
-//                        store.filter([
-//                          {
-//                            fn   : function(record) {
-//                                return (record.get('name') == "=");
-//                            },
-//                            scope: this
-//                          }                      
-//                        ]);
-//                    }else if(this.fieldType === "string"){
-//                        store.filter([
-//                          {
-//                            fn   : function(record) {
-//                            	return (record.get('text') != "between");
-//                            },
-//                            scope: this
-//                          }                      
-//                        ]);
-//                    }  
-//                },
                 expand: function(combo) {
                     var store = combo.getStore();
                     store.clearFilter();
@@ -651,27 +524,8 @@ Ext.define('TolomeoExt.widgets.form.ToloFilterField', {
             "change"
         ); 
 
-//        TolomeoExt.widgets.form.ToloFilterField.superclass.initComponent.call(this);
         this.callParent();
     },
-
-// NOT NEEDED ???
-//    /**
-//     * Method: validateValue
-//     * Performs validation checks on the filter field.
-//     *
-//     * Returns:
-//     * {Boolean} True if value is valid. 
-//     */
-//    validateValue: function(value, preventMark) {
-//        if (this.filter.type === OpenLayers.Filter.Comparison.BETWEEN) {
-//            return (this.filter.property !== null && this.filter.upperBoundary !== null &&
-//                this.filter.lowerBoundary !== null);
-//        } else {
-//            return (this.filter.property !== null &&
-//                this.filter.value !== null && this.filter.type !== null);
-//        }
-//    },
     
     /**
      * Method: createDefaultFilter
@@ -684,36 +538,19 @@ Ext.define('TolomeoExt.widgets.form.ToloFilterField', {
         return new OpenLayers.Filter.Comparison({matchCase: !this.caseInsensitiveMatch});
     },
     
-    /*initUniqueValuesStore: function(store, url, layerName, namespaces, fieldName) {
-        var wpsUrl = url;
-        if (url.indexOf('wfs?', url.length - 'wfs?'.length) !== -1) {
-            wpsUrl = url.substring(0, url.length-'wfs?'.length)+"wps";
-        }
-            
-        var prefix = "";
-        var featureTypeName = layerName;
-        var featureNS;
-        if(layerName.indexOf(':') !== -1) {
-            prefix = layerName.split(':')[0];
-            featureNS = namespaces[prefix] || '';
-        }
-            
+    initUniqueValuesStore: function(store, url, layerName, /*namespaces,*/ fieldName) {
         var params = {
-            url: wpsUrl,
-            outputs: [{
-                identifier: "result",
-                mimeType: "application/json"
-            }],               
+            url: url,
             inputs: {
-                featureTypeName: featureTypeName,
-                featureNS: featureNS,
+            	featureTypeName: layerName,
                 fieldName: fieldName
             },
             start: 0,
             limit: this.autoCompleteCfg.pageSize || this.pageSize
         };
-        store.setWPSParams(params);
-    },*/
+        
+        store.setParams(params);
+    },
     
     setFilterType: function(type) {
         this.filter.type = type;

@@ -159,5 +159,4 @@ Ext.define('TolomeoExt.ToloFeatureManager', {
     	}
     	this.fireEvent("resetfeaturelayer");
     }
-
 });

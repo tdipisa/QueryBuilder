@@ -49,8 +49,7 @@ Ext.define('TolomeoExt.events.ToloQueryBuilderEvtManager', {
 		
 		this.addEvents(
 				"afterboxlayout",
-				"zoomtomapextent"/*,
-				"ongeneratesummary"*/,
+				"zoomtomapextent",
 				"removelayer",
 				"addcoordinatepickercontrol",
 				"updatemappoint",
@@ -63,11 +62,8 @@ Ext.define('TolomeoExt.events.ToloQueryBuilderEvtManager', {
 		
 		this.on("afterboxlayout", this.onAfterBoxLayout);
 		this.on("zoomtomapextent", this.zoomToMapExtent);
-//		this.on("ongeneratesummary", this.onGenerateSummary);		
 		this.on("removelayer", this.removeLayer);
 		this.on("addlayer", this.addLayer);
-//		this.on("aftercoordinatepickerinit", this.afterCoordinatePickerInit),
-//		this.on("addcontrol", this.addControlToMap),
 		this.on("addcoordinatepickercontrol", this.addCoordinatePickerControl);
 		this.on("updatemappoint", this.updateMapPoint);
 		this.on("drawbuffer", this.drawBuffer);
@@ -81,12 +77,6 @@ Ext.define('TolomeoExt.events.ToloQueryBuilderEvtManager', {
 			this.fireEvent("mapmoved", this.map.getExtent());
 		});
 	},
-	
-//	addControlToMap: function(control){
-//		if(control){
-//			this.map.addControl(control);
-//		}
-//	}
 	
 	addLayer: function(layer){
 		if(layer && this.map){
@@ -154,20 +144,11 @@ Ext.define('TolomeoExt.events.ToloQueryBuilderEvtManager', {
 			}),
             onChangeAOI: function(){
             	var bounds = new OpenLayers.Bounds.fromString(this.currentAOI);  
-//                scope.setBBOX(bounds); 
-//                var bboxBounds;
-//                if(map.getProjection() != scope.bboxProjection.getCode()){
-//                    bboxBounds = bounds.transform(map.getProjectionObject(), scope.bboxProjection);
-//                }else{
-//                    bboxBounds = bounds;
-//                }
               
                 scope.northField.setValue(bounds.top);
                 scope.southField.setValue(bounds.bottom);
                 scope.westField.setValue(bounds.left);
                 scope.eastField.setValue(bounds.right); 
-                
-//                scope.fireEvent('select', this, bounds);
                 
                 this.deactivate();
                 scope.bboxButton.toggle();
@@ -213,19 +194,15 @@ Ext.define('TolomeoExt.events.ToloQueryBuilderEvtManager', {
 	            }, 
 	            trigger: function(e){
 	                //get lon lat
-//	                var map = this.map;
 	                var lonlat = map.getLonLatFromPixel(e.xy);
 	                var geoJsonPoint = lonlat.clone();
 	                geoJsonPoint.transform(map.getProjectionObject(), new OpenLayers.Projection(scope.outputSRS));
 	                
-//	                var latitudeField = scope.query('numberfield[ref=latitudeField]')[0];
 	                scope.latitudeField.setValue(geoJsonPoint.lat);
-//	                var longitudeField = scope.query('numberfield[ref=longitudeField]')[0];
 	                scope.longitudeField.setValue(geoJsonPoint.lon);
 	                
 	                //update point on the map
 	                scope.updateMapPoint(lonlat);
-//	                scope.clickToggle.toggle();      
 	                scope.toggleButton(false);
 	            },
 	            map: map
@@ -237,7 +214,6 @@ Ext.define('TolomeoExt.events.ToloQueryBuilderEvtManager', {
 	},
 	
 	updateMapPoint: function(lonlat, scope){
-//		this.resetMapPoint();
 		if(lonlat){
 	        var style = new OpenLayers.Style(scope.selectStyle);
 	        scope.layer = new OpenLayers.Layer.Vector(scope.selectLayerName, {
@@ -248,8 +224,6 @@ Ext.define('TolomeoExt.events.ToloQueryBuilderEvtManager', {
 	        scope.layer.addFeatures([pointFeature]);
 	        scope.layer.displayInLayerSwitcher = scope.displayInLayerSwitcher;
 	        this.map.addLayer(scope.layer);  
-
-//			this.fireEvent("update");
 		}
 	},
 	
@@ -274,18 +248,12 @@ Ext.define('TolomeoExt.events.ToloQueryBuilderEvtManager', {
 				0
 			);
 		}
-		
-//		this.drawBuffer(polygon);
-        if(style){
-//            this.resetBuffer();
-//    		if(this.selectStyle){
-    			var layer = map.getLayersByName(layername)[0];
-                if(layer){
-                    map.removeLayer(layer);
-                }
-//    			
-//    			this.fireEvent('bufferremoved', this);
-//    		}
+
+		if(style){
+			var layer = map.getLayersByName(layername)[0];
+            if(layer){
+                map.removeLayer(layer);
+            }
                 
             var style = new OpenLayers.Style(style);
             
@@ -302,10 +270,7 @@ Ext.define('TolomeoExt.events.ToloQueryBuilderEvtManager', {
             }
             
             map.addLayer(bufferLayer);  
-			
-//			this.fireEvent('bufferadded', this, bufferFeature);
         } 
-        
 	},
 	
 	polygonSpatialSelectorActive: function(scope){
@@ -333,13 +298,11 @@ Ext.define('TolomeoExt.events.ToloQueryBuilderEvtManager', {
             scope: scope
         });                                 
     
-    	// TODO: restore this
-        //this.target.mapPanel.map.addLayer(this.drawings);
+		this.addLayer(scope.drawings);
         
 		scope.draw = scope.getDrawControl();
         
 		// disable pan while drawing
-		// TODO: make it configurable
 		scope.draw.handler.stopDown = true;
 		scope.draw.handler.stopUp = true;
 

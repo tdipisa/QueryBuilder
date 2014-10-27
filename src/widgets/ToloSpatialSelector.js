@@ -76,12 +76,6 @@ Ext.define('TolomeoExt.widgets.ToloSpatialSelector', {
 	 * Init spatialSelectors .
 	 */
 	constructor : function(config) {
-		// default layout configuration
-//		this.layoutConfig = {
-//    		xtype: "container",
-//    		hidden: true
-//		};
-		
 		this.layoutConfig = {
             xtype: 'container',
             defaults:{
@@ -98,14 +92,9 @@ Ext.define('TolomeoExt.widgets.ToloSpatialSelector', {
 		if(this.spatialSelectorsConfig){
 			for (var key in this.spatialSelectorsConfig){
 				var spConfig = this.spatialSelectorsConfig[key];
-				//spConfig.target = this.target;
 				var plugin = Ext.create(spConfig.xtype, {
 					qbEventManager: this.qbEventManager
 				});
-//				plugin.output.on('geometrySelect', function(geometry){
-//					this.qbEventManager.fireEvent("ongeneratesummary");
-//				}, this);
-				
 				this.spatialSelectors[key] = plugin;
 				var selectorItem = plugin.getSelectionMethodItem();
 				selectorItem.value = key;
@@ -113,7 +102,6 @@ Ext.define('TolomeoExt.widgets.ToloSpatialSelector', {
 			}	
 		}
 		
-		//return TolomeoExt.widgets.ToloSpatialSelector.superclass.constructor.call(this, arguments);
 		this.callParent(arguments);
 	},
 
@@ -138,7 +126,6 @@ Ext.define('TolomeoExt.widgets.ToloSpatialSelector', {
 			xtype : 'combo',
 			// anchor : '100%',
 			id : this.id + '_selectionMethod_id',
-//			ref : '../outputType',
 			fieldLabel : this.comboSelectionMethodLabel,
 			typeAhead : true,
 			triggerAction : 'all',
@@ -205,26 +192,9 @@ Ext.define('TolomeoExt.widgets.ToloSpatialSelector', {
 			items: selItems
 		});
 
-// Not restore this
-//    	if(this.spatialSelectors){
-//	    	for (var key in this.spatialSelectors){
-//	    		var output = this.spatialSelectors[key];
-//	    		if(output){
-//					layout.items.push(output);
-//	    		}
-//	    	}
-//	    }
-
-	    // reset when portal ready. Needs to be at this time to read the map configuration
-	    /*var me = this;
-	    this.target.on("ready", function(){
-	    	me.reset();
-	    });*/
-
     	this.items = [layout];
     	
     	this.callParent();    	
-    	//return layout;
     	
     	//
     	// Update the current map extent
@@ -264,7 +234,7 @@ Ext.define('TolomeoExt.widgets.ToloSpatialSelector', {
 			return new OpenLayers.Filter.Spatial({
 				type: OpenLayers.Filter.Spatial.BBOX,
 				property: this.filterGeometryName,
-				value: this.currentMapExtent //this.target.mapPanel.map.getExtent()
+				value: this.currentMapExtent 
 			});
 		}
 	},

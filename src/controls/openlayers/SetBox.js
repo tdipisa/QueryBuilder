@@ -145,4 +145,5 @@ OpenLayers.Control.SetBox = OpenLayers.Class(OpenLayers.Control, {
     },
 
     CLASS_NAME: "OpenLayers.Control.SetBox"
+    	
 });

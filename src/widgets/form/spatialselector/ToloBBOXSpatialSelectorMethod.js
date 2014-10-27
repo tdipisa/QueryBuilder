@@ -109,19 +109,16 @@ Ext.define('TolomeoExt.widgets.form.spatialselector.ToloBBOXSpatialSelectorMetho
 		// Spatial AOI Selector FieldSet
 		// ///////////////////////////////////////////
 		var confbbox = {
-            map: null, //this.target.mapPanel.map,
-            outputSRS : this.displayProjection  || null, //this.target.mapPanel.map.projection,
+            map: null, 
+            outputSRS : this.displayProjection  || null, 
             spatialFilterOptions: this.spatialFilterOptions,
-            // checkboxToggle: false,
             ref: "spatialFieldset",
             id: this.id + "_bbox",
             infoSRS: this.infoSRS,
             defaultStyle: this.defaultStyle,
             selectStyle: this.selectStyle,
             temporaryStyle: this.temporaryStyle,
-            // width: 300,
             anchor: "100%",
-		    // start i18n
             title: this.setAoiTitle,
 		    northLabel:this.northLabel,
 		    westLabel:this.westLabel,
@@ -129,26 +126,13 @@ Ext.define('TolomeoExt.widgets.form.spatialselector.ToloBBOXSpatialSelectorMetho
 		    southLabel:this.southLabel,
 		    setAoiText: this.setAoiText,
 		    setAoiTooltip: this.setAoiTooltip,
-		    waitEPSGMsg: "Please Wait..."//,
-//		    listeners : {
-//		    	"onChangeAOI" : function(bounds) {
-//		            var geom = bounds.toGeometry();
-//		            if(displayProjection){
-//		              geom = bounds.toGeometry().transform(new OpenLayers.Projection(displayProjection),this.target.mapPanel.map.projection);
-//		              this.setCurrentGeometry(geom);
-//		            }else{
-//		              this.setCurrentGeometry(geom);
-//		            }
-//		    	},
-//		    	scope: this
-//		    }
+		    waitEPSGMsg: "Please Wait..."
         };
 
     	this.output = Ext.create('TolomeoExt.widgets.form.ToloBBOXFieldset', confbbox);
 
     	this.items = [this.output];
 
-    	//TolomeoExt.widgets.form.spatialselector.ToloBBOXSpatialSelectorMethod.superclass.initComponent.call(this);
     	this.callParent();
     },
 
@@ -164,7 +148,6 @@ Ext.define('TolomeoExt.widgets.form.spatialselector.ToloBBOXSpatialSelectorMetho
 	deactivate: function(){
 		TolomeoExt.widgets.form.spatialselector.ToloBBOXSpatialSelectorMethod.superclass.deactivate.call(this);
 		if(this.output){
-//    		this.output.removeBBOXLayer();
 			if(this.qbEventManager){
 				this.qbEventManager.fireEvent("removelayer", this.output.layerName);
 			}
@@ -175,28 +158,11 @@ Ext.define('TolomeoExt.widgets.form.spatialselector.ToloBBOXSpatialSelectorMetho
     // Reset method
     reset: function(){
     	TolomeoExt.widgets.form.spatialselector.ToloBBOXSpatialSelectorMethod.superclass.reset.call(this);
-//    	this.output.removeBBOXLayer();
     	
 		if(this.qbEventManager){
 			this.qbEventManager.fireEvent("removelayer", this.output.layerName);
 		}
     	this.output.reset();
-    },
+    }
 
-//  Not Restore this
-//	/** api: method[getSummary]
-//     *  :arg geometry: ``Object`` The geometry to be setted as current geometry.
-//     *  Obtain selection summary
-//	 */
-//    getSummary: function(geometry){
-//		var summary = TolomeoExt.widgets.form.spatialselector.ToloBBOXSpatialSelectorMethod.superclass.getSummary.call(this, geometry);
-//		var metricUnit = this.metricUnit;
-//
-//		var perimeter = this.getLength(geometry, metricUnit);
-//		if (perimeter) {
-//			summary += this.perimeterLabel + ": " + perimeter + " " + metricUnit + '<br />';
-//		}
-//
-//		return summary;
-//    }
 });

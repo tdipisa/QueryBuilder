@@ -95,42 +95,11 @@ Ext.define('TolomeoExt.widgets.form.ToloCoordinatePicker', {
             bodyStyle:'padding:5px;'
         };
         
-//        map = this.map;
 		
         var compositeField = this;
 		
 		Ext.applyIf(this.selectStyle, this.defaultSelectStyle);
 		
-//        //create the click control
-//        var ClickControl = OpenLayers.Class(OpenLayers.Control, {                
-//            defaultHandlerOptions: {
-//                'single': true,
-//                'double': false,
-//                'pixelTolerance': 0,
-//                'stopSingle': false,
-//                'stopDouble': false
-//            },
-//
-//            initialize: function(options) {
-//                this.handlerOptions = OpenLayers.Util.extend(
-//                    {}, this.defaultHandlerOptions
-//                );
-//                OpenLayers.Control.prototype.initialize.apply(
-//                    this, arguments
-//                ); 
-//                this.handler = new OpenLayers.Handler.Click(
-//                    compositeField, {
-//                        'click': this.trigger
-//                    }, this.handlerOptions
-//                );
-//            }, 
-//            trigger: this.clickHandler,
-//            map:map
-//        });       
-//        
-//        this.selectLonLat = new ClickControl();
-//        // TODO: restore this : map.addControl(this.selectLonLat);
-         
         this.items= [
 				{
                     xtype     : 'numberfield',
@@ -157,16 +126,8 @@ Ext.define('TolomeoExt.widgets.form.ToloCoordinatePicker', {
                       toggle: function(button, pressed) {  
                          if(pressed){
                               this.selectLonLat.activate();
-                              //this.updatePoint();                            
                           }else{
                               this.selectLonLat.deactivate();
-                             
-                              /*
-							  var layer = map.getLayersByName(this.selectLayerName)[0];
-                              if(layer){
-                                  map.removeLayer(layer);
-                              }
-							  */
                           }
                       }
                     }
@@ -185,7 +146,6 @@ Ext.define('TolomeoExt.widgets.form.ToloCoordinatePicker', {
                 }
             ];
         
-//        return  TolomeoExt.widgets.form.ToloCoordinatePicker.superclass.initComponent.apply(this, arguments);
         this.callParent(arguments);
         
         this.on("added", function(scope){
@@ -193,8 +153,6 @@ Ext.define('TolomeoExt.widgets.form.ToloCoordinatePicker', {
         	scope.longitudeField = scope.query('numberfield[ref=longitudeField]')[0];
         	scope.clickToggle = scope.query('button[ref=clickToggle]')[0];
         });
-        
-//        this.fireEvent("afterInit", this);
     },
     
     isValid: function(){
@@ -206,20 +164,6 @@ Ext.define('TolomeoExt.widgets.form.ToloCoordinatePicker', {
     	}
     },
 	
-//	/** event handler for the ClickControl click event*/
-//    clickHandler: function(e){
-//        //get lon lat
-//        var map = this.map;
-//        var lonlat = map.getLonLatFromPixel(e.xy);
-//        //
-//        var geoJsonPoint = lonlat.clone();
-//        geoJsonPoint.transform(map.getProjectionObject(), new OpenLayers.Projection(this.outputSRS));
-//        this.latitudeField.setValue(geoJsonPoint.lat);
-//        this.longitudeField.setValue(geoJsonPoint.lon);
-//        //update point on the map
-//        this.updateMapPoint(lonlat);
-//		this.clickToggle.toggle();      
-//    },
 	
 	/** gets values from the fields and drow it on the map */
     updatePoint: function(){
@@ -237,14 +181,6 @@ Ext.define('TolomeoExt.widgets.form.ToloCoordinatePicker', {
 	 * Remove the point displayed in the map 
 	 */
     resetMapPoint:function(){
-		/*if(this.selectStyle){
-			var layer = null; // map.getLayersByName(this.selectLayerName)[0];
-            if(layer){
-                map.removeLayer(layer);
-            }
-		}
-		
-        this.fireEvent("reset");*/
     	this.fireEvent("reset", this.selectLayerName);
     },
 
@@ -252,37 +188,19 @@ Ext.define('TolomeoExt.widgets.form.ToloCoordinatePicker', {
      * Reset the fields and remove the point from the map
      */
     resetPoint:function(){
-//        this.resetMapPoint();
-        
 		this.latitudeField.reset();
-//		this.query('numberfield[ref=latitudeField]')[0].reset();
         this.longitudeField.reset();
-//        this.query('numberfield[ref=longitudeField]')[0].reset();
 		
-		//this.fireEvent("reset");
         this.resetMapPoint();
 	},
 	
 	toggleButton: function(toggle){
 		this.clickToggle.toggle(toggle);
-//		this.query('button[ref=clickToggle]')[0].toggle(toggle);
 	},
 	
 	/** private point update */
     updateMapPoint:function(lonlat){
         if(this.selectStyle){
-            /*this.resetMapPoint();
-            var style = new OpenLayers.Style(this.selectStyle);
-            this.layer = new OpenLayers.Layer.Vector(this.selectLayerName,{
-                styleMap: style                
-            });
-            var point = new OpenLayers.Geometry.Point(lonlat.lon, lonlat.lat);
-            var pointFeature = new OpenLayers.Feature.Vector(point);
-            this.layer.addFeatures([pointFeature]);
-            this.layer.displayInLayerSwitcher = this.displayInLayerSwitcher;
-            map.addLayer(this.layer);  
-
-			this.fireEvent("update");*/
         	this.resetMapPoint();
         	this.fireEvent("update", lonlat, this);
         	this.fireEvent("updatebuffer", lonlat, this);

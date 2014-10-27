@@ -126,7 +126,6 @@ Ext.define('TolomeoExt.widgets.ToloFilterBuilder', {
             hideLabels: true,
             items: [
                 {
-	                //xtype: "compositefield",
 	                xtype: "fieldcontainer",
 	                style: "padding-left: 2px",
 	                items: [{
@@ -160,7 +159,6 @@ Ext.define('TolomeoExt.widgets.ToloFilterBuilder', {
             "change"
         ); 
 
-//        TolomeoExt.widgets.ToloFilterBuilder.superclass.initComponent.call(this);
         this.callParent();
         
         this.on("added", function(scope){
@@ -237,7 +235,6 @@ Ext.define('TolomeoExt.widgets.ToloFilterBuilder', {
                             filter = child;
                             break;
                         }
-                    //} else if(!child || child.type === null || child.property === null || child[filter.type === OpenLayers.Filter.Comparison.BETWEEN ? "lowerBoundary" : "value"] === null || child[filter.type === OpenLayers.Filter.Comparison.BETWEEN ? "upperBoundary" : "value"] === null) {
                     } else if(!child || child.type === null || child[child.property] === null || child[child.type === OpenLayers.Filter.Comparison.BETWEEN ? "lowerBoundary" : "value"] === null || child[child.type === OpenLayers.Filter.Comparison.BETWEEN ? "upperBoundary" : "value"] === null ) {
                         filter = false;
                         break;
@@ -394,9 +391,10 @@ Ext.define('TolomeoExt.widgets.ToloFilterBuilder', {
             filter: filter,
             columnWidth: 1,
             attributes: this.attributes,
-//            validators: this.validators,
             autoComplete: this.autoComplete,
             autoCompleteCfg: this.autoCompleteCfg,
+			TOLOMEOServer: this.TOLOMEOServer,
+			TOLOMEOContext: this.TOLOMEOContext,
             allowBlank: group ? undefined : this.allowBlank,
             customizeFilterOnInit: group && false,
             caseInsensitiveMatch: this.caseInsensitiveMatch,
@@ -420,7 +418,6 @@ Ext.define('TolomeoExt.widgets.ToloFilterBuilder', {
     removeCondition: function(item, filter) {
 		var parent = this.filter.filters[0].filters;
 		if(parent.length > 1) {
-			//parent.remove(filter);
 			var a = parent.indexOf(filter);
 			if(a!=-1){
 				parent.splice(a,1)
@@ -428,12 +425,10 @@ Ext.define('TolomeoExt.widgets.ToloFilterBuilder', {
 			
 			this.childFilterContainer.remove(item, true);
 		}else{
-//			var items = item.findByType("tolomeo_filterfield");
 			var items = item.query("tolomeo_tolofilterfield");
 			
 			var i = 0;
 			while(items[i]){
-				//items[i].reset();
 				for(var k = 0; k<items.length; k++){
 					items[k].items.each(function(f) {
 					    if (Ext.isFunction(f.reset)) {
@@ -443,7 +438,6 @@ Ext.define('TolomeoExt.widgets.ToloFilterBuilder', {
 				}
 				
                 for(var c = 1;c<items[i].items.items.length;c++){
-                    //items[i].items.get(c).disable();  
                 	var cmp = items[i].items.get(c);
                 	if(cmp.xtype == "container"){
                 		cmp.removeAll();
@@ -507,7 +501,7 @@ Ext.define('TolomeoExt.widgets.ToloFilterBuilder', {
                 },
                 scope: this
             },
-            width: 70 // TODO: move to css
+            width: 70 
         };
     },
     
@@ -561,9 +555,10 @@ Ext.define('TolomeoExt.widgets.ToloFilterBuilder', {
                 columnWidth: 1,
                 filter: grandchild,
                 attributes: this.attributes,
-//                validators: this.validators,
                 autoComplete: this.autoComplete,
                 autoCompleteCfg: this.autoCompleteCfg,
+				TOLOMEOServer: this.TOLOMEOServer,
+				TOLOMEOContext: this.TOLOMEOContext,
                 caseInsensitiveMatch: this.caseInsensitiveMatch,
                 listeners: {
                     change: function() {
@@ -684,6 +679,3 @@ TolomeoExt.widgets.ToloFilterBuilder.ANY_OF = 0;
 TolomeoExt.widgets.ToloFilterBuilder.ALL_OF = 1;
 TolomeoExt.widgets.ToloFilterBuilder.NONE_OF = 2;
 TolomeoExt.widgets.ToloFilterBuilder.NOT_ALL_OF = 3;
-
-/** api: xtype = tolomeo_ToloFilterBuilder */
-//Ext.preg('tolomeo_ToloFilterBuilder', TolomeoExt.ToloFilterBuilder); 

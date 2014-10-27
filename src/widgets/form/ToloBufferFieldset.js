@@ -112,14 +112,11 @@ Ext.define('TolomeoExt.widgets.form.ToloBufferFieldset', {
      */
     initComponent: function() {
 		this.coordinatePicker = Ext.create('TolomeoExt.widgets.form.ToloCoordinatePicker', {
-//			map: this.map,
 			fieldLabel: this.coordinatePickerLabel,
 			latitudeEmptyText: this.latitudeEmptyText,
 			longitudeEmptyText: this.longitudeEmptyText,
 			outputSRS: this.outputSRS,
-			//selectStyle: this.selectStyle,
 			toggleGroup: this.toggleGroup,
-//			ref: "coordinatePicker",
 			listeners: {
 				scope: this,
 				updatebuffer: function(lonlat, scope){
@@ -129,15 +126,6 @@ Ext.define('TolomeoExt.widgets.form.ToloBufferFieldset', {
                         var coords = this.coordinatePicker.getCoordinate();
                         var lonlat = new OpenLayers.LonLat(coords[0], coords[1]);
                         var point = new OpenLayers.Geometry.Point(lonlat.lon, lonlat.lat);
-                        
-//                        var regularPolygon = OpenLayers.Geometry.Polygon.createRegularPolygon(
-//                            point,
-//                            this.bufferField.getValue(),
-//                            100, 
-//                            null
-//                        );
-//                        
-//                        this.drawBuffer(regularPolygon);
                         
         				if(this.qbEventManager){
         					this.qbEventManager.fireEvent("drawbuffer", 
@@ -152,11 +140,6 @@ Ext.define('TolomeoExt.widgets.form.ToloBufferFieldset', {
         				}
                     }
 				},
-//				afterInit: function(evt){
-//					if(this.qbEventManager){
-//						this.qbEventManager.fireEvent("aftercoordinatepickerinit", {scope: evt});
-//					}
-//				},
 				reset: function(selectLayerName){
 					if(this.qbEventManager){
 						this.qbEventManager.fireEvent("removelayer", selectLayerName);
@@ -173,7 +156,7 @@ Ext.define('TolomeoExt.widgets.form.ToloBufferFieldset', {
 		this.bufferField = Ext.create('Ext.form.NumberField', {
 			name: 'buffer',
 			ref: 'bufferField',
-			fieldLabel: this.bufferFieldLabel,// + " (TODO"+/*this.map.units+*/")",
+			fieldLabel: this.bufferFieldLabel,
 			allowBlank: false,
 			disabled: false,
 			width: 195,
@@ -204,26 +187,6 @@ Ext.define('TolomeoExt.widgets.form.ToloBufferFieldset', {
 							this.setBufferLayer,
 							this);
 				}
-				
-//				var polygon;
-//				if(this.geodesic){
-//					polygon = OpenLayers.Geometry.Polygon.createGeodesicPolygon(
-//						point,
-//						this.bufferField.getValue(),
-//						100, 
-//						0,
-//						this.map.getProjectionObject()
-//					);
-//				}else{
-//					polygon = OpenLayers.Geometry.Polygon.createRegularPolygon(
-//						point,
-//						this.bufferField.getValue(),
-//						100, 
-//						0
-//					);
-//				}
-//				
-//				this.drawBuffer(polygon);
 			}else{
 				this.resetBuffer();
 			}
@@ -236,41 +199,12 @@ Ext.define('TolomeoExt.widgets.form.ToloBufferFieldset', {
         
 		this.title = this.bufferFieldSetTitle;
 		
-		//TolomeoExt.widgets.form.ToloBufferFieldset.superclass.initComponent.call(this);
 		this.callParent();
     },
 	
-//    drawBuffer: function(regularPolygon){
-//        if(this.selectStyle){
-//            this.resetBuffer();
-//            var style = new OpenLayers.Style(this.selectStyle);
-//            
-//			this.bufferLayer = new OpenLayers.Layer.Vector(this.selectLayerName,{
-//                styleMap: style                
-//            });
-//
-//            var bufferFeature = new OpenLayers.Feature.Vector(regularPolygon);
-//            this.bufferLayer.addFeatures([bufferFeature]);
-//			
-//            this.bufferLayer.displayInLayerSwitcher = this.displayInLayerSwitcher;
-//            this.map.addLayer(this.bufferLayer);  
-//			
-//			this.fireEvent('bufferadded', this, bufferFeature);
-//        }    
-//    },
-	
 	resetBuffer: function(){
-//		if(this.selectStyle){
-//			var layer = null; //map.getLayersByName(this.selectLayerName)[0];
-//            if(layer){
-//                map.removeLayer(layer);
-//            }
-//			
-//			this.fireEvent('bufferremoved', this);
-//		}
 		if(this.qbEventManager){
 			this.qbEventManager.fireEvent("removelayer", this.selectLayerName);
-			//this.coordinatePicker.resetMapPoint();
 		}
 	},
 	

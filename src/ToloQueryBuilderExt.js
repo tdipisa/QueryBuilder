@@ -64,6 +64,10 @@ Ext.define('TolomeoExt.ToloQueryBuilderExt', {
 		queryfilter: null
 	}, 
 	
+	autoCompleteCfg: {},
+	
+	autoComplete: false,
+	
 	qbFeatureManager: null,
 	
     noFilterSelectedMsgTitle: "Nessun Filtro Selezionato",
@@ -169,7 +173,11 @@ Ext.define('TolomeoExt.ToloQueryBuilderExt', {
 		this.queryfilter = Ext.create('TolomeoExt.widgets.ToloAttributeFilter', {
 			scroll: true,
 			disabled: true,
-			caseInsensitiveMatch: this.caseInsensitiveMatch
+			caseInsensitiveMatch: this.caseInsensitiveMatch,
+			autoCompleteCfg: this.autoCompleteCfg,
+			autoComplete: this.autoComplete,
+			TOLOMEOServer: this.TOLOMEOServer,
+			TOLOMEOContext: this.TOLOMEOContext
 		});
 		
 		this.filterView = Ext.create('TolomeoExt.widgets.ToloFilterView', {

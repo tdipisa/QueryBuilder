@@ -27,12 +27,15 @@ public class LayerStates extends LayerPoligoniTerritorio {
     
     public static final String NL_NAME = "NL_NAME";
     public static final String NL_ABBR = "NL_ABBR";
+    public static final String NL_PERS = "NL_PERS";
     
     public static final String UR_NAME = "UR_NAME";
     public static final String UR_ABBR = "UR_ABBR";
+    public static final String UR_PERS = "UR_PERS";
     
     public static final String RE_NAME = "RE_NAME";
     public static final String RE_ABBR = "RE_ABBR";
+    public static final String RE_PERS = "RE_PERS";
     
     public String getConfigPrefix() {  
     	return "STATES";  
@@ -84,12 +87,15 @@ public class LayerStates extends LayerPoligoniTerritorio {
         addnomicampi(pr,ente,nomeLayer, Layers.NL_IDTPN);
         addnomicampi(pr,ente,nomeLayer, NL_NAME);
         addnomicampi(pr,ente,nomeLayer, NL_ABBR);
+        addnomicampi(pr,ente,nomeLayer, NL_PERS);
         
         addnomicampiLeggibili(pr,ente,nomeLayer, NL_NAME, UR_NAME);
         addnomicampiLeggibili(pr,ente,nomeLayer, NL_ABBR, UR_ABBR);
+        addnomicampiLeggibili(pr,ente,nomeLayer, NL_PERS, UR_PERS);
         
         addnomicampiRegEx(pr,ente,nomeLayer, NL_NAME, RE_NAME);
         addnomicampiRegEx(pr,ente,nomeLayer, NL_ABBR, RE_ABBR);
+        addnomicampiRegEx(pr,ente,nomeLayer, NL_PERS, RE_PERS);
     }
     
     /* 

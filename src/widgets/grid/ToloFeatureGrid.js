@@ -12,18 +12,6 @@ Ext.define('TolomeoExt.widgets.grid.ToloFeatureGrid', {
 	
     alias: "widget.tolomeo_featuregrid",
 
-//    /** api: config[ignoreFields]
-//     *  ``Array`` of field names from the store's records that should not be
-//     *  displayed in the grid.
-//     */
-//    ignoreFields: null,
-    
-//    /** api: config[layer]
-//     *  ``OpenLayers.Layer.Vector``
-//     *  The vector layer that will be synchronized with the layer store.
-//     *  If the ``map`` config property is provided, this value will be ignored.
-//     */
-    
     /** api: config[schema]
      *  ``GeoExt.data.AttributeStore``
      *  Optional schema for the grid. If provided, appropriate field
@@ -40,12 +28,6 @@ Ext.define('TolomeoExt.widgets.grid.ToloFeatureGrid', {
      *  ``Ext.form.TimeField.prototype.format``.
      */
 
-//    /** private: property[layer]
-//     *  ``OpenLayers.Layer.Vector`` layer displaying features from this grid's
-//     *  store
-//     */
-//    layer: null,
-	
 	actionTooltip: "Zoom To Feature",
     
     /** api: method[initComponent]
@@ -129,15 +111,8 @@ Ext.define('TolomeoExt.widgets.grid.ToloFeatureGrid', {
 						var geometry = OpenLayers.Geometry.fromWKT(feature.geometry);
 						var bounds = geometry.getBounds();
 						if(bounds){
-//							this.map.zoomToExtent(bounds);
 							
 							this.fireEvent("zoomtofeatureextent", {dataExtent: bounds});
-							
-//							var showButton = Ext.getCmp("showButton");
-//							if(!showButton.pressed){
-//								showButton.toggle(true);								
-//							}
-
 // RESTORE THIS
 //							grid.getSelectionModel().selectRow(rowIndex);					
 						}
@@ -186,23 +161,7 @@ Ext.define('TolomeoExt.widgets.grid.ToloFeatureGrid', {
                     format: format,
                     renderer: xtype ? undefined : renderer
                 });
-                
-                // TODO
-                // Maybe fields should be cleaned up before adding new elements on it?
-                // Test with more layers in combobox.
-//                fields.add(Ext.create("Ext.data.Field", {
-//	   		    	name: dbname,
-//	   		    	mapping: dbname
-//				}));
 			}
-			
-			//
-			// Additional field to represent geometry as WKT
-			//
-//	        fields.add(Ext.create("Ext.data.Field", {
-//		    	name: "geometry",
-//		    	mapping: "geometry"
-//	        }));
 		}
         
         return columns;

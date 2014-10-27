@@ -322,6 +322,11 @@ Ext.define('TolomeoExt.ToloPanelBase', {
 				caseInsensitiveMatch: false,
 				qbFeatureManager: qbFeatureManager,
 				qbEventManager: qbEventManager,
+				autoCompleteCfg: {
+					url: this.TOLOMEOServer + this.TOLOMEOContext + '/UniqueValueServlet',
+					pageSize: 10
+				},				
+				autoComplete: true,
 			    items     : new Array()
     		});
 			this.queryBuilderPanel = Ext.create('TolomeoExt.ToloQueryBuilderExt',  this.queryBuilderPanelOpt);

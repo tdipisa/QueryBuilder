@@ -14,6 +14,10 @@ Ext.define('TolomeoExt.widgets.ToloAttributeFilter', {
 	extend: 'Ext.Panel',
 	
 	caseInsensitiveMatch: false,
+	
+	autoCompleteCfg: {},
+	
+	autoComplete: false,
 
 	/**
 	 * initComponent: TolomeoExt.widgets.ToloQueryBuilderExt
@@ -44,6 +48,10 @@ Ext.define('TolomeoExt.widgets.ToloAttributeFilter', {
     	
 		this.filterBuilder = new TolomeoExt.widgets.ToloFilterBuilder({
 			 caseInsensitiveMatch: this.caseInsensitiveMatch,
+			 autoCompleteCfg: this.autoCompleteCfg,
+			 autoComplete: this.autoComplete,
+			 TOLOMEOServer: this.TOLOMEOServer,
+			 TOLOMEOContext: this.TOLOMEOContext,
 			 attributes: Ext.create('Ext.data.Store', {
 	   		    fields: [{
 	   		    	name: 'name',
@@ -60,6 +68,9 @@ Ext.define('TolomeoExt.widgets.ToloAttributeFilter', {
 	   		    },{
 	   		    	name: 'dbname', 
 	   		    	mapping: 'dbname'
+	   		    },{
+	   		    	name: 'codTPN', 
+	   		    	mapping: 'codTPN'
 	   		    }],
 	   		    data: schema
 	   		}),

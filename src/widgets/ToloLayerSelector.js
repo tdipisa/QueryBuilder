@@ -28,7 +28,7 @@ Ext.define('TolomeoExt.widgets.ToloLayerSelector', {
 	initComponent: function(){	
 		this.border = 0;
 		
-		this.layerStore = Ext.create('Ext.data.Store',{
+		this.layerStore = Ext.create('Ext.data.Store', {
 		    fields: [{
 		    	name: 'descrizione',
 		    	mapping: 'descrizione'

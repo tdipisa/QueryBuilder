@@ -43,12 +43,6 @@ Ext.define('TolomeoExt.widgets.form.ToloBBOXFieldset', {
      */
     outputSRS: 'EPSG:4326',
 
-//    /** api: property[infoEPSG]
-//     *  ``Boolean``
-//     *  
-//     */
-//    infoSRS: true,
-    
     /** api: property[infoEPSGURL]
      *  ``String``
      *  
@@ -159,8 +153,6 @@ Ext.define('TolomeoExt.widgets.form.ToloBBOXFieldset', {
         
         var me = this;
 
-//        this.bboxProjection = this.outputSRS ? new OpenLayers.Projection(this.outputSRS) : null;
-       
         this.northField = Ext.create('Ext.form.NumberField', {
             fieldLabel: me.northLabel,
             labelAlign: "top",
@@ -169,8 +161,6 @@ Ext.define('TolomeoExt.widgets.form.ToloBBOXFieldset', {
             allowBlank: false,
             decimalPrecision: me.decimalPrecision,
             allowDecimals: true,
-            //colspan: 3,
-            //cellCls: 'spatial-cell',
             hideLabel : false                    
         });
         
@@ -180,11 +170,8 @@ Ext.define('TolomeoExt.widgets.form.ToloBBOXFieldset', {
             id: me.id+"_WestBBOX",
             width: 100,
             allowBlank: false,
-          /*  minValue: this.spatialFilterOptions.latMin,
-            maxValue: this.spatialFilterOptions.latMax,*/
             decimalPrecision: this.decimalPrecision,
             allowDecimals: true,
-            //cellCls: 'spatial-cell',
             hideLabel : false                    
         });
         
@@ -194,11 +181,8 @@ Ext.define('TolomeoExt.widgets.form.ToloBBOXFieldset', {
             id: me.id+"_EastBBOX",
             width: 100,
             allowBlank: false,
-            /*minValue: this.spatialFilterOptions.latMin,
-            maxValue: this.spatialFilterOptions.latMax,*/
             decimalPrecision: this.decimalPrecision,
             allowDecimals: true,
-            //cellCls: 'spatial-cell',
             hideLabel : false                    
         });
               
@@ -208,12 +192,8 @@ Ext.define('TolomeoExt.widgets.form.ToloBBOXFieldset', {
             id: me.id+"_SouthBBOX",
             width: 100,
             allowBlank: false,
-            /*minValue: this.spatialFilterOptions.lonMin,
-            maxValue: this.spatialFilterOptions.lonMax,*/
             decimalPrecision: this.decimalPrecision,
             allowDecimals: true,
-            //colspan: 3,
-            //cellCls: 'spatial-cell',
             hideLabel : false                    
         });
         
@@ -244,11 +224,6 @@ Ext.define('TolomeoExt.widgets.form.ToloBBOXFieldset', {
                 toggle: function(button, pressed) {
                     if(pressed){      
                         //
-                        // Reset the previous control
-                        //
-                        //this.reset();
-
-                        //
                         // Activating the new control
                         //   
                         this.selectBBOX.activate();
@@ -262,7 +237,6 @@ Ext.define('TolomeoExt.widgets.form.ToloBBOXFieldset', {
         this.items = [{
             layout: "form",
             cellCls: 'spatial-cell',
-            //labelAlign: "top",
             cls: 'center-align',
             width: 100,
             border: false,
@@ -272,7 +246,6 @@ Ext.define('TolomeoExt.widgets.form.ToloBBOXFieldset', {
             layout: "form",
             cellCls: 'spatial-cell',
             cls: 'center-align',
-            //labelAlign: "top",
             width: 100,
             border: false,
             items: [this.westField]
@@ -286,7 +259,6 @@ Ext.define('TolomeoExt.widgets.form.ToloBBOXFieldset', {
             layout: "form",
             cellCls: 'spatial-cell',
             cls: 'center-align',
-            //labelAlign: "top",
             width: 100,
             border: false,
             items: [this.eastField]
@@ -294,51 +266,19 @@ Ext.define('TolomeoExt.widgets.form.ToloBBOXFieldset', {
             layout: "form",
             cellCls: 'spatial-cell',
             cls: 'center-align',
-            //labelAlign: "top",
             width: 100,
             border: false,
             colspan: 3,
             items: [this.southField]
         }];
             
-//        if(this.infoSRS)   
-//            this.title += " <a href='#' id='"+me.id+"_bboxAOI-set-EPSG'>[TODO"+/*this.bboxProjection.getCode()+*/"]</a>";
-        
         this.listeners = {
            "afterlayout": function(){
 				if(this.ownerCt.qbEventManager){
-					/* var baseProj = me.map.getProjection();
-					var projection = baseProj ? baseProj : me.map.projection; 				
-	                me.mapProjection = new OpenLayers.Projection(projection);
-	                me.selectBBOX = new OpenLayers.Control.SetBox({      
-	                    map: me.map,       
-	                    layerName: me.layerName,
-	                    displayInLayerSwitcher: me.displayBBOXInLayerSwitcher,
-	                    boxDivClassName: "olHandlerBoxZoomBox_"+me.id,
-	                    aoiStyle: new OpenLayers.StyleMap({
-							"default" : me.defaultStyle,
-							"select": me.selectStyle,
-							"temporary": me.temporaryStyle
-						}),
-	                    onChangeAOI: function(){
-	                    	var bounds = new OpenLayers.Bounds.fromString(this.currentAOI);  
-	                        me.setBBOX(bounds); 
-	                        this.deactivate();
-	                        me.bboxButton.toggle();
-	                        
-	                        me.fireEvent('onChangeAOI', bounds);
-	                    } 
-	                }); 
-	        
-	                me.map.addControl(me.selectBBOX);
-	                me.map.enebaleMapEvent = true;*/
-					
 					this.ownerCt.qbEventManager.fireEvent("afterboxlayout", {scope: me});
 				}
             },
             beforecollapse : function(p) {
-//                me.removeBBOXLayer();
-                
 				if(this.ownerCt.qbEventManager){
 					this.ownerCt.qbEventManager.fireEvent("removelayer", this.layerName);
 				}
@@ -346,36 +286,13 @@ Ext.define('TolomeoExt.widgets.form.ToloBBOXFieldset', {
           
         };
 
-        //TolomeoExt.form.ToloBBOXFieldset.superclass.initComponent.call(this);
         this.callParent();
     },
     
-    /** private: method[isDark]
-     *  :arg hex: ``String`` A RGB hex color string (prefixed by '#').
-     *  :returns: ``Boolean`` The color is dark.
-     *  
-     *  Determine if a color is dark by avaluating brightness according to the
-     *  W3C suggested algorithm for calculating brightness of screen colors.
-     *  http://www.w3.org/WAI/ER/WD-AERT/#color-contrast
-     */
-
-// Not restore this
-//    /** public: method[removeBBOXLayer]	 
-//     *     remove the BBOX selection layer from the map
-//     */
-//    removeBBOXLayer: function(){
-//        var bboxLayer = null; //this.map.getLayersByName(this.layerName)[0];
-//      
-//        if(bboxLayer){
-//            this.map.removeLayer(bboxLayer);
-//        }
-//    },
-
     /** public: method[reset]	 
      *    reset BBOX Panel
      */
     reset: function(){
-//        this.removeBBOXLayer();
 		if(this.ownerCt.qbEventManager){
 			this.ownerCt.qbEventManager.fireEvent("removebboxlayer", {scope: this});
 		}
@@ -386,28 +303,6 @@ Ext.define('TolomeoExt.widgets.form.ToloBBOXFieldset', {
 
 		this.fireEvent('unselect', this);
     },
-    
-    /** public: method[setBBOX]
-     *  :arg bounds: ``Object``
-     *     change the current BBOX, to the given bounds, converting it to BBOX projection if needed
-     */
-//    setBBOX: function(bounds) {
-//        var bboxBounds;
-//
-//        if(this.map.getProjection() != this.bboxProjection.getCode()){
-//            bboxBounds = bounds.transform(this.map.getProjectionObject(),this.bboxProjection);
-//        }else{
-//            bboxBounds = bounds;
-//        }
-//      
-//        this.northField.setValue(bboxBounds.top);
-//        this.southField.setValue(bboxBounds.bottom);
-//        this.westField.setValue(bboxBounds.left);
-//        this.eastField.setValue(bboxBounds.right); 
-//        
-//        this.fireEvent('select', this, bboxBounds);
-//
-//    },
 
     /** public: method[isValid]
      *  
@@ -431,18 +326,6 @@ Ext.define('TolomeoExt.widgets.form.ToloBBOXFieldset', {
             this.northField.isDirty());
     },
 
-    /** public: method[getBBOXMapBounds]
-     *  
-     *   return the selected BBOX bounds defined with the Map Projection  
-     */
-//    getBBOXMapBounds: function(){
-//        if(this.map.getProjection() != this.bboxProjection.getCode()){  
-//            return this.getBBOXBounds().transform(this.bboxProjection,this.mapProjection);
-//        }else{
-//            return this.getBBOXBounds();
-//        }
-//    },
-    
     /** public: method[getBBOXBounds]
      *  
      *  return the selected BBOX bounds defined with the Panel Projection   
@@ -454,63 +337,6 @@ Ext.define('TolomeoExt.widgets.form.ToloBBOXFieldset', {
             this.eastField.getValue(), 
             this.northField.getValue()
         );
-    },
+    }
     
-    /** private: method[openEpsgWin]
-     *    Opens a popup with current BBOX CRS description 
-     */
-//    openEPSGWin: function() {      
-//        this.epsgWinHeight= this.epsgWinHeight ? this.epsgWinHeight : Ext.getBody().getHeight()*.7;
-//        this.epsgWinWidth=  this.epsgWinWidth ? this.epsgWinWidth : Ext.getBody().getWidth()*.8;
-//     
-//        var me= this;
-//        var win= Ext.create('Ext.Window', {
-//            layout:'fit', 
-//            id: me.id+'_epsg_info_win',
-//            width:me.epsgWinWidth,
-//            closeAction:'destroy',
-//            html: '<div id="'+me.id+'_loaderIframe"><iframe id="'+me.id+'_epsgIframe" src="'+ me.getCRSURLFromCode() +'" width="99%" height="'+me.epsgWinHeight+'"></iframe></div>',
-//            listeners: {
-//                afterrender: function(el, eOpts) {
-//                    var ml = new Ext.LoadMask(document.getElementById(me.id+'_loaderIframe'), 
-//                    {
-//                        msg: me.waitEPSGMsg,
-//                        removeMask: true
-//                    });
-//                    ml.show();   
-//                    function rml(){
-//                        ml.hide();
-//                    }
-//                    var iframe = document.getElementById(me.id+'_epsgIframe');
-//                    if (iframe.attachEvent) {
-//                        iframe.attachEvent("onload", rml);
-//                    } else if (iframe.addEventListener) {
-//                        iframe.addEventListener("load", rml, false);
-//                    } 
-//                }   
-//            }
-//        }); 
-//        win.show();
-//    },
-//     
-//    /** private: method[getCRSURLFromCode]
-//     *    Get CRS HTML page URL description
-//     */
-//    getCRSURLFromCode: function(){
-//        var srsURL;
-//        if( ! this.infoEPSGURL){
-//            srsURL="http://spatialreference.org/ref/";
-//            switch (this.bboxProjection.getCode()){
-//            case "EPSG:900913":
-//                srsURL+= "sr-org/7483/";
-//                break;
-//                
-//            default:
-//               srsURL+= "epsg/"+( +this.bboxProjection.getCode().split(":")[1]+"/"); 
-//            }
-//        }else
-//         srsURL=this.infoEPSGURL;
-//         
-//       return srsURL;
-//    }  
 });

@@ -65,7 +65,6 @@ Ext.define('TolomeoExt.widgets.form.ToloComparisonComboBox', {
         
         Ext.applyIf(this, defConfig);
         
-//        TolomeoExt.widgets.form.ToloComparisonComboBox.superclass.initComponent.call(this);
         this.callParent();
     }
 });
