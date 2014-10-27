@@ -1,6 +1,9 @@
 
 /**
- * 
+ * Plugin per la gestione di richieste e operazioni 
+ * che coinvolgono le features.
+ *
+ * @author Tobia Di Pisa at tobia.dipisa@geo-solutions.it
  */
 Ext.define('TolomeoExt.ToloFeatureManager', {
 	
@@ -8,18 +11,46 @@ Ext.define('TolomeoExt.ToloFeatureManager', {
 	
 	id: "qb_featuremanager",
 	
+	/**
+	 * @cfg {String} TOLOMEOServer
+	 * URL di base del contesto di Tolomeo.
+	 */
 	TOLOMEOServer: null,
 	
+	/**
+	 * @cfg {String} TOLOMEOContext
+	 * Contesto di Tolomeo.
+	 */
 	TOLOMEOContext: null,
 
+	/**
+	 * @property {Ext.Data.Store} featureStore
+	 * Store delle features ritornate dal server a seguito di una richiesta.
+	 */
 	featureStore: null,
 	
+	/**
+	 * @cfg {Number} maxFeatures [maxFeatures="10"]
+	 * Massimo numero di elementi per pagina.
+	 */
 	maxFeatures: 10,
 	
+	/**
+	 * @cfg {Number} startIndex [startIndex="0"]
+	 * Indice di pagina per richieste paginate.
+	 */
 	startIndex: 0,
 	
+	/**
+	 * @property {Ext.Data.Proxy} proxy
+	 * Proxy Ext per le richieste Ajax cross-domain.
+	 */
 	proxy: null,
 	
+	/**
+     * Crea un nuovo TolomeoExt.ToloFeatureManager.
+     * @param {Object} [config] Un opzionale oggetto di configurazione per il componente ExtJs.
+     */
 	constructor: function(config) {
 		this.callParent(arguments);
 		
@@ -40,6 +71,11 @@ Ext.define('TolomeoExt.ToloFeatureManager', {
 		this.on("export", this.exportPage);
 	},
 	
+	/**
+     * Esporta i dati in griglia secondo i formati supportati (SHP, CSV, Spatialite).
+     * @param {Object} options Oggetto contenente le opzioni per lo scaricamento dei dati. 
+     *
+     */
 	exportPage: function(options){
         this.fireEvent("beforedataexport");
 		
@@ -70,6 +106,11 @@ Ext.define('TolomeoExt.ToloFeatureManager', {
 		new TolomeoExt.ToloCrossAjax().request(submitOpt);
 	},
 	
+	/**
+     * Imposta lo store delle features.
+     * @param {Ext.Data.Store} store Oggetto rappresentante lo store dei dati. 
+     *
+     */
 	setFeatureStore: function(store){
 		this.featureStore = store
 		
@@ -78,6 +119,11 @@ Ext.define('TolomeoExt.ToloFeatureManager', {
 		}, this);
 	},
 	
+    /**
+     * Recupera lo schema degli attributi.
+     * @param {Object} fparams Oggetto contenente i parametri che saranno usati nella richista. 
+     *
+     */
 	getSchema: function(fparams){
         if (!this.schemaCache) {
             this.schemaCache = {};
@@ -107,17 +153,20 @@ Ext.define('TolomeoExt.ToloFeatureManager', {
         }        
 	},
 	
-    /**
-     * Method: doOnQueryAjaxFailure
-     * Funzione di gestione errore avvenuto nella chiamata Ajax per il popolamento dello store dello schema
+	/**
+     * Handler invocato in caso di fallimento della richiesta Ajax.
+     * @param {Ext.Data.Store} store Oggetto rappresentante lo store dei dati. 
      *
-     * Parameters:
-     * store - {} store
      */
 	doAjaxFailure: function (store) {
 		this.fireEvent("loadfeaturesfailure", store);
     },
     
+    /**
+     * Metodo di caricamento dello store delle features.
+     * @param {Object} fparams Oggetto contenente i parametri che saranno usati nella richista. 
+     *
+     */
     loadFeatures: function(fparams){       	
     	//
     	// Prepare the proxy params
@@ -139,6 +188,10 @@ Ext.define('TolomeoExt.ToloFeatureManager', {
     	});
     },
     
+	/**
+     * Imposta il proxy per le richieste cross-domain. 
+     *
+     */
     setProxy: function(){
 		this.proxy = TolomeoExt.ToloCrossAjaxUtil.getProxy(null, this.TOLOMEOServer + this.TOLOMEOContext + '/SearchExportServlet');
 		var reader = this.proxy.getReader();
@@ -146,10 +199,18 @@ Ext.define('TolomeoExt.ToloFeatureManager', {
 		reader.totalProperty = "total";
     },
     
+    /**
+     * Recupera il proxy usato per le richiesta cross-domani. 
+     *
+     */
     getProxy: function(){
     	return this.proxy;
     },
     
+	/**
+     * Reimposta i parametri di richiesta per la racclta delle features risultato della ricerca. 
+     *
+     */
     resetQuery: function(){
     	this.maxFeatures = 10;
     	this.startIndex = 0;
@@ -157,6 +218,8 @@ Ext.define('TolomeoExt.ToloFeatureManager', {
     	if(this.featureStore){
     		this.featureStore.removeAll();
     	}
+		
     	this.fireEvent("resetfeaturelayer");
     }
+	
 });

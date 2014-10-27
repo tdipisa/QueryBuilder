@@ -1,51 +1,66 @@
-Ext.ns("TolomeoExt.widgets");
 
-/** api: constructor
- *  .. class:: FeatureGrid(config)
+/**
+ * Plugin per il display di feature vettoriali 
+ * in una griglia ExtJs.
  *
- *    Plugin for displaying vector features in a grid. Requires a
- *    :class:`gxp.plugins.FeatureManager`. Also provides a context menu for
- *    the grid.
- */   
+ * @author Tobia Di Pisa at tobia.dipisa@geo-solutions.it
+ */
 Ext.define('TolomeoExt.ToloFeatureGridPanel', {
 
 	extend: 'Ext.Panel',
 
-	/** api: ptype = tolomeo_featurecomponent */
 	alias: "widget.tolomeo_featurecomponent",
 	
 	id: "tolomeo_featuregrid",
 
-	/** 
-	 * Property: paramsJS
-	 * {JSONObject}
+	/**
+	 * @property {JSONObject} paramsJS
+	 * Configurazioni specifiche del file di preset.
 	 */
 	paramsJS: null,
 
-	/** 
-	 * Property: TOLOMEOServer
-	 * {String}
+	/**
+	 * @cfg {String} TOLOMEOServer
+	 * URL di base del contesto di Tolomeo.
 	 */
 	TOLOMEOServer: null,
 
-	/** 
-	 * Property: TOLOMEOContext
-	 * {String}
+	/**
+	 * @cfg {String} TOLOMEOContext
+	 * Contesto di Tolomeo.
 	 */
 	TOLOMEOContext: null,
 
-	/** 
-	 * private: property[schema]
-	 * {JSONObject}
+	/**
+	 * @property {Object} schema
+	 * Schema nome e tipo degli attributi usati per la configurazione delle griglia
 	 */
 	schema: null,
 
+	/**
+	 * @cfg {TolomeoExt.ToloFeatureManager} qbFeatureManager (required)
+	 * Gestore di richieste e operazioni che coinvolgono le features.
+	 */
 	qbFeatureManager: null,
 
-	/** api: method[addOutput]
+	/**
+	 * @property {TolomeoExt.events.ToloQueryBuilderEvtManager} qbEventManager
+	 * Gestore di eventi per il query builder.
 	 */
-	initComponent: function(config) {
+	qbEventManager: null,
 		
+    /**
+	 * @property {OpenLayers.Layer.Vector} featureLayer 
+	 * Layer vettoriale contenente le features corrispondenti alla ricerca.
+	 */
+	featureLayer: null,
+	
+	/**
+     * Inizializza un oggeto di tipo TolomeoExt.ToloFeatureGridPanel.
+     * @param {Object} [config] Un opzionale oggetto di configurazione per il componente ExtJs.
+     */
+	initComponent: function(config) {
+	
 		if(!this.featureLayer){
 			this.featureLayer = new OpenLayers.Layer.Vector("gridFeatureLayer", {
 				displayInLayerSwitcher: false
@@ -248,6 +263,11 @@ Ext.define('TolomeoExt.ToloFeatureGridPanel', {
     	}, this);
 	},
 	
+	/**
+     * Aggiorna il layer vettoriale sulla mappa aggiornando le features in esso contenute.
+     * @param {Ext.Data.Store} store Un oggetto che rappresenta lo store della griglia. 
+	 * @param {Boolean} pressed Indica se il relativo pulsante nella paging toolbar è premuto.
+     */
 	updateLayerOnMap: function(store, pressed){
 		if(pressed){
 			var store = this.qbFeatureManager.featureStore;

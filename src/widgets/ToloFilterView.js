@@ -2,27 +2,23 @@
 Ext.ns('TolomeoExt.widgets');
 
 /**
- * Class: ToloFilterView
+ * Widget per la visualizzazione del filtro impostato dall'utente nella form.
+ * Le modifiche apportate dall'untente al filtro sono formattate in formato stringa.
  *
- * @overview Layer Selector.
- * @name Tolomeo - Interfaccia Filter View
- * @author Tobia Di Pisa
+ * @author Tobia Di Pisa at tobia.dipisa@geo-solutions.it
  */
 Ext.define('TolomeoExt.widgets.ToloFilterView', {
 
 	extend: 'Ext.Panel',
 
 	/**
-	 * initComponent: TolomeoExt.widgets.ToloFilterView
-	 * Crea un nuovo TolomeoExt.widgets.ToloFilterView
-	 *
-	 * Returns:
-	 * {<TolomeoExt.ToloFilterView>} Un nuovo TolomeoExt.widgets.ToloFilterView
-	 */
-	initComponent: function(){	
+     * Inizializza un componente di tipo TolomeoExt.widgets.ToloFilterView.
+     * @param {Object} [config] Un opzionale oggetto di configurazione per il componente ExtJs.
+     */
+	initComponent: function(config){	
 		this.border = 0;
 			
-		this.filterTypeStore = Ext.create('Ext.data.Store',{
+		this.filterTypeStore = Ext.create('Ext.data.Store', {
 		    fields: [{
 		    	name: 'type', 
 		    	mapping: 'type'
@@ -36,7 +32,7 @@ Ext.define('TolomeoExt.widgets.ToloFilterView', {
 		    ]
 		});
 
-		this.filterTypeCombo = Ext.create('Ext.form.ComboBox',{
+		this.filterTypeCombo = Ext.create('Ext.form.ComboBox', {
 			typeAhead: true,
 			forceSelection: true, 
 			width: 200,
@@ -107,10 +103,18 @@ Ext.define('TolomeoExt.widgets.ToloFilterView', {
 		this.add(this.filterViewFieldSet);
     },
     
+	/**
+     * Imposta all'interno della TextArea definita la stringa corispondente il filtro selezionato.
+     * @param {String} filterString Il filtro in formato stringa.
+     */
     setFilter: function(filterString){
     	this.filterView.setRawValue(filterString);
     },
     
+	/**
+     * Reimposta la TextArea contenente il filro in formato stringa.
+     *
+     */
     resetView: function(){
     	this.filterView.setRawValue("");
     	this.filterTypeCombo.reset();

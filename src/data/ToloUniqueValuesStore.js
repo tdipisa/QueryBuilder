@@ -1,25 +1,12 @@
-/**
-* Copyright (c) 2014 Geosolutions
-*
-* Published under the GPL license.
-* See https://github.com/opengeo/gxp/raw/master/license.txt for the full text
-* of the license.
-*/
 
-/** api: (define)
- *  module = gxp.data
- *  class = WPSUniqueValuesStore
- *  base_link = `Ext.data.Store <http://extjs.com/deploy/dev/docs/?class=Ext.data.Store>`_
- */
 Ext.ns('TolomeoExt.data');
 
-/** api: constructor
- *  .. class:: WPSUniqueValuesStore(conn)
- *   
- *      A data store targeted to be used for the Geoserver WPS PagedUnique process.
- *      No config parameters are required on the constructor, the proxy can be
- *      fully configured on the doRequest method. Optionally a processName
- *      can be specified to override the default gs:PagedUnique process name.
+/**
+ * Un data store da usare come tool di autocompletamento paginato.
+ * Non sono richiesti parametri di configurazione per il costruttore, il proxy
+ * si appoggia alle canoniche funzionalità di TolomeoExt
+ *
+ * @author Tobia Di Pisa at tobia.dipisa@geo-solutions.it
  */
 Ext.define('TolomeoExt.data.ToloUniqueValuesStore', {
 	
@@ -27,6 +14,10 @@ Ext.define('TolomeoExt.data.ToloUniqueValuesStore', {
 	
 	alias: 'widget.tolomeo_uniquestore',
 
+	/**
+     * Crea un nuovo TolomeoExt.data.ToloUniqueValuesStore.
+     * @param {Object} [config] Un opzionale oggetto di configurazione per il componente ExtJs.
+     */
 	constructor: function(config) {
         config.baseParams = Ext.apply(config.baseParams || {}, {});
 
@@ -49,17 +40,17 @@ Ext.define('TolomeoExt.data.ToloUniqueValuesStore', {
         );
     },
 	 
-    /** api: method[setWPSParams]
-     *  Sets the WPS params to be passed to the proxy for data loading.
-     *  See WPSUniqueValuesProxy.doRequest method for accepted parameters.
+	/**
+     * Imposta i parametri da passare al proxy per il caricamento dei dati.
+     * @param {Object} params Un opzionale oggetto di configurazione per il componente ExtJs.
      */
     setParams: function(params) {
         this.baseParams = Ext.apply(this.baseParams, params);
     },
     
-    /** api: method[load]
-     *  Loads data on the store (see Ext.data.Store#load).
-     *  See WPSUniqueValuesProxy.doRequest method for specific WPS parameters.
+    /**
+     * Carica i dati nello store.
+     * @param {Object} options Oggetto contenente le opzioni di caricamento dei dati.
      */
     load: function(options) {
     	var params = options.params;

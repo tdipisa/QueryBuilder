@@ -1,96 +1,143 @@
-/**
- * @overview Query Tool (ricerca alfanumerica libera general purpose).
- *
- * Strumento di ricerca alfanumerica libera (Query Tool) general purpose (in grado cioè di 
- * lavorare su qualunque layer vettoriale configurato nel sistema) per Tolomeo.
- *
- * @name Tolomeo - Interfaccia Query Builder
- * @author Tobia Di Pisa
- */
 
 /**
- * Class: TolomeoExt.ToloQueryBuilderExt
+ * Strumento di ricerca alfanumerica libera 
+ * (Query Tool) general purpose (in grado cioè di 
+ * lavorare su qualunque layer vettoriale configurato 
+ * nel sistema) per Tolomeo.
  *
- *
+ * @author Tobia Di Pisa at tobia.dipisa@geo-solutions.it
  */
 Ext.define('TolomeoExt.ToloQueryBuilderExt', {
 
 	extend: 'Ext.Panel',
 
-	/** 
-	 * Property: paramsJS
-	 * {JSONObject}
+	/**
+	 * @cfg {JSONObject} paramsJS
+	 * Configurazioni specifiche del file di preset.
 	 */
 	paramsJS: null,
 
-	/** 
-	 * Property: TOLOMEOServer
-	 * {String}
+	/**
+	 * @cfg {String} TOLOMEOServer
+	 * URL di base del contesto di Tolomeo.
 	 */
 	TOLOMEOServer: null,
 
-	/** 
-	 * Property: TOLOMEOContext
-	 * {String}
+	/**
+	 * @cfg {String} TOLOMEOContext
+	 * Contesto di Tolomeo.
 	 */
 	TOLOMEOContext: null,
 	
-	/** 
-	 * Property: filterFormat
-	 * {String}
+	/**
+	 * @cfg {String} filterFormat
+	 * Formato dei filtro. Possibili valori: "OGC", "CQL".
 	 */
 	filterFormat: "OGC",
 	
-	/** 
-	 * Property: ogcFilterVersion
-	 * {String}
+	/**
+	 * @cfg {String} ogcFilterVersion
+	 * Se filterFormat="OGC" indica il numero di versione del filtro.
 	 */
 	ogcFilterVersion: "1.1.0",
-	
-	/** 
-	 * Property: caseInsensitiveMatch
-	 * {boolean}
+
+	/**
+	 * @cfg {Boolean} caseInsensitiveMatch [caseInsensitiveMatch="false"]
+	 * Indica se i valori degli attributi nel filtro devono essere case sensitive o meno.
 	 */
 	caseInsensitiveMatch: false,
 	
-	/** 
-	 * Property: config
-	 * {Object}
-	 */
 	config: {
+		/**
+		 * @cfg {TolomeoExt.ToloFeatureManager} qbFeatureManager (required)
+		 * Gestore di richieste e operazioni che coinvolgono le features.
+		 */
+		qbFeatureManager: null,
+		
+		/**
+		 * @cfg {TolomeoExt.events.ToloQueryBuilderEvtManager} qbEventManager (required)
+		 * Gestore di eventi per il query builder.
+		 */
 		qbEventManager: null,
+		
+		/**
+		 * @cfg {TolomeoExt.widgets.ToloLayerSelector} layerSelector
+		 * 
+		 */
 		layerSelector: null,
+		
+		/**
+		 * @cfg {TolomeoExt.widgets.ToloSpatialSelector} spatialSelector
+		 * 
+		 */
 		spatialSelector: null,
+		
+		/**
+		 * @cfg {TolomeoExt.widgets.ToloAttributeFilter} qbEventManager
+		 * 
+		 */
 		queryfilter: null
 	}, 
 	
+	/**
+	 * @cfg {Object} autoCompleteCfg [autoCompleteCfg="{}"]
+	 * Contiene la configurazione per il servizio di autocompletamento.
+	 *
+	 * @example
+	 * autoCompleteCfg: {
+	 *  	url: 'http://localhost:8080/tolomeobinj/UniqueValueServlet',
+	 *		pageSize: 10
+	 * }
+	 */
 	autoCompleteCfg: {},
 	
+	/**
+	 * @cfg {Boolean} [autoComplete="fase"]
+	 * Abilita la funzionalità di autocomplete .
+	 */
 	autoComplete: false,
 	
-	qbFeatureManager: null,
-	
+	/**
+	 * @cfg {String} noFilterSelectedMsgTitle
+	 * 
+	 */
     noFilterSelectedMsgTitle: "Nessun Filtro Selezionato",
     
+	/**
+	 * @cfg {String} noFilterSelectedMsgText
+	 * 
+	 */
     noFilterSelectedMsgText: "Si deve selezionare almento un filtro.",
     
+	/**
+	 * @cfg {String} invalidRegexFieldMsgTitle
+	 * 
+	 */
     invalidRegexFieldMsgTitle: "Campi Invalidi",
     
+	/**
+	 * @cfg {String} invalidRegexFieldMsgText
+	 * 
+	 */
     invalidRegexFieldMsgText: "Uno o più campi della form non sono corretti!",
     
+	/**
+	 * @cfg {String} notEnabledFieldMsgTitle
+	 * 
+	 */
     notEnabledFieldMsgTitle: "Campi Non Abilitati",
     
+    /**
+	 * @cfg {Boolean} notEnabledFieldMsgText
+	 * 
+	 */
     notEnabledFieldMsgText: "Non è possibile inviare la richiesta finchè il layer non è stato selezionato.",
 
 	/**
-	 * initComponent: TolomeoExt.ToloQueryBuilderExt
-	 * Crea un nuovo TolomeoExt.ToloQueryBuilderExt
-	 *
-	 * Returns:
-	 * {<TolomeoExt.ToloQueryBuilderExt>} Un nuovo TolomeoExt.ToloQueryBuilderExt
-	 */
-	initComponent: function(){	
-    	// Applico i default
+     * Inizializza un nuovo TolomeoExt.ToloQueryBuilderExt.
+     * @param {Object} [config] Un opzionale oggetto di configurazione per il componente ExtJs.
+     */
+	initComponent: function(config){	
 		TolomeoExt.Vars.ApplyIfDefaults(this);
 
 		this.autoScroll = true;
@@ -245,7 +292,6 @@ Ext.define('TolomeoExt.ToloQueryBuilderExt', {
             scope: this
         }];
 		
-//		TolomeoExt.ToloQueryBuilderExt.superclass.initComponent.call(this);
 		this.callParent();
 	
 		this.add([this.layerSelector, this.spatialSelector, this.queryfilter, this.filterView]);
@@ -265,6 +311,11 @@ Ext.define('TolomeoExt.ToloQueryBuilderExt', {
 		
 	},
 	
+	/**
+     * Abilita il filtro degli attributi.
+     * @param {Ext.Data.Record} record corrispondente al layer selezionato. 
+     *
+     */
 	enableAttributeFilter: function(record){
 		// Adding a Filter Builder passing the feature type name
 		this.codTPN = record.get('codTPN');
@@ -274,10 +325,15 @@ Ext.define('TolomeoExt.ToloQueryBuilderExt', {
 		}; 
 		
     	// Submit ajax della form
-//    	this.waitMask.show();
     	this.qbFeatureManager.getSchema(fparams);
 	},
 	
+	/**
+     * Recupera il filtro selezionato in formato stringa.
+     * @param {OpenLayers.Filter} filter Il filtro selezionato. 
+	 * @param {String} type Tipo del filtro.
+     * @return {String} il filtro in formato stringa.
+     */
 	getFilterString: function(filter, type){
         var format = this.filterFormat;        
         if(type){
@@ -295,6 +351,10 @@ Ext.define('TolomeoExt.ToloQueryBuilderExt', {
         return serialized_filter;
 	},
 	
+    /**
+     * Recupera il filtro selezionato.
+     * @return {OpenLayers.Filter} il filtro selezionato.
+     */
 	getFilter: function(){
 		var filter = null;
 		

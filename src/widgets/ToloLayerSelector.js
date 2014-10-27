@@ -2,30 +2,25 @@
 Ext.ns('TolomeoExt.widgets');
 
 /**
- * Class: ToloLayerSelector
+ * Widget per la selezione dei layers per cui il plugin query form è abilitato all'uso.
  *
- * @overview Layer Selector.
- * @name Tolomeo - Interfaccia Layer Selector
- * @author Tobia Di Pisa
+ * @author Tobia Di Pisa at tobia.dipisa@geo-solutions.it
  */
 Ext.define('TolomeoExt.widgets.ToloLayerSelector', {
 
 	extend: 'Ext.Panel',
 	
-	/** 
-	 * Property: layers
-	 * {Array}
+	/**
+	 * @cfg {Array} layers
+	 * Array dei layers rappresentante lo store.
 	 */
 	layers: null,
 
 	/**
-	 * initComponent: TolomeoExt.widgets.ToloLayerSelector
-	 * Crea un nuovo TolomeoExt.widgets.ToloLayerSelector
-	 *
-	 * Returns:
-	 * {<TolomeoExt.ToloLayerSelector>} Un nuovo TolomeoExt.widgets.ToloLayerSelector
-	 */
-	initComponent: function(){	
+     * Inizializza un componente di tipo TolomeoExt.widgets.ToloLayerSelector.
+     * @param {Object} [config] Un opzionale oggetto di configurazione per il componente ExtJs.
+     */
+	initComponent: function(config){	
 		this.border = 0;
 		
 		this.layerStore = Ext.create('Ext.data.Store', {
@@ -64,7 +59,7 @@ Ext.define('TolomeoExt.widgets.ToloLayerSelector', {
 		    }
 		});	
 		
-		this.layerFieldSet = Ext.create('Ext.form.FieldSet',{
+		this.layerFieldSet = Ext.create('Ext.form.FieldSet', {
 			title: 'Seleziona Livello',
 			anchor: "-1",
 			autoWidth: true,
@@ -76,4 +71,5 @@ Ext.define('TolomeoExt.widgets.ToloLayerSelector', {
 		
 		this.add(this.layerFieldSet);
     }   
+	
 });
