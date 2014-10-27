@@ -250,8 +250,7 @@ Ext.define('TolomeoExt.widgets.form.ToloFilterField', {
             };
         }
         
-        this.autoCompleteDefault = {
-        
+        this.autoCompleteDefault = {        
             'single': Ext.applyIf({
                 xtype: "tolomeo_uniquevaluescb",
                 queryMode: "remote", // required as the combo store shouldn't be loaded before a field name is selected
@@ -264,7 +263,7 @@ Ext.define('TolomeoExt.widgets.form.ToloFilterField', {
                 displayField: "value",
                 valueField: "value",
                 minChars: 1,
-                resizable: true,
+//                resizable: true,
                 listeners: {
                     select: function(combo, record) {
                         this.filter.value = combo.getValue();
@@ -296,7 +295,7 @@ Ext.define('TolomeoExt.widgets.form.ToloFilterField', {
                 displayField: "value",
                 valueField: "value",
                 minChars: 1,
-                resizable: true,
+//                resizable: true,
                 listeners: {
                     select: function(combo, record) {
                         this.filter.lowerBoundary = combo.getValue();
@@ -328,7 +327,7 @@ Ext.define('TolomeoExt.widgets.form.ToloFilterField', {
                 displayField: "value",
                 valueField: "value",
                 minChars: 1,
-                resizable: true,
+//                resizable: true,
                 listeners: {
                     select: function(combo, record) {
                         this.filter.upperBoundary = combo.getValue();
