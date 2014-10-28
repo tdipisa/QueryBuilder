@@ -81,6 +81,8 @@ import it.prato.comune.sit.SITException;
 import it.prato.comune.sit.SITExtStore;
 import it.prato.comune.sit.SITLayersManager;
 import it.prato.comune.sit.SITPaginatedResult;
+import it.prato.comune.sit.SortItem;
+import it.prato.comune.sit.SortItem.Dir;
 import it.prato.comune.tolomeo.utility.ExtStoreError;
 import it.prato.comune.utilita.logging.interfaces.LogInterface;
 
@@ -230,8 +232,28 @@ public class SearchExportServlet extends TolomeoServlet {
 	        		if((format!=null) && (format.equals("ext"))){	        
 	        			Map<String, String> attributes = layer.getNomiCampi();
         				Set<String> attributesKeys = attributes.keySet();
+        				
+        				// Manages the order of the features to return
+        				Iterator<String> keyIterator = attributesKeys.iterator();
+        				
+        				int size = attributes.size();
+        				SortItem[] sortItems = new SortItem[size];
+        				int i = 0;
+	        			while(keyIterator.hasNext() && i<size){
+	        				String key = (String)keyIterator.next();
+	        				
+	        				SortItem sortItem = new SortItem();
+	        				sortItem.setNomeLogico(key);
+	        				sortItem.setOrdine(Dir.CRESCENTE);
+	        				
+	        				sortItems[i] = sortItem;
+	        				i++;
+	        			}
 	        			
-	        			SITPaginatedResult pagRes = layer.searchByFilter(filter, ogcFilterVersion, maxFeatures, startIndex, null);
+	        			//
+	        			// Search the features
+	        			//
+	        			SITPaginatedResult pagRes = layer.searchByFilter(filter, ogcFilterVersion, maxFeatures, startIndex, sortItems);
 	        			List<? extends OggettoTerritorio> pagResList = pagRes.getResult();
 	        			
 	        			JSONObject obj = new JSONObject();

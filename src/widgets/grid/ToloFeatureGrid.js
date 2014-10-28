@@ -121,7 +121,7 @@ Ext.define('TolomeoExt.widgets.grid.ToloFeatureGrid', {
 			}]
 		}];
 				
-		var name, type, xtype, format, renderer;	
+		var name, dbname, type, xtype, format, renderer;	
 		
 		if(this.schema){			
 			var fields = this.store.model.prototype.fields;

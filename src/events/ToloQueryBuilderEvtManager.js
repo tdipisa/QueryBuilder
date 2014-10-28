@@ -175,7 +175,7 @@ Ext.define('TolomeoExt.events.ToloQueryBuilderEvtManager', {
      */
 	zoomToMapExtent: function(evt){
 		if(evt.dataExtent){
-			this.map.zoomToExtent(evt.dataExtent, closest=false);
+			this.map.zoomToExtent(evt.dataExtent, false);
 		}
 	},
 	

@@ -182,8 +182,8 @@ Ext.define('TolomeoExt.ToloFeatureManager', {
     	
     	this.featureStore.load({
     	    params:{
-    	        start: this.startIndex,
-    	        limit: this.maxFeatures
+    	    	startIndex: this.startIndex,
+    	    	maxFeatures: this.maxFeatures
     	    }
     	});
     },
@@ -212,9 +212,6 @@ Ext.define('TolomeoExt.ToloFeatureManager', {
      *
      */
     resetQuery: function(){
-    	this.maxFeatures = 10;
-    	this.startIndex = 0;
-    	
     	if(this.featureStore){
     		this.featureStore.removeAll();
     	}

@@ -12,7 +12,7 @@ Ext.define('TolomeoExt.ToloQueryBuilderExt', {
 	extend: 'Ext.Panel',
 
 	/**
-	 * @cfg {JSONObject} paramsJS
+	 * @cfg {Object} paramsJS
 	 * Configurazioni specifiche del file di preset.
 	 */
 	paramsJS: null,
@@ -250,7 +250,7 @@ Ext.define('TolomeoExt.ToloQueryBuilderExt', {
 			
 		this.bbar = ["->", {
             text: "Cancella",
-            //iconCls: "cancel",
+            iconCls: "querybuilder-icon-cancel",
             scope: this,
             handler: function() {
             	// Spatial Selector Reset
@@ -271,7 +271,7 @@ Ext.define('TolomeoExt.ToloQueryBuilderExt', {
             }
         }, {
             text: "Cerca",
-            //iconCls: "gxp-icon-find",
+            iconCls: "querybuilder-icon-find",
             handler: function() {
             	var filter = this.getFilter();
             	
@@ -342,7 +342,7 @@ Ext.define('TolomeoExt.ToloQueryBuilderExt', {
         
         var serialized_filter = "";
         if(format == "OGC" ){
-            node = new OpenLayers.Format.Filter({version: this.ogcFilterVersion}).write(filter);
+            var node = new OpenLayers.Format.Filter({version: this.ogcFilterVersion}).write(filter);
             serialized_filter = new OpenLayers.Format.XML().write(node);
         }else{
         	serialized_filter = filter.toString();

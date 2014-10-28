@@ -14,7 +14,7 @@ Ext.define('TolomeoExt.ToloFeatureGridPanel', {
 	id: "tolomeo_featuregrid",
 
 	/**
-	 * @property {JSONObject} paramsJS
+	 * @property {Object} paramsJS
 	 * Configurazioni specifiche del file di preset.
 	 */
 	paramsJS: null,
@@ -227,8 +227,8 @@ Ext.define('TolomeoExt.ToloFeatureGridPanel', {
 		
     	this.qbFeatureManager.featureStore.on("beforeload", function(store, operation, eOpts){
     		if(operation){
-    			this.qbFeatureManager.maxFeatures = operation.limit;
-    			this.qbFeatureManager.startIndex = operation.start;
+    			//this.qbFeatureManager.maxFeatures = operation.limit;
+    			//this.qbFeatureManager.startIndex = operation.start;
     		}
     	}, this);
     	
