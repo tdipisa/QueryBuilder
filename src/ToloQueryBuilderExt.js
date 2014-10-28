@@ -364,20 +364,22 @@ Ext.define('TolomeoExt.ToloQueryBuilderExt', {
             // Check if there are some invalid field according 
     		// to validators regex config
             // ////////////////////////////////////////////////
-    		var filterFieldItem = this.query('tolomeo_tolofilterfield');
-            var invalidItems = 0;
+    		var invalidItems = 0;
+    		if(!this.queryfilter.attributeFieldSet.collapsed){
+        		var filterFieldItem = this.query('tolomeo_tolofilterfield');            
 
-            for(var x = 0; x<filterFieldItem.length; x++){
-            	if(filterFieldItem[x].valueWidgets){
-                	var valueWidgets = filterFieldItem[x].valueWidgets.items.items;
-                	for(var y=0; y<valueWidgets.length; y++){
-                		var validateItem = valueWidgets[y];
-                        if(!validateItem.isValid(true)){
-                            invalidItems++;
-                        }
+                for(var x = 0; x<filterFieldItem.length; x++){
+                	if(filterFieldItem[x].valueWidgets){
+                    	var valueWidgets = filterFieldItem[x].valueWidgets.items.items;
+                    	for(var y=0; y<valueWidgets.length; y++){
+                    		var validateItem = valueWidgets[y];
+                            if(!validateItem.isValid(true)){
+                                invalidItems++;
+                            }
+                    	}
                 	}
-            	}
-            }  
+                }  
+    		}
             
             if(invalidItems == 0){                    	
             	var filters = [];
@@ -385,12 +387,19 @@ Ext.define('TolomeoExt.ToloQueryBuilderExt', {
             	// ///////////////////////
             	// Compose the Filter
             	// ///////////////////////
-            	var attributeFilter = this.queryfilter.filterBuilder.getFilter();
-            	if(attributeFilter){
-            		filters.push(attributeFilter);	
+            	if(!this.queryfilter.attributeFieldSet.collapsed){
+                	var attributeFilter = this.queryfilter.filterBuilder.getFilter();
+                	if(attributeFilter){
+                		filters.push(attributeFilter);	
+                	}
             	}
-            	
-                var spatialFilter = this.spatialSelector.getQueryFilter();   
+
+            	// /////////////////////////////////////////////
+            	// If the spatial field set is collapdes then 
+            	// use the current map extent. 
+            	// /////////////////////////////////////////////
+            	var currentMapExtent = this.spatialSelector.spatialFieldSet.collapsed;
+                var spatialFilter = this.spatialSelector.getQueryFilter(currentMapExtent);   
                 if (spatialFilter) {
                 	filters.push(spatialFilter);
                 }

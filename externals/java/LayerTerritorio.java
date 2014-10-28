@@ -763,12 +763,23 @@ public abstract class LayerTerritorio implements Layers, IGetFeatureInfoLayer{
     }
     
     protected void addnomicampiLeggibili(Properties pr, String ente, String nomeLayer, String szNL, String prefix) { 
-        String nomeCampoProp = ente + nomeLayer + prefix;         
-        String prefixProp = pr.getProperty(nomeCampoProp);       
+    	String prefixProp = null;
+    	if(pr != null && ente != null && nomeLayer != null){
+            String nomeCampoProp = ente + nomeLayer + prefix;         
+            prefixProp = pr.getProperty(nomeCampoProp);   
+    	}else{
+    		prefixProp = prefix;
+    	}
 
         if (prefixProp!=null){
-            String[] prefixProps = prefixProp.split("!!");
-            this.getNomiCampiLegibili().put(szNL, prefixProps[0]);
+        	String prop = null;
+        	if(prefixProp.contains("!!")){
+        		prop = prefixProp.split("!!")[0];
+        	}else{
+        		prop = prefixProp;
+        	}
+        	
+            this.getNomiCampiLegibili().put(szNL, prop);
 
         } else {
             logger.info(this.getClass().getName() + " nome campo nullo: " + prefixProp);
@@ -776,16 +787,27 @@ public abstract class LayerTerritorio implements Layers, IGetFeatureInfoLayer{
     }
     
     protected void addnomicampiRegEx(Properties pr, String ente, String nomeLayer, String szNL, String prefix) { 
-        String nomeCampoProp = ente + nomeLayer + prefix;         
-        String prefixProp = pr.getProperty(nomeCampoProp);       
-
+    	String prefixProp = null;
+    	if(pr != null && ente != null && nomeLayer != null){
+            String nomeCampoProp = ente + nomeLayer + prefix;         
+            prefixProp = pr.getProperty(nomeCampoProp);   
+    	}else{
+    		prefixProp = prefix;
+    	}
+        
         if (prefixProp!=null){
-            String[] prefixProps = prefixProp.split("!!");
-            this.getAttributiRegEx().put(szNL, prefixProps[0]);
+        	String prop = null;
+        	if(prefixProp.contains("!!")){
+        		prop = prefixProp.split("!!")[0];
+        	}else{
+        		prop = prefixProp;
+        	}
+        	
+            this.getAttributiRegEx().put(szNL, prop);
 
         } else {
             logger.info(this.getClass().getName() + " nome campo nullo: " + prefixProp);
-        }    
+        }  
     }
     
 	/**

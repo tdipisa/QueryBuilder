@@ -181,16 +181,17 @@ Ext.define('TolomeoExt.widgets.ToloSpatialSelector', {
 	    		}
 	    	}
 	    }
-		
-	    // initialize layout
-		layout.items = [];		
-		layout.items.push({
-			xtype: 'fieldset',
+
+		this.spatialFieldSet = Ext.create('Ext.form.FieldSet', {
 			collapsed : true,
 			checkboxToggle: true,
 			title: this.comboSelectionMethodLabel,
 			items: selItems
 		});
+		
+	    // initialize layout
+		layout.items = [];		
+		layout.items.push(this.spatialFieldSet);
 
     	this.items = [layout];
     	
@@ -226,16 +227,22 @@ Ext.define('TolomeoExt.widgets.ToloSpatialSelector', {
      *  :returns: ``Object`` filter to perform a WFS query
 	 * Generate a filter for the selected method
 	 */
-	getQueryFilter: function(){
+	getQueryFilter: function(currentExtent){
+		var currentExtentFilter = new OpenLayers.Filter.Spatial({
+			type: OpenLayers.Filter.Spatial.BBOX,
+			property: this.filterGeometryName,
+			value: this.currentMapExtent 
+		});
+		
+		if(currentExtent === true){
+			return currentExtentFilter;
+		}
+		
 		if(this.activeMethod && this.activeMethod.currentGeometry){
 			this.activeMethod.filterGeometryName = this.filterGeometryName;
 			return this.activeMethod.getQueryFilter();
 		}else{
-			return new OpenLayers.Filter.Spatial({
-				type: OpenLayers.Filter.Spatial.BBOX,
-				property: this.filterGeometryName,
-				value: this.currentMapExtent 
-			});
+			return currentExtentFilter;
 		}
 	},
 
