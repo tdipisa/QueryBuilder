@@ -332,7 +332,7 @@ Ext.define('TolomeoExt.ToloPanelBase', {
 			this.queryBuilderPanel = Ext.create('TolomeoExt.ToloQueryBuilderExt',  this.queryBuilderPanelOpt);
 			
     		TolomeoExt.applyIfEmpty(this.featureGridPanelOpt, {
-    			title     : 'Feature Grid',
+    			title     : 'Griglia dei Risultati',
 			    autoScroll: 'true',
 				border: false,
 			    paramsJS  : this.paramsJS, 

@@ -141,83 +141,83 @@ Ext.define('TolomeoExt.widgets.form.spatialselector.ToloSpatialSelectorMethod', 
 	 */
 	defaultGeometryOperation: OpenLayers.Filter.Spatial.INTERSECTS,
 
-	/** api: config[areaLabel]
-	 * ``String``
-	 * Text for the Selection Summary Area Label (i18n).
-	 */
-	areaLabel : "Area",
-
-	/** api: config[lengthLabel]
-	 * ``String``
-	 * Text for the Selection Summary Perimeter Label (i18n).
-	 */
-	lengthLabel : "Length",
-
-	/** api: config[perimeterLabel]
-	 * ``String``
-	 * Text for the Selection Summary Perimeter Label (i18n).
-	 */
-	perimeterLabel : "Perimeter",
-
-	/** api: config[selectionSummary]
-	 * ``String``
-	 * Text for the Selection Summary (i18n).
-	 */
-	selectionSummary : "Selection Summary",
-
-	/** api: config[radiusLabel]
-	 * ``String``
-	 * Text for the Selection Summary Radius Label (i18n).
-	 */
-	radiusLabel : "Radius",
-
-	/** api: config[centroidLabel]
-	 * ``String``
-	 * Text for the Selection Summary Centroid Label (i18n).
-	 */
-	centroidLabel : "Centroid",
+//	/** api: config[areaLabel]
+//	 * ``String``
+//	 * Text for the Selection Summary Area Label (i18n).
+//	 */
+//	areaLabel : "Area",
+//
+//	/** api: config[lengthLabel]
+//	 * ``String``
+//	 * Text for the Selection Summary Perimeter Label (i18n).
+//	 */
+//	lengthLabel : "Length",
+//
+//	/** api: config[perimeterLabel]
+//	 * ``String``
+//	 * Text for the Selection Summary Perimeter Label (i18n).
+//	 */
+//	perimeterLabel : "Perimeter",
+//
+//	/** api: config[selectionSummary]
+//	 * ``String``
+//	 * Text for the Selection Summary (i18n).
+//	 */
+//	selectionSummary : "Selection Summary",
+//
+//	/** api: config[radiusLabel]
+//	 * ``String``
+//	 * Text for the Selection Summary Radius Label (i18n).
+//	 */
+//	radiusLabel : "Radius",
+//
+//	/** api: config[centroidLabel]
+//	 * ``String``
+//	 * Text for the Selection Summary Centroid Label (i18n).
+//	 */
+//	centroidLabel : "Centroid",
 
 	/** api: config[geometryOperationText]
 	 * ``String``
 	 * Text for the Geometry Operation Label (i18n).
 	 */
-	geometryOperationText: "Geometry operation",
+	geometryOperationText: "Operazione Geometrica",
 
 	/** api: config[geometryOperationEmptyText]
 	 * ``String``
 	 * Text for the empty geometry operation combo (i18n).
 	 */
-	geometryOperationEmptyText: "Select a operation",
+	geometryOperationEmptyText: "Selezione Operazione",
 
 	/** api: config[distanceTitleText]
 	 * ``String``
 	 * Text for the Distance field label (i18n).
 	 */
-	distanceTitleText: "Distance",
+	distanceTitleText: "Distanza",
 
 	/** api: config[centroidLabel]
 	 * ``String``
 	 * Text for distance unit field label (i18n).
 	 */
-	distanceUnitsTitleText: "Distance units",
+	distanceUnitsTitleText: "Unità Distanza",
 
 	/** api: config[noOperationTitleText]
 	 * ``String``
 	 * Text for no valud operation title msg (i18n).
 	 */
-	noOperationTitleText: "No valid operation",
+	noOperationTitleText: "Operazione non Valida",
 
 	/** api: config[noOperationMsgText]
 	 * ``String``
 	 * Text for no operation msg (i18n).
 	 */
-	noOperationMsgText: "Please, select an operation before query",
+	noOperationMsgText: "Selezione una operazione prima della richiesta",
 
 	/** api: config[noCompleteMsgText]
 	 * ``String``
 	 * Text msg for no complete form (i18n).
 	 */
-	noCompleteMsgText: "Please, complete form before query",
+	noCompleteMsgText: "Completare la form prima della richiesta",
 	
 	qbEventManager: null,
 

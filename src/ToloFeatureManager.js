@@ -180,7 +180,7 @@ Ext.define('TolomeoExt.ToloFeatureManager', {
     	
     	this.fireEvent("beforeloadfeatures");
     	
-    	this.featureStore.load({
+    	this.featureStore.loadPage(1, {
     	    params:{
     	    	startIndex: this.startIndex,
     	    	maxFeatures: this.maxFeatures

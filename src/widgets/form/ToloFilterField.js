@@ -15,12 +15,12 @@ Ext.define('TolomeoExt.widgets.form.ToloFilterField', {
     /** api:config[lowerBoundaryTip]
      *  ``String`` tooltip for the lower boundary textfield (i18n)
      */
-    lowerBoundaryTip: "lower boundary",
+    lowerBoundaryTip: "Valore inferiore",
      
     /** api:config[upperBoundaryTip]
      *  ``String`` tooltip for the lower boundary textfield (i18n)
      */
-    upperBoundaryTip: "upper boundary",
+    upperBoundaryTip: "Valore superiore",
     
     /**
      * 

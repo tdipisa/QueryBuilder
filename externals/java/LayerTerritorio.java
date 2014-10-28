@@ -762,6 +762,13 @@ public abstract class LayerTerritorio implements Layers, IGetFeatureInfoLayer{
 
     }
     
+    /**
+     * @param pr
+     * @param ente
+     * @param nomeLayer
+     * @param szNL
+     * @param prefix
+     */
     protected void addnomicampiLeggibili(Properties pr, String ente, String nomeLayer, String szNL, String prefix) { 
     	String prefixProp = null;
     	if(pr != null && ente != null && nomeLayer != null){
@@ -786,6 +793,13 @@ public abstract class LayerTerritorio implements Layers, IGetFeatureInfoLayer{
         }    
     }
     
+    /**
+     * @param pr
+     * @param ente
+     * @param nomeLayer
+     * @param szNL
+     * @param prefix
+     */
     protected void addnomicampiRegEx(Properties pr, String ente, String nomeLayer, String szNL, String prefix) { 
     	String prefixProp = null;
     	if(pr != null && ente != null && nomeLayer != null){

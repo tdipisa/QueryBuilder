@@ -28,7 +28,7 @@ Ext.define('TolomeoExt.widgets.form.ToloBufferFieldset', {
      * ``String``
      * Text for buffer number field label.
      */ 	 
-	bufferFieldLabel: "Buffer Range",
+	bufferFieldLabel: "Raggio Buffer",
 	
 	/** api: config[bufferFieldSetTitle]
      * ``String``
@@ -40,13 +40,13 @@ Ext.define('TolomeoExt.widgets.form.ToloBufferFieldset', {
      * ``String``
      * Text for coordinate picker label.
      */ 
-	coordinatePickerLabel: "Coordinates",
+	coordinatePickerLabel: "Coordinate",
 	
     /** api: config[draweBufferTooltip]
      * ``String``
      * Text for draw buffer button tooltip.
      */ 
-	draweBufferTooltip: "Draw the Buffer",
+	draweBufferTooltip: "Disegna il Buffer",
 	
     /** api: config[errorBufferText]
      * ``String``

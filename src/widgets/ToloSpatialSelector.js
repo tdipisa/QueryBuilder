@@ -50,25 +50,25 @@ Ext.define('TolomeoExt.widgets.ToloSpatialSelector', {
 	 * ``String``
 	 * Title for the output (i18n).
 	 */
-	titleText: "Spatial Selector",
+	titleText: "Selettore Spaziale",
 
 	/** api: config[title]
 	 * ``String``
 	 * Text for ROI FieldSet Title (i18n).
 	 */
-	selectionMethodLabel : "Selection Method",
+	selectionMethodLabel : "Metodo di Selezione",
 
 	/** api: config[comboEmptyText]
 	 * ``String``
 	 * Text for empty Combo Selection Method (i18n).
 	 */
-	comboEmptyText : "Select a method..",
+	comboEmptyText : "Seleziona un Metodo...",
 
 	/** api: config[comboSelectionMethodLabel]
 	 * ``String``
 	 * Text for Label Combo Selection Method (i18n).
 	 */
-	comboSelectionMethodLabel : "Selection",
+	comboSelectionMethodLabel : "Selezione",
 	
 	qbEventManager: null,
     

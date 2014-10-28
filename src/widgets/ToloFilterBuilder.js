@@ -18,7 +18,8 @@ Ext.define('TolomeoExt.widgets.ToloFilterBuilder', {
      *  These will be the option names available in the builder type combo.
      *  Default is ``["any", "all", "none", "not all"]``.
      */
-    builderTypeNames: ["any", "all", "none", "not all"],
+//    builderTypeNames: ["any", "all", "none", "not all"],
+	builderTypeNames: ["ognuno", "tutti", "nessuno", "non tutti"],
     
     /** api: config[allowedBuilderTypes]
      *  ``Array``
@@ -78,9 +79,9 @@ Ext.define('TolomeoExt.widgets.ToloFilterBuilder', {
     customizeFilterOnInit: true,
     
     /** i18n */
-    addConditionText: "add condition",
-    addGroupText: "add group",
-    removeConditionText: "remove condition",
+    addConditionText: "Aggiungi Condizione",
+    addGroupText: "Aggiungi Gruppo",
+    removeConditionText: "Rimuovi Condizione",
 
     /** api: config[allowGroups]
      *  ``Boolean``

@@ -38,13 +38,13 @@ Ext.define('TolomeoExt.widgets.form.spatialselector.ToloCircleSpatialSelectorMet
 	 *  ``String``
 	 *  Name to show on the combo box of the spatial selected.
 	 */
-	name  : 'Circle',
+	name  : 'Cerchio',
 
 	/** api: config[label]
 	 *  ``String``
 	 *  Label to show on the combo box of the spatial selected.
 	 */
-	label : 'Circle',
+	label : 'Cerchio',
 
 	// obtain draw control
 	getDrawControl: function(){

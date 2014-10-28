@@ -8,21 +8,21 @@ Ext.define('TolomeoExt.widgets.form.ToloCoordinatePicker', {
     alias: 'tolomeo_coordinate_picker',
 	
     /** i18n */
-    fieldLabel:'Coordinates',
+    fieldLabel: 'Coordinate',
 	
-    pointSelectionButtionTip:'Click to enable point selection',
+    pointSelectionButtionTip:'Click per abilitare la selezione del punto',
 	
      /**
      * Property: latitudeEmptyText
      * {string} emptyText of the latitude field
      */
-     latitudeEmptyText:'Latitude',
+     latitudeEmptyText:'Latitudine',
 	 
     /**
      * Property: longitudeEmptyText
      * {string} emptyText of the longitude field
      */
-     longitudeEmptyText:'Longitude',
+     longitudeEmptyText:'Longitudine',
 	 
     /** end of i18n */
     

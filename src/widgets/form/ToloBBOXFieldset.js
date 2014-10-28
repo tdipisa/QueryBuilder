@@ -110,14 +110,14 @@ Ext.define('TolomeoExt.widgets.form.ToloBBOXFieldset', {
 	},
 
     // start i18n
-    northLabel:"North",
-    westLabel:"West",
-    eastLabel:"East",
-    southLabel:"South",
-    setAoiText: "SetROI",
-    waitEPSGMsg: "Please Wait...",
-    setAoiTooltip: "Enable the SetBox control to draw a ROI (BBOX) on the map",
-    title: "Region of Interest",
+    northLabel:"Nord",
+    westLabel:"Ovest",
+    eastLabel:"Est",
+    southLabel:"Sud",
+    setAoiText: "ROI",
+    waitEPSGMsg: "Si prega di attendere...",
+    setAoiTooltip: "Abilita il controllo Box per il disegno della ROI (BBOX) sulla mappa",
+    title: "Regione di Interesse",
     // end i18n
 
     /** private: method[initComponent]

@@ -61,25 +61,25 @@ Ext.define('TolomeoExt.widgets.form.spatialselector.ToloBBOXSpatialSelectorMetho
 	 * ``String``
 	 * Text for Label North (i18n).
 	 */
-	northLabel : "North",
+	northLabel : "Nord",
 
 	/** api: config[westLabel]
 	 * ``String``
 	 * Text for Label West (i18n).
 	 */
-	westLabel : "West",
+	westLabel : "Ovest",
 
 	/** api: config[eastLabel]
 	 * ``String``
 	 * Text for Label East (i18n).
 	 */
-	eastLabel : "East",
+	eastLabel : "Est",
 
 	/** api: config[southLabel]
 	 * ``String``
 	 * Text for Label South (i18n).
 	 */
-	southLabel : "South",
+	southLabel : "Sud",
 
 	/** api: config[setAoiTitle]
 	 * ``String``
@@ -91,13 +91,13 @@ Ext.define('TolomeoExt.widgets.form.spatialselector.ToloBBOXSpatialSelectorMetho
 	 * ``String``
 	 * Text for Bounding Box Draw button (i18n).
 	 */
-	setAoiText : "Draw Box",
+	setAoiText : "Box",
 
 	/** api: config[setAoiTooltip]
 	 * ``String``
 	 * Text for empty Combo Selection Method (i18n).
 	 */
-	setAoiTooltip : 'Enable the SetBox control to draw a ROI (Bounding Box) on the map',
+	setAoiTooltip : "Abilita il controllo Box per il disegno della ROI (BBOX) sulla mappa",
 
     /** private: method[initComponent]
      *  Override

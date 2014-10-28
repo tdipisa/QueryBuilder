@@ -1515,49 +1515,9 @@ Ext.define('TolomeoExt.ToloMapAPIExt', {
 		tolomeoViewer.on("onAfterPreInit", function(){
 			var qbEventManager = mapApiExt.queryBuilderPanel.getQbEventManager();
 			qbEventManager.setMap(tolomeoViewer.map);
-		})
+		})		
 		
-//		
-//		qbEventManager.on('polygonspatialselectoractive', function(scope){			
-//			/**
-//			 * Create Polygon Selector
-//			 */
-//			scope.drawings = new OpenLayers.Layer.Vector({},
-//				{
-//					displayInLayerSwitcher: false,
-//					styleMap : new OpenLayers.StyleMap({
-//						"default" : scope.defaultStyle,
-//						"select" : scope.selectStyle,
-//						"temporary" : scope.temporaryStyle
-//					})
-//				}
-//			);
-//
-//			scope.drawings.events.on({
-//	            "featureadded": function(event) {
-//	            	scope.setCurrentGeometry(event.feature.geometry);
-//	            },                                
-//	            "beforefeatureadded": function(event) {
-//	            	scope.drawings.destroyFeatures();
-//	            },
-//	            scope: scope
-//	        });                                 
-//	    
-//	    	// TODO: restore this
-//			this.viewer.map.addLayer(scope.drawings);
-//	        
-//			scope.draw = scope.getDrawControl();
-//	        
-//			// disable pan while drawing
-//			// TODO: make it configurable
-//			scope.draw.handler.stopDown = true;
-//			scope.draw.handler.stopUp = true;
-//
-//	        // TODO: restore this
-//			this.viewer.map.addControl(scope.draw);
-//			
-//			// TODO: restore this
-//			scope.draw.activate();
+//		qbEventManager.on('polygonSpatialSelectorActive', function(scope){			
 //		}, this);
 	},
 	

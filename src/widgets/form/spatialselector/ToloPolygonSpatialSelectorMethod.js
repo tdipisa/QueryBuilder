@@ -20,13 +20,13 @@ Ext.define('TolomeoExt.widgets.form.spatialselector.ToloPolygonSpatialSelectorMe
 	 *  ``String``
 	 *  Name to show on the combo box of the spatial selected.
 	 */
-	name  : 'Polygon',
+	name  : 'Poligono',
 
 	/** api: config[label]
 	 *  ``String``
 	 *  Label to show on the combo box of the spatial selected.
 	 */
-	label : 'Polygon',
+	label : 'Poligono',
 
 	// trigger action when activate the plugin
 	activate: function(){

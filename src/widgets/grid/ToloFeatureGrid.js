@@ -28,7 +28,7 @@ Ext.define('TolomeoExt.widgets.grid.ToloFeatureGrid', {
      *  ``Ext.form.TimeField.prototype.format``.
      */
 
-	actionTooltip: "Zoom To Feature",
+	actionTooltip: "Zoom alla Feature",
     
     /** api: method[initComponent]
      *  Initializes the FeatureGrid.
