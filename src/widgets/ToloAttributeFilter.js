@@ -2,31 +2,43 @@
 Ext.ns('TolomeoExt.widgets');
 
 /**
- * Class: TolomeoExt.ToloQueryFilter
+ * Crea il pannello contenitore per il filtro degli attributi.
  *
- * @overview Query Filter.
- * @name Tolomeo - Interfaccia Query Filter
- * @author Tobia Di Pisa
- *
+ * @author Tobia Di Pisa at tobia.dipisa@geo-solutions.it
  */
 Ext.define('TolomeoExt.widgets.ToloAttributeFilter', {
 
 	extend: 'Ext.Panel',
 	
+	/**
+     * @cfg {Boolean} caseInsensitiveMatch [caseInsensitiveMatch="false"]
+	 * Il filtro di comparazione per i campi di tipo stringa deve essere case insensitive ?
+     */
 	caseInsensitiveMatch: false,
-	
+    
+	/**
+     * @cfg {Object} autoCompleteCfg [autoCompleteCfg="{}"]
+	 * Stabilisce la configurazione da usare per la funzionalità di autocompletamento.
+	 *
+	 * @example
+	 * autoCompleteCfg: {
+	 *  	url: 'http://localhost:8080/tolomeobinj/UniqueValueServlet',
+	 *		pageSize: 10
+	 * }
+     */
 	autoCompleteCfg: {},
 	
+	/**
+     * @cfg {Boolean} autoComplete [autoComplete="false"]
+	 * Abilita la funzionalità di autocompletamento per i campi stringa.
+     */
 	autoComplete: false,
 
 	/**
-	 * initComponent: TolomeoExt.widgets.ToloQueryBuilderExt
-	 * Crea un nuovo TolomeoExt.widgets.ToloQueryBuilderExt
-	 *
-	 * Returns:
-	 * {<TolomeoExt.widgets.ToloQueryBuilderExt>} Un nuovo TolomeoExt.widgets.ToloQueryBuilderExt
-	 */
-	initComponent: function(){				
+     * Inizializza un nuovo TolomeoExt.widgets.ToloAttributeFilter.
+     * @param {Object} [config] Un opzionale oggetto di configurazione per il componente ExtJs.
+     */
+	initComponent: function(config){				
 		this.border = 0;
 		
 		this.attributeFieldSet = Ext.create('Ext.form.FieldSet', {
@@ -43,6 +55,10 @@ Ext.define('TolomeoExt.widgets.ToloAttributeFilter', {
 		this.callParent();
     },
     
+	/**
+     * Aggiunge alla form un nuovo nuovo costruttore per il filtro.
+     * @param {Array} records corrispondenti allo schema della FeatureType da gestire.
+     */
     addFilterBuilder: function(results){
     	var schema = results;
     	

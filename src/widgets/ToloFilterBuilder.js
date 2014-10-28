@@ -1,10 +1,10 @@
 
 Ext.ns('TolomeoExt.widgets');
 
-/** api: constructor
- *  .. class:: ToloFilterBuilder(config)
- *   
- *      Create a panel for assembling a filter.
+/**
+ * Crea un panello per assembrale la form di composizione del filtro.
+ *
+ * @author Tobia Di Pisa at tobia.dipisa@geo-solutions.it
  */
 Ext.define('TolomeoExt.widgets.ToloFilterBuilder', {
 	
@@ -12,102 +12,119 @@ Ext.define('TolomeoExt.widgets.ToloFilterBuilder', {
 
 	alias: 'widget.tolomeo_tolofilterbuilder',
 	
-    /** api: config[builderTypeNames]
-     *  ``Array``
-     *  A list of labels that correspond to builder type constants.
-     *  These will be the option names available in the builder type combo.
-     *  Default is ``["any", "all", "none", "not all"]``.
+	/**
+     * @cfg {Array} spatialSelectorsConfig [builderTypeNames=``["ognuno", "tutti", "nessuno", "non tutti"]``]
+	 * La lista di etichette che corrispondono ai tipi di costanti del costruttore.
      */
-//    builderTypeNames: ["any", "all", "none", "not all"],
 	builderTypeNames: ["ognuno", "tutti", "nessuno", "non tutti"],
     
-    /** api: config[allowedBuilderTypes]
-     *  ``Array``
-     *  List of builder type constants.  Default is
-     *  ``[ANY_OF, ALL_OF, NONE_OF]``.
+	/**
+     * @cfg {Array} spatialSelectorsConfig 
+	 * La lista delle costanti dei tipi di costruttore. Valori possibili sono ``[ANY_OF, ALL_OF, NONE_OF]``
      */
     allowedBuilderTypes: null,
-    
-    /** api: config[allowBlank]
-     *  ``Boolean`` Do we allow blank FilterFields? It is safe to say true
-     *  here, but for compatibility reasons with old applications, the default
-     *  is false.
+
+	/**
+     * @cfg {Boolean} allowBlank [allowBlank="false"]
+	 * Impostare a true se si desidera consentire campi vuoti.
      */
     allowBlank: false,
-    
-    /** api: config[caseInsensitiveMatch]
-     *  ``Boolean``
-     *  Should Comparison Filters for Strings do case insensitive matching?  Default is ``"false"``.
+
+	/**
+     * @cfg {Boolean} caseInsensitiveMatch [caseInsensitiveMatch="false"]
+	 * Il filtro di comparazione per i campi di tipo stringa deve essere case insensitive ?
      */
     caseInsensitiveMatch: false,
 
-    /** api: config[preComboText]
-     *  ``String``
-     *  String to display before filter type combo.  Default is ``"Match"``.
+	/**
+     * @cfg {String} preComboText
+	 * Testo da mostrare prima della combo box per il tipo.
      */
     preComboText: "Confronta",
 
-    /** api: config[postComboText]
-     *  ``String``
-     *  String to display after filter type combo.  Default is
-     *  ``"of the following:"``.
+    /**
+     * @cfg {String} postComboText
+	 * Testo da mostrare dopo la combo box per il tipo.
      */
     postComboText: "dei seguenti:",
 
-    /** api: config[cls]
-     *  ``String``
-     *  The CSS class to be added to this panel's element (defaults to
-     *  ``"gxp-ToloFilterBuilder"``).
+	/**
+     * @cfg {String} cls
+	 * La classe di stile da usare per i pannelli di questo componente.
      */
     cls: "tolomeo-tolofilterbuilder",
-    
-    /** api: config[filter]
-     *  ``OpenLayers.Filter``
-     *  Filter to initialize the component with
-     */
 
-    /** private: property[builderType]
+	/**
+     * @property {Object} builderType
+	 * 
      */
     builderType: null,
 
-    /** private: property[childFilterContainer]
+	/**
+     * @property {Object} childFilterContainer
+	 * 
      */
     childFilterContainer: null,
     
-    /** private: property[customizeFilterOnInit]
+	/**
+     * @cfg {Object} customizeFilterOnInit [customizeFilterOnInit="true"]
+	 * 
      */
     customizeFilterOnInit: true,
     
-    /** i18n */
+    /**
+     * @cfg {String} addConditionText
+	 * 
+     */
     addConditionText: "Aggiungi Condizione",
+	
+	/**
+     * @cfg {String} addGroupText
+	 * 
+     */
     addGroupText: "Aggiungi Gruppo",
+	
+	/**
+     * @cfg {String} removeConditionText
+	 * 
+     */
     removeConditionText: "Rimuovi Condizione",
 
-    /** api: config[allowGroups]
-     *  ``Boolean``
-     *  Allow groups of conditions to be added.  Default is ``true``.
-     *  If ``false``, only individual conditions (non-logical filters) can
-     *  be added.
+	/**
+     * @cfg {Boolean} allowGroups [customizeFilterOnInit="false"]
+	 * Consente di agiungere gruppi di condizioni. Se "false" solo condizioni individuali saranno aggiunte al filtro.
      */
-    allowGroups: true,
+    allowGroups: false,
     
-    /**
-     * Property: attributesComboConfig
-     * {Object}
+	/**
+     * @cfg {Object} attributesComboConfig 
+	 * Configurazione della combo box degli attributi.
      */
     attributesComboConfig: null,
-    
-    /** api:config[autoComplete]
-     *  ``Boolean`` autocomplete enabled on text fields.
+
+	/**
+     * @cfg {Boolean} autoComplete [autoComplete="false"]
+	 * Abilita la funzionalità di autocompletamento per i campi stringa.
      */
     autoComplete: false,
     
-    /** api:config[autoCompleteCfg]
-     *  ``Object`` autocomplete configuration object.
+	/**
+     * @cfg {Object} autoCompleteCfg [autoCompleteCfg="{}"]
+	 * Stabilisce la configurazione da usare per la funzionalità di autocompletamento.
+	 *
+	 * @example
+	 * autoCompleteCfg: {
+	 *  	url: 'http://localhost:8080/tolomeobinj/UniqueValueServlet',
+	 *		pageSize: 10
+	 * }
      */
     autoCompleteCfg: {},
 
-    initComponent: function() {
+	/**
+     * Inizializza un nuovo TolomeoExt.widgets.ToloFilterBuilder.
+     * @param {Object} [config] Un opzionale oggetto di configurazione per il componente ExtJs.
+     */
+    initComponent: function(config) {
         var defConfig = {
             defaultBuilderType: TolomeoExt.widgets.ToloFilterBuilder.ANY_OF
         };
@@ -149,14 +166,10 @@ Ext.define('TolomeoExt.widgets.ToloFilterBuilder', {
         }];
         
         this.addEvents(
-            /**
-             * Event: change
-             * Fires when the filter changes.
-             *
-             * Listener arguments:
-             * builder - {gxp.ToloFilterBuilder} This filter builder.  Call
-             *     ``getFilter`` to get the updated filter.
-             */
+			/**
+			 * @event
+			 * Lanciato quando il filtro subisce un cambiamento.
+			 */
             "change"
         ); 
 
@@ -168,7 +181,9 @@ Ext.define('TolomeoExt.widgets.ToloFilterBuilder', {
         });
     },
 
-    /** private: method[createToolBar]
+	/**
+     * Crea la toolbar di comando.
+     *
      */
     createToolBar: function() {
         var bar = [{
@@ -192,13 +207,11 @@ Ext.define('TolomeoExt.widgets.ToloFilterBuilder', {
         return bar;
     },
     
-    /** api: method[getFilter]
-     *  :return: ``OpenLayers.Filter``
-     *  
-     *  Returns a filter that fits the model in the Filter Encoding
-     *  specification.  Use this method instead of directly accessing
-     *  the ``filter`` property.  Return will be ``false`` if any child
-     *  filter does not have a type, property, or value.
+	/**
+     * Restituisce il filtro che corrisponde al modello delle specifiche di Filter Encoding.
+	 * Usare questo metodo invece che accedere direttamente alla proprietà ``filter`` della proprità.
+	 * Il valore di ritorno sarà ``false`` se nessun figlio possiede una proprietà, un typo o un valore.
+     * @return {OpenLayers.Filter} Il filtro corrente.
      */
     getFilter: function() {
         var filter;
@@ -211,13 +224,10 @@ Ext.define('TolomeoExt.widgets.ToloFilterBuilder', {
         return filter;
     },
     
-    /** private: method[cleanFilter]
-     *  :arg filter: ``OpenLayers.Filter.Logical``
-     *  :return: ``OpenLayers.Filter`` An equivalent filter to the input, where
-     *      all binary logical filters have more than one child filter.  Returns
-     *      false if a filter doesn't have non-null type, property, or value.
-     *  
-     *  Ensures that binary logical filters have more than one child.
+	/**
+     * Assicura che i filtri binary logici abbiano più di un figlio.
+     * @param {OpenLayers.Filter.Logical} filter Il filtro corrente.
+	 * @return {OpenLayers.Filter} Un filtro che rispetta il modello usato da questo costruttore.
      */
     cleanFilter: function(filter) {
         if(filter instanceof OpenLayers.Filter.Logical) {
@@ -250,18 +260,13 @@ Ext.define('TolomeoExt.widgets.ToloFilterBuilder', {
         return filter;
     },
     
-    /** private: method[customizeFilter]
-     *  :arg filter: ``OpenLayers.Filter``  This filter will not
-     *      be modified.  Register for events to receive an updated filter, or
-     *      call ``getFilter``.
-     *  :return: ``OpenLayers.Filter``  A filter that fits the model used by
-     *      this builder.
-     *  
-     *  Create a filter that fits the model for this filter builder.  This filter
-     *  will not necessarily meet the Filter Encoding specification.  In
-     *  particular, filters representing binary logical operators may not
-     *  have two child filters.  Use the <getFilter> method to return a
-     *  filter that meets the encoding spec.
+	/**
+     * Crea un filtro che corrisponde al modello del corrente costruttore.
+	 * Questo filtro non rispetterà necessariamente e specifiche di Filter Encoding.
+	 * In particolare, i filtri che rappresentano operatori logici binary possono non avere due filtri figlio.
+	 * Usare il metodo <getFilter> per ottenere un filtro che rispetta le specifiche di Filter Encoding
+     * @param {OpenLayers.Filter} filter Il filtro corrente.
+	 * @return {OpenLayers.Filter} Un filtro che rispetta il modello usato da questo costruttore.
      */
     customizeFilter: function(filter) {
         if(!filter) {
@@ -343,18 +348,20 @@ Ext.define('TolomeoExt.widgets.ToloFilterBuilder', {
         }
         return filter;
     },
-
+	
+	/**
+     * Inizializza il filtro predefinito.
+	 * @return {OpenLayers.Filter} Un filtro che rispetta il modello usato da questo costruttore.
+     */
     createDefaultFilter: function() {
         return new OpenLayers.Filter.Comparison({
                             matchCase: !this.caseInsensitiveMatch});
     },
     
-    /** private: method[wrapFilter]
-     *  :arg filter: ``OpenLayers.Filter`` A non-logical filter.
-     *  :return: ``OpenLayers.Filter`` A wrapped version of the input filter.
-     *  
-     *  Given a non-logical filter, this creates parent filters depending on
-     *  the ``defaultBuilderType``.
+	/**
+     * Prende un filtro non logico per creare un parent che dipende da ``defaultBuilderType``.
+	 * @param {OpenLayers.Filter} filter Un filtro non logico.
+	 * @return {OpenLayers.Filter} Una versione wrapped del filtro passato come argomento.
      */
     wrapFilter: function(filter) {
         var type;
@@ -373,10 +380,11 @@ Ext.define('TolomeoExt.widgets.ToloFilterBuilder', {
         });
     },
     
-    /** private: method[addCondition]
-     *  Add a new condition or group of conditions to the builder.  This
-     *  modifies the filter and adds a panel representing the new condition
-     *  or group of conditions.
+	/**
+     * Aggiunge una nuova condizione o gruppo di condizion al costruttore del filtro.
+	 * Qusto modifica il filtro a aggiunge un pannello che rappresenta la nuova condizione 
+	 * o grupo di condizioni.
+	 * @param {Object} group Un nuovo gruppo di condizioni.
      */
     addCondition: function(group) {
         var filter, type;
@@ -411,10 +419,12 @@ Ext.define('TolomeoExt.widgets.ToloFilterBuilder', {
         this.childFilterContainer.doLayout();
     },
     
-    /** private: method[removeCondition]
-     *  Remove a condition or group of conditions from the builder.  This
-     *  modifies the filter and removes the panel representing the condition
-     *  or group of conditions.
+	/**
+     * Rimuove una condizione o gruppo di condizioni da costruttore. 
+	 * Questo modificha il filtro e rimuove il pannello che rappresenta la nuova condizione 
+	 * o grupo di condizioni.
+	 * @param {Object} item elemento da rimuovere.
+	 * @param {OpenLayers.Filter} filter Il filtro corrente .
      */
     removeCondition: function(item, filter) {
 		var parent = this.filter.filters[0].filters;
@@ -457,6 +467,10 @@ Ext.define('TolomeoExt.widgets.ToloFilterBuilder', {
 		this.fireEvent("change", this);
     },
     
+	/**
+     * Rimuove dal pannello tutte le condizioni presenti.
+     * 
+     */
     removeAllConditions: function(){
     	var containers = this.query("container[name=filtercondition_container]");
     	for(var i=0; i<containers.length; i++){
@@ -466,6 +480,10 @@ Ext.define('TolomeoExt.widgets.ToloFilterBuilder', {
     	}    	
     },
     
+    /**
+     * Crea la combo box corrispondente ai tipi di costruttore possibili per il filtro.
+	 *
+     */
     createBuilderTypeCombo: function() {
         var types = this.allowedBuilderTypes || [
             TolomeoExt.widgets.ToloFilterBuilder.ANY_OF, 
@@ -505,11 +523,10 @@ Ext.define('TolomeoExt.widgets.ToloFilterBuilder', {
             width: 70 
         };
     },
-    
-    /** private: method[changeBuilderType]
-     *  :arg type: ``Integer`` One of the filter type constants.
-     *  
-     *  Alter the filter types when the filter type combo changes.
+
+	/**
+     * Altera i tipi di filtroquando la combo dei tipi di filtro cambia di valore.
+	 * @param {Integer} type elemento da rimuovere.
      */
     changeBuilderType: function(type) {
         if(type !== this.builderType) {
@@ -536,13 +553,12 @@ Ext.define('TolomeoExt.widgets.ToloFilterBuilder', {
         }
     },
 
-    /** private: method[createChildFiltersPanel]
-     *  :return: ``Ext.Container``
-     *  
-     *  Create the panel that holds all conditions and condition groups.  Since
-     *  this is called after this filter has been customized, we always
-     *  have a logical filter with one child filter - that child is also
-     *  a logical filter.
+	/**
+     * Crea il pannello che ospita tutte le condizioni e i gruppi di condizioni.
+	 * Dato che questo è chiamato dopo che il filtro è stato personalizzato, noi abbiamo sempre 
+     * un filtro logico con un filtro figlio che è un filtro logico. 	 
+	 * @param {Integer} type elemento da rimuovere.
+	 * @return {Ext.Container} il pannello contenitore.
      */
     createChildFiltersPanel: function() {
         this.childFilterContainer = new Ext.Container();
@@ -586,13 +602,11 @@ Ext.define('TolomeoExt.widgets.ToloFilterBuilder', {
         return this.childFilterContainer;
     },
 
-    /** private: method[newRow]
-     *  :return: ``Ext.Container`` A container that serves as a row in a child
-     *  filters panel.
-     *  
-     *  Generate a "row" for the child filters panel.  This couples another
-     *  filter panel or filter builder with a component that allows for
-     *  condition removal.
+	/**
+     * Genera una nuova condizione per il filtro figlio del pannello. Questo accoppia 
+	 * un altro pannello filtro o costruttore di filtro con un componente che consente la rimozione.	 
+	 * @param {Ext.Container} filterContainer Il pannello contenitore degli elementi del filtro.
+	 * @return {Ext.Container} il pannello contenitore della nuova condizione del filtro.
      */
     newRow: function(filterContainer) {
         var ct = Ext.create('Ext.Container', {
@@ -622,10 +636,9 @@ Ext.define('TolomeoExt.widgets.ToloFilterBuilder', {
         return ct;
     },
 
-    /** private: method[getBuilderType]
-     *
-     *  :return: ``Integer``  One of the builder type constants.
-     *  Determine the builder type based on this filter.
+	/**
+     * Determina il tipo di costruttore basato sul filtro corrente.	 
+	 * @return {Object} il tipo di costruttore.
      */
     getBuilderType: function() {
         var type = this.defaultBuilderType;
@@ -655,11 +668,9 @@ Ext.define('TolomeoExt.widgets.ToloFilterBuilder', {
         return type;
     },
 
-    /** api: method[setFilter]
-     *
-     *  :param filter: ``OpenLayers.Filter``
-     *
-     *  Change the filter associated with this instance.
+	/**
+     * Cambia il filtro associato a questa istanza del costruttore.	 
+	 * @param {OpenLayers.Filter} filter Un filtro da impostare.
      */
     setFilter: function(filter) {
         this.filter = this.customizeFilter(filter);
@@ -674,7 +685,7 @@ Ext.define('TolomeoExt.widgets.ToloFilterBuilder', {
 });
 
 /**
- * Builder Types
+ * Tipi di costruttore
  */
 TolomeoExt.widgets.ToloFilterBuilder.ANY_OF = 0;
 TolomeoExt.widgets.ToloFilterBuilder.ALL_OF = 1;

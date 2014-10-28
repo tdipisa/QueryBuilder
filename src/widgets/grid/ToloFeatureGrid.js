@@ -1,10 +1,11 @@
 
 Ext.ns('TolomeoExt.widgets.grid');
 
-/** api: constructor
- *  .. class:: ToloFeatureGrid(config)
+/**
+ * Griglia Ext dinamica per gestire la visualizzazione dei risultati 
+ * di una ricerca sulla base del filtro composto.
  *
- *      Create a new grid displaying the contents.
+ * @author Tobia Di Pisa at tobia.dipisa@geo-solutions.it
  */
 Ext.define('TolomeoExt.widgets.grid.ToloFeatureGrid', {
 	
@@ -12,28 +13,32 @@ Ext.define('TolomeoExt.widgets.grid.ToloFeatureGrid', {
 	
     alias: "widget.tolomeo_featuregrid",
 
-    /** api: config[schema]
-     *  ``GeoExt.data.AttributeStore``
-     *  Optional schema for the grid. If provided, appropriate field
-     *  renderers (e.g. for date or boolean fields) will be used.
+	/**
+     * @property {Object} schema
+	 * Lo schema per la griglia.
+     */
+	 
+	/**
+     * @property {Ext.form.DateField.prototype.format} dateFormat
+	 * Lo schema per la griglia.
+     */
+	 
+	/**
+     * @property {Ext.form.TimeField.prototype.format} timeFormat
+	 * Lo schema per la griglia.
      */
 
-    /** api: config[dateFormat]
-     *  ``String`` Date format. Default is the value of
-     *  ``Ext.form.DateField.prototype.format``.
+	/**
+     * @cfg {String} actionTooltip
+     *
      */
-
-    /** api: config[timeFormat]
-     *  ``String`` Time format. Default is the value of
-     *  ``Ext.form.TimeField.prototype.format``.
-     */
-
 	actionTooltip: "Zoom alla Feature",
     
-    /** api: method[initComponent]
-     *  Initializes the FeatureGrid.
+	/**
+     * Inizializza un nuovo TolomeoExt.widgets.grid.ToloFeatureGrid.
+     * @param {Object} [config] Un opzionale oggetto di configurazione per il componente ExtJs.
      */
-    initComponent: function(){
+    initComponent: function(config){
         if (!this.dateFormat) {
             this.dateFormat = Ext.form.DateField.prototype.format;
         }
@@ -47,20 +52,19 @@ Ext.define('TolomeoExt.widgets.grid.ToloFeatureGrid', {
         
         this.callParent();
     },
-    
-    /** private: method[onDestroy]
-     *  Clean up anything created here before calling super onDestroy.
+
+	/**
+     * Cancella ogni cosa creata prima di chiamare il distruttore della classe padre.
+     * 
      */
     onDestroy: function() {
         TolomeoExt.widgets.grid.FeatureGrid.superclass.onDestroy.apply(this, arguments);
     },
     
-    /** api: method[setStore]
-     *  :arg store: ``GeoExt.data.FeatureStore``
-     *  :arg schema: ``GeoExt.data.AttributeStore`` Optional schema to
-     *      determine appropriate field renderers for the grid.
-     *  
-     *  Sets the store for this grid, reconfiguring the column model
+	/**
+     * Imposta lo store per questa griglia, riconfigurando il modello delle colonne.
+     * @param {Ext.Data.Store} store Lo store da impostare.
+	 * @param {Array} schema Schema opzionale per determinare i campi appropriati da mostrare per la griglia.
      */
     setStore: function(store, schema) {
         if (schema) {
@@ -72,11 +76,10 @@ Ext.define('TolomeoExt.widgets.grid.ToloFeatureGrid', {
         }
     },
 
-    /** api: method[getColumns]
-     *  :arg store: ``GeoExt.data.FeatureStore``
-     *  :return: ``Array``
-     *  
-     *  Gets the configuration for the column model.
+	/**
+     * Restituisce la configurazione per il modello delle colonne.
+     * @param {Ext.Data.Store} store Lo store corrente da usare.
+	 * @return {Array} Il modello delle colonne
      */
     getColumns: function(store) {
 //        function getRenderer(format) {
@@ -166,10 +169,11 @@ Ext.define('TolomeoExt.widgets.grid.ToloFeatureGrid', {
         
         return columns;
     },
-    
-    /** private: method[createColumnModel]
-     *  :arg store: ``GeoExt.data.FeatureStore``
-     *  :return: ``Ext.grid.ColumnModel``
+
+	/**
+     * Invocare questo metodo per creare il modello delle colonne per la griglia.
+     * @param {Ext.Data.Store} store Lo store corrente su cui creare il modello.
+	 * 
      */
     createColumnModel: function(store) {
     	 this.columns = this.getColumns(store);

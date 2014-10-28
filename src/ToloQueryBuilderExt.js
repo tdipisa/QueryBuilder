@@ -30,13 +30,13 @@ Ext.define('TolomeoExt.ToloQueryBuilderExt', {
 	TOLOMEOContext: null,
 	
 	/**
-	 * @cfg {String} filterFormat
+	 * @cfg {String} filterFormat [filterFormat="OGC"]
 	 * Formato dei filtro. Possibili valori: "OGC", "CQL".
 	 */
 	filterFormat: "OGC",
 	
 	/**
-	 * @cfg {String} ogcFilterVersion
+	 * @cfg {String} ogcFilterVersion [ogcFilterVersion="1.1.0"]
 	 * Se filterFormat="OGC" indica il numero di versione del filtro.
 	 */
 	ogcFilterVersion: "1.1.0",
