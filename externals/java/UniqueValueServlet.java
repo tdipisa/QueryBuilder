@@ -76,14 +76,12 @@ package it.prato.comune.tolomeo.web;
 import it.prato.comune.sit.LayerTerritorio;
 import it.prato.comune.sit.OggettoTerritorio;
 import it.prato.comune.sit.SITException;
-import it.prato.comune.sit.SITExtStore;
 import it.prato.comune.sit.SITLayersManager;
 import it.prato.comune.sit.SITPaginatedResult;
 import it.prato.comune.tolomeo.utility.ExtStoreError;
 import it.prato.comune.utilita.logging.interfaces.LogInterface;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -99,15 +97,21 @@ import net.sf.json.JSONObject;
 
 
 /**
- * Questa classe implementa la servlet di default che viene utilizzata da Tolomeo per 
- * reperire i metadati relativi agli attributi, ed e' pensata per essere richiamata via ajax.
+ * Questa classe implementa la servlet di default che viene utilizzata da Tolomeo come supporto
+ * server side alla funzionalità di completamento, ed e' pensata per essere richiamata via ajax.
  * <br/>il risultato, in formato JSON extjs compatibile 
- * può essere utilizzato per tools che richiedono tali tipo di informazioni per l'inizializzazione dei sottocomponenti. 
+ * può essere utilizzato per tools che richiedono l'output fornito per funzionalità di autocompletamento. 
  * 
  * 
  * Accetta i seguenti parametri passati in get o post:
  * <ul>
  *  <li>codTPN - codice identificativo (nel package it.prato.comune.sit) del layer sul quale viene fatta l'interrogazione</li>
+ *  <li>filter - filtro OGC o CQL da usare per la ricerca</li>
+ *  <li>ogcFilterVersion - in caso di filtro OGC identifica la versione da usare per il parsing</li>
+ *  <li>maxFeatures - numero di features per pagina</li>
+ *  <li>startIndex - pagina da ritornarte al client</li>
+ *  <li>format - Identofica il tipo di output (JSON, SHP o Spatialite)</li>
+ *  <li>attributeName - Il nome dell'attributo su cui basare l'autocompletamento</li>
  * </ul>
  *  
  * Fornisce come risultato (direttamente nella response, essendo fatta per essere chiamata via ajax) la stringa JSON che rappresenta un
@@ -177,7 +181,6 @@ public class UniqueValueServlet extends TolomeoServlet {
         			obj.put("total", pagRes.getTotalCount());
         			
         			JSONArray jsonArray = new JSONArray();
-//        			ArrayList<String> valuesList = new ArrayList<String>();
         			
         			Iterator<?  extends OggettoTerritorio> iterator = pagResList.iterator();
         			while(iterator.hasNext()){
@@ -190,15 +193,11 @@ public class UniqueValueServlet extends TolomeoServlet {
         					
         					// Populate the result list
         					if(attrName.equals(attributeName)){
-//        						valuesList.add((String)ogg.getAttributeByNL(key));
-//        						jsonArray.add((String)ogg.getAttributeByNL(key));
         	        			JSONObject value = new JSONObject();
         	        			value.put("value", (String)ogg.getAttributeByNL(key));
         	        			jsonArray.add(value);
         					}
         				}
-
-//        				jsonArray.add(valuesList.toArray());
         			}
         			
         			JSONArray metadataFields = new JSONArray();
@@ -215,8 +214,6 @@ public class UniqueValueServlet extends TolomeoServlet {
 					obj.put("metaData", metadataObj); 
         			obj.put("rows", jsonArray);
         			
-//        			resp = SITExtStore.extStore(jsonArray, null).toString();
-//        			JSONObject respObj = SITExtStore.extStoreFromString(obj.toString());
         			resp = obj.toString();
 	        	}
 	        	

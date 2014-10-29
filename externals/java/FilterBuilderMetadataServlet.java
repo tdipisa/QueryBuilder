@@ -178,6 +178,7 @@ public class FilterBuilderMetadataServlet extends TolomeoServlet {
 	        		obj.put("type", layerAttributeTypes.get(key));
 	        		obj.put("restriction", "undefined");
 	        		obj.put("regex", layerAttributeRegEx.get(key));
+	        		obj.put("codTPN", codTPN);
 	        		
 	        		jsonArray.add(obj);	        		
 	        	}

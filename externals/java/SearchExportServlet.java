@@ -146,7 +146,6 @@ public class SearchExportServlet extends TolomeoServlet {
     	// Recupero il logger
         LogInterface logger = getLogger(request);
         
-//        String code = request.getParameter("code");
         String filename = request.getParameter("filename");
         
         if(filename != null && !filename.isEmpty()){
