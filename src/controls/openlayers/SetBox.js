@@ -18,55 +18,55 @@ OpenLayers.Control.SetBox = OpenLayers.Class(OpenLayers.Control, {
     type: OpenLayers.Control.TYPE_TOOL,
 
     /**
-     * @cfg {Boolean} out [displayProjection="false"]
+     * @cfg {Boolean} out [out="false"]
      * 
      */ 
     out: false,
     
     /**
-     * @cfg {Object} aoi [displayProjection="false"]
+     * @cfg {Object} aoi [aoi="null"]
      * 
      */ 
     aoi: null,
     
     /**
-     * @cfg {OpenLayers.Bounds} boxes [displayProjection="false"]
+     * @cfg {OpenLayers.Bounds} boxes [boxes="null"]
      * 
      */ 
     boxes: null,
     
     /**
-     * @cfg {String} currentAOI [displayProjection="false"]
+     * @cfg {String} currentAOI
      * 
      */ 
     currentAOI: "",
     
     /**
-     * @cfg {Function} onChangeAOI [displayProjection="false"]
+     * @cfg {Function} onChangeAOI [onChangeAOI="null"]
      * 
      */ 
     onChangeAOI: null,
     
     /**
-     * @cfg {String} layerName [displayProjection="false"]
+     * @cfg {String} layerName [layerName="AOI"]
      * 
      */ 
     layerName: "AOI",
     
     /**
-     * @cfg {Object} aoiStyle [displayProjection="false"]
+     * @cfg {Object} aoiStyle [aoiStyle="null"]
      * 
      */ 
     aoiStyle: null,
     
     /**
-     * @cfg {OpenLayers.Map} out [displayProjection="false"]
+     * @cfg {OpenLayers.Map} map
      * 
      */ 
     map: null,
     
     /**
-     * @cfg {Boolean} displayInLayerSwitcher [displayProjection="false"]
+     * @cfg {Boolean} displayInLayerSwitcher [displayInLayerSwitcher="false"]
      * 
      */ 
     displayInLayerSwitcher: false,

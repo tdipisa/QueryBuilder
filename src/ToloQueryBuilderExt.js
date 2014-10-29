@@ -73,7 +73,7 @@ Ext.define('TolomeoExt.ToloQueryBuilderExt', {
 		spatialSelector: null,
 		
 		/**
-		 * @cfg {TolomeoExt.widgets.ToloAttributeFilter} qbEventManager
+		 * @cfg {TolomeoExt.widgets.ToloAttributeFilter} queryfilter
 		 * 
 		 */
 		queryfilter: null
