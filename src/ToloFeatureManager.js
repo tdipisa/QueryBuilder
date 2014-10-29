@@ -57,13 +57,52 @@ Ext.define('TolomeoExt.ToloFeatureManager', {
 		Ext.apply(this, config);
 		
 		this.addEvents(
+	        /**
+			 * @event
+			 * Lanciato alla selezione di un nuovo layer dalla form.
+			 */
 			"layerchange",
+			
+	        /**
+			 * @event
+			 * Lanciato se il caricamento delle features fallisce.
+			 */
 			"loadfeaturesfailure",
+			
+	        /**
+			 * @event
+			 * Lanciato quando le features sono state caricate.
+			 */
 			"loadfeatures",
+			
+	        /**
+			 * @event
+			 * Lanciato prima di caricare le features da servizio remoto.
+			 */
 			"beforeloadfeatures",
+			
+	        /**
+			 * @event
+			 * Lanciato per reimpostare i parametri della richiesta.
+			 */
 			"resetquery",
+			
+	        /**
+			 * @event
+			 * Lanciato prima che avvenga la selezione di un nuovo layer dalla form del query builder.
+			 */
 			"beforelayerchange",
+			
+	        /**
+			 * @event
+			 * Lanciato al termine delle operazioni di export.
+			 */
 			"export",
+			
+	        /**
+			 * @event
+			 * Lanciato prima dell'avvio di una operazione di export.
+			 */
 			"beforedataexport"
 		);	
 		

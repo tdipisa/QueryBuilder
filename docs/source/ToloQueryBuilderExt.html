@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>The source code</title>
+  <link href="../resources/prettify/prettify.css" type="text/css" rel="stylesheet" />
+  <script type="text/javascript" src="../resources/prettify/prettify.js"></script>
+  <style type="text/css">
+    .highlight { display: block; background-color: #ddd; }
+  </style>
+  <script type="text/javascript">
+    function highlight() {
+      document.getElementById(location.hash.replace(/#/, "")).className = "highlight";
+    }
+  </script>
+</head>
+<body onload="prettyPrint(); highlight();">
+  <pre class="prettyprint lang-js">
+<span id='TolomeoExt-ToloQueryBuilderExt'>/**
+</span> * Strumento di ricerca alfanumerica libera 
+ * (Query Tool) general purpose (in grado cioè di 
+ * lavorare su qualunque layer vettoriale configurato 
+ * nel sistema) per Tolomeo.
+ *
+ * @author Tobia Di Pisa at tobia.dipisa@geo-solutions.it
+ */
+Ext.define(&#39;TolomeoExt.ToloQueryBuilderExt&#39;, {
+
+	extend: &#39;Ext.Panel&#39;,
+
+<span id='TolomeoExt-ToloQueryBuilderExt-cfg-paramsJS'>	/**
+</span>	 * @cfg {Object} paramsJS
+	 * Configurazioni specifiche del file di preset.
+	 */
+	paramsJS: null,
+
+<span id='TolomeoExt-ToloQueryBuilderExt-cfg-TOLOMEOServer'>	/**
+</span>	 * @cfg {String} TOLOMEOServer
+	 * URL di base del contesto di Tolomeo.
+	 */
+	TOLOMEOServer: null,
+
+<span id='TolomeoExt-ToloQueryBuilderExt-cfg-TOLOMEOContext'>	/**
+</span>	 * @cfg {String} TOLOMEOContext
+	 * Contesto di Tolomeo.
+	 */
+	TOLOMEOContext: null,
+	
+<span id='TolomeoExt-ToloQueryBuilderExt-cfg-filterFormat'>	/**
+</span>	 * @cfg {String} filterFormat [filterFormat=&quot;OGC&quot;]
+	 * Formato dei filtro. Possibili valori: &quot;OGC&quot;, &quot;CQL&quot;.
+	 */
+	filterFormat: &quot;OGC&quot;,
+	
+<span id='TolomeoExt-ToloQueryBuilderExt-cfg-ogcFilterVersion'>	/**
+</span>	 * @cfg {String} ogcFilterVersion [ogcFilterVersion=&quot;1.1.0&quot;]
+	 * Se filterFormat=&quot;OGC&quot; indica il numero di versione del filtro.
+	 */
+	ogcFilterVersion: &quot;1.1.0&quot;,
+
+<span id='TolomeoExt-ToloQueryBuilderExt-cfg-caseInsensitiveMatch'>	/**
+</span>	 * @cfg {Boolean} caseInsensitiveMatch [caseInsensitiveMatch=&quot;false&quot;]
+	 * Indica se i valori degli attributi nel filtro devono essere case sensitive o meno.
+	 */
+	caseInsensitiveMatch: false,
+	
+	config: {
+<span id='TolomeoExt-ToloQueryBuilderExt-cfg-qbFeatureManager'>		/**
+</span>		 * @cfg {TolomeoExt.ToloFeatureManager} qbFeatureManager (required)
+		 * Gestore di richieste e operazioni che coinvolgono le features.
+		 */
+		qbFeatureManager: null,
+		
+<span id='TolomeoExt-ToloQueryBuilderExt-cfg-qbEventManager'>		/**
+</span>		 * @cfg {TolomeoExt.events.ToloQueryBuilderEvtManager} qbEventManager (required)
+		 * Gestore di eventi per il query builder.
+		 */
+		qbEventManager: null,
+		
+<span id='TolomeoExt-ToloQueryBuilderExt-cfg-layerSelector'>		/**
+</span>		 * @cfg {TolomeoExt.widgets.ToloLayerSelector} layerSelector
+		 * 
+		 */
+		layerSelector: null,
+		
+<span id='TolomeoExt-ToloQueryBuilderExt-cfg-spatialSelector'>		/**
+</span>		 * @cfg {TolomeoExt.widgets.ToloSpatialSelector} spatialSelector
+		 * 
+		 */
+		spatialSelector: null,
+		
+<span id='TolomeoExt-ToloQueryBuilderExt-cfg-qbEventManager'>		/**
+</span>		 * @cfg {TolomeoExt.widgets.ToloAttributeFilter} qbEventManager
+		 * 
+		 */
+		queryfilter: null
+	}, 
+	
+<span id='TolomeoExt-ToloQueryBuilderExt-cfg-autoCompleteCfg'>	/**
+</span>	 * @cfg {Object} autoCompleteCfg [autoCompleteCfg=&quot;{}&quot;]
+	 * Contiene la configurazione per il servizio di autocompletamento.
+	 *
+	 * @example
+	 * autoCompleteCfg: {
+	 *  	url: &#39;http://localhost:8080/tolomeobinj/UniqueValueServlet&#39;,
+	 *		pageSize: 10
+	 * }
+	 */
+	autoCompleteCfg: {},
+	
+<span id='TolomeoExt-ToloQueryBuilderExt-cfg-autoComplete'>	/**
+</span>	 * @cfg {Boolean} [autoComplete=&quot;fase&quot;]
+	 * Abilita la funzionalità di autocomplete .
+	 */
+	autoComplete: false,
+	
+<span id='TolomeoExt-ToloQueryBuilderExt-cfg-noFilterSelectedMsgTitle'>	/**
+</span>	 * @cfg {String} noFilterSelectedMsgTitle
+	 * 
+	 */
+    noFilterSelectedMsgTitle: &quot;Nessun Filtro Selezionato&quot;,
+    
+<span id='TolomeoExt-ToloQueryBuilderExt-cfg-noFilterSelectedMsgText'>	/**
+</span>	 * @cfg {String} noFilterSelectedMsgText
+	 * 
+	 */
+    noFilterSelectedMsgText: &quot;Si deve selezionare almento un filtro.&quot;,
+    
+<span id='TolomeoExt-ToloQueryBuilderExt-cfg-invalidRegexFieldMsgTitle'>	/**
+</span>	 * @cfg {String} invalidRegexFieldMsgTitle
+	 * 
+	 */
+    invalidRegexFieldMsgTitle: &quot;Campi Invalidi&quot;,
+    
+<span id='TolomeoExt-ToloQueryBuilderExt-cfg-invalidRegexFieldMsgText'>	/**
+</span>	 * @cfg {String} invalidRegexFieldMsgText
+	 * 
+	 */
+    invalidRegexFieldMsgText: &quot;Uno o più campi della form non sono corretti!&quot;,
+    
+<span id='TolomeoExt-ToloQueryBuilderExt-cfg-notEnabledFieldMsgTitle'>	/**
+</span>	 * @cfg {String} notEnabledFieldMsgTitle
+	 * 
+	 */
+    notEnabledFieldMsgTitle: &quot;Campi Non Abilitati&quot;,
+    
+<span id='TolomeoExt-ToloQueryBuilderExt-cfg-notEnabledFieldMsgText'>    /**
+</span>	 * @cfg {Boolean} notEnabledFieldMsgText
+	 * 
+	 */
+    notEnabledFieldMsgText: &quot;Non è possibile inviare la richiesta finchè il layer non è stato selezionato.&quot;,
+
+<span id='TolomeoExt-ToloQueryBuilderExt-method-initComponent'>	/**
+</span>     * Inizializza un nuovo TolomeoExt.ToloQueryBuilderExt.
+     * @param {Object} [config] Un opzionale oggetto di configurazione per il componente ExtJs.
+     */
+	initComponent: function(config){	
+		TolomeoExt.Vars.ApplyIfDefaults(this);
+
+		this.autoScroll = true;
+		this.collapsed = false;
+    	
+		if(!this.qbEventManager){
+			this.qbEventManager = Ext.create(&#39;TolomeoExt.events.ToloQueryBuilderEvtManager&#39;);
+		}
+		
+		if(!this.qbFeatureManager){
+			this.qbFeatureManager = Ext.create(&#39;TolomeoExt.ToloFeatureManager&#39;, {
+				TOLOMEOServer: this.TOLOMEOServer,
+				TOLOMEOContext: this.TOLOMEOContext
+			});
+		}
+		
+		this.qbFeatureManager.on({
+			scope: this,
+			layerchange: function(results/*, store*/){
+				this.waitMask.hide();
+				this.queryfilter.addFilterBuilder(results/*, store*/);
+			},
+			loadfeatures: function(results, store){
+				this.waitMask.hide();
+			},
+			beforeloadfeatures: function(){
+				this.waitMask.show();
+			},
+			beforelayerchange: function(){
+				this.waitMask.show();
+			},
+			loadfeaturesfailure: function(){
+				this.waitMask.hide();
+			}
+		});
+		
+		// /////////////////////
+		// Layer Selector
+		// /////////////////////
+		var layers = [];
+		var evetLayerList = this.paramsJS.azioniEventi.eventiLayerList;
+		for(var i=0; i&lt;evetLayerList.length; i++){
+			var layerEventConfig = evetLayerList[i];
+			if(layerEventConfig.queryBuilder === true){
+				layers.push({
+					name: layerEventConfig.nomeLayer, 
+					description: layerEventConfig.descrizioneLayer, 
+					codTPN: layerEventConfig.codTPN
+				});
+			}
+		}
+		
+		this.layerSelector = Ext.create(&#39;TolomeoExt.widgets.ToloLayerSelector&#39;, {
+			layers: layers,
+			listeners:{
+				scope: this,
+				layerselected: function(records){
+					// /////////////////////////////////////////////////
+					// Enable the sub components after layer selection
+					// in order to allow filter composition.
+					// /////////////////////////////////////////////////
+					this.spatialSelector.enable();
+					this.filterView.enable();
+					this.enableAttributeFilter(records[0]);
+				}				
+			}
+		});
+		
+		// /////////////////////
+		// Spatial Selector
+		// /////////////////////
+		this.spatialSelector = Ext.create(&#39;TolomeoExt.widgets.ToloSpatialSelector&#39;, {
+			qbEventManager: this.qbEventManager,
+			disabled: true
+		});
+		
+		// /////////////////////
+		// Attribute Filter
+		// /////////////////////
+		this.queryfilter = Ext.create(&#39;TolomeoExt.widgets.ToloAttributeFilter&#39;, {
+			scroll: true,
+			disabled: true,
+			caseInsensitiveMatch: this.caseInsensitiveMatch,
+			autoCompleteCfg: this.autoCompleteCfg,
+			autoComplete: this.autoComplete,
+			TOLOMEOServer: this.TOLOMEOServer,
+			TOLOMEOContext: this.TOLOMEOContext
+		});
+		
+		this.filterView = Ext.create(&#39;TolomeoExt.widgets.ToloFilterView&#39;, {
+			scroll: true,
+			disabled: true,
+			listeners:{
+				scope: this,
+				typeselected: function(records){
+					var filter = this.getFilter();
+					if(filter){
+						var record = records;
+						
+						if(records instanceof Array){
+							record = records[0];
+						}
+						
+						var serialized_filter = this.getFilterString(filter, record.get(&quot;name&quot;));
+						this.filterView.setFilter(serialized_filter);
+					}
+				}
+			}
+		});
+			
+		this.bbar = [&quot;-&gt;&quot;, {
+            text: &quot;Cancella&quot;,
+            iconCls: &quot;querybuilder-icon-cancel&quot;,
+            scope: this,
+            handler: function() {
+            	// Spatial Selector Reset
+            	this.spatialSelector.reset();
+            	var spatialMethodCombo = this.spatialSelector.getSelectionMethodCombo();
+            	spatialMethodCombo.reset();
+            	
+            	// Attribute Form Reset
+            	if(this.queryfilter.filterBuilder){
+            		this.queryfilter.filterBuilder.removeAllConditions();
+            	}
+            	
+            	// Attribute Filter Reset
+            	this.filterView.resetView();
+            	
+            	// Feature Grid Reset
+            	this.qbFeatureManager.fireEvent(&quot;resetquery&quot;);
+            }
+        }, {
+            text: &quot;Cerca&quot;,
+            iconCls: &quot;querybuilder-icon-find&quot;,
+            handler: function() {
+            	var filter = this.getFilter();
+            	
+            	if(filter){
+            		var serialized_filter = this.getFilterString(filter, null);
+
+                    var fparams = {
+        				codTPN: this.codTPN,
+        				SRID: this.paramsJS.mappe.SRID,
+        				filter: serialized_filter,
+        				ogcFilterVersion: this.ogcFilterVersion,
+        				format: &quot;ext&quot;
+        			}; 
+            		
+                    this.qbFeatureManager.loadFeatures(fparams);
+            	}
+            },
+            scope: this
+        }];
+		
+		this.callParent();
+	
+		this.add([this.layerSelector, this.spatialSelector, this.queryfilter, this.filterView]);
+		
+		this.spatialSelector.reset();
+		
+		// ////////////////////////////////////////////////////////
+		// Disable the tool if any layer is configured to use it
+		// ////////////////////////////////////////////////////////
+		if(layers.length &lt; 1){
+			this.disabled = true;
+		}
+		
+		this.on(&quot;afterrender&quot;, function(){
+			this.waitMask = new Ext.LoadMask(this.id, {msg: &quot;Ricerca in corso....&quot;});
+		}, this);
+		
+	},
+	
+<span id='TolomeoExt-ToloQueryBuilderExt-method-enableAttributeFilter'>	/**
+</span>     * Abilita il filtro degli attributi.
+     * @param {Ext.Data.Record} record corrispondente al layer selezionato. 
+     *
+     */
+	enableAttributeFilter: function(record){
+		// Adding a Filter Builder passing the feature type name
+		this.codTPN = record.get(&#39;codTPN&#39;);
+		
+		var fparams = {
+			codTPN: this.codTPN
+		}; 
+		
+    	// Submit ajax della form
+    	this.qbFeatureManager.getSchema(fparams);
+	},
+	
+<span id='TolomeoExt-ToloQueryBuilderExt-method-getFilterString'>	/**
+</span>     * Recupera il filtro selezionato in formato stringa.
+     * @param {OpenLayers.Filter} filter Il filtro selezionato. 
+	 * @param {String} type Tipo del filtro.
+     * @return {String} il filtro in formato stringa.
+     */
+	getFilterString: function(filter, type){
+        var format = this.filterFormat;        
+        if(type){
+        	format = type;
+        }
+        
+        var serialized_filter = &quot;&quot;;
+        if(format == &quot;OGC&quot; ){
+            var node = new OpenLayers.Format.Filter({version: this.ogcFilterVersion}).write(filter);
+            serialized_filter = new OpenLayers.Format.XML().write(node);
+        }else{
+        	serialized_filter = filter.toString();
+        }
+        
+        return serialized_filter;
+	},
+	
+<span id='TolomeoExt-ToloQueryBuilderExt-method-getFilter'>    /**
+</span>     * Recupera il filtro selezionato.
+     * @return {OpenLayers.Filter} il filtro selezionato.
+     */
+	getFilter: function(){
+		var filter = null;
+		
+    	if(!this.queryfilter.disabled &amp;&amp; !this.spatialSelector.disabled){
+    		
+    		// ////////////////////////////////////////////////
+            // Check if there are some invalid field according 
+    		// to validators regex config
+            // ////////////////////////////////////////////////
+    		var invalidItems = 0;
+    		if(!this.queryfilter.attributeFieldSet.collapsed){
+        		var filterFieldItem = this.query(&#39;tolomeo_tolofilterfield&#39;);            
+
+                for(var x = 0; x&lt;filterFieldItem.length; x++){
+                	if(filterFieldItem[x].valueWidgets){
+                    	var valueWidgets = filterFieldItem[x].valueWidgets.items.items;
+                    	for(var y=0; y&lt;valueWidgets.length; y++){
+                    		var validateItem = valueWidgets[y];
+                            if(!validateItem.isValid(true)){
+                                invalidItems++;
+                            }
+                    	}
+                	}
+                }  
+    		}
+            
+            if(invalidItems == 0){                    	
+            	var filters = [];
+            	
+            	// ///////////////////////
+            	// Compose the Filter
+            	// ///////////////////////
+            	if(!this.queryfilter.attributeFieldSet.collapsed){
+                	var attributeFilter = this.queryfilter.filterBuilder.getFilter();
+                	if(attributeFilter){
+                		filters.push(attributeFilter);	
+                	}
+            	}
+
+            	// /////////////////////////////////////////////
+            	// If the spatial field set is collapdes then 
+            	// use the current map extent. 
+            	// /////////////////////////////////////////////
+            	var currentMapExtent = this.spatialSelector.spatialFieldSet.collapsed;
+                var spatialFilter = this.spatialSelector.getQueryFilter(currentMapExtent);   
+                if (spatialFilter) {
+                	filters.push(spatialFilter);
+                }
+					
+                if(filters.length &gt; 0){
+    				var filter = filters.length &gt; 1 ?
+                        new OpenLayers.Filter.Logical({
+                            type: OpenLayers.Filter.Logical.AND,
+                            filters: filters
+                        }) :
+                        filters[0];   
+                        
+                    return filter;
+                    
+                }else{
+                    Ext.Msg.show({
+                        title: this.noFilterSelectedMsgTitle,
+                        msg: this.noFilterSelectedMsgText,
+                        buttons: Ext.Msg.OK,
+                        icon: Ext.MessageBox.ERROR
+                    }); 
+                }
+            }else{
+                Ext.Msg.show({
+                    title: this.invalidRegexFieldMsgTitle,
+                    msg: this.invalidRegexFieldMsgText,
+                    buttons: Ext.Msg.OK,
+                    icon: Ext.MessageBox.ERROR
+                });
+            }
+            
+    	}else {
+            Ext.Msg.show({
+                title: this.notEnabledFieldMsgTitle,
+                msg: this.notEnabledFieldMsgText,
+                buttons: Ext.Msg.OK,
+                icon: Ext.MessageBox.ERROR
+            });
+    	}
+    	
+    	return filter;
+	}
+    
+});
+</pre>
+</body>
+</html>

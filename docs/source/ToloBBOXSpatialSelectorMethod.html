@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>The source code</title>
+  <link href="../resources/prettify/prettify.css" type="text/css" rel="stylesheet" />
+  <script type="text/javascript" src="../resources/prettify/prettify.js"></script>
+  <style type="text/css">
+    .highlight { display: block; background-color: #ddd; }
+  </style>
+  <script type="text/javascript">
+    function highlight() {
+      document.getElementById(location.hash.replace(/#/, "")).className = "highlight";
+    }
+  </script>
+</head>
+<body onload="prettyPrint(); highlight();">
+  <pre class="prettyprint lang-js">
+Ext.namespace(&#39;TolomeoExt.widgets.form.spatialselector&#39;);
+
+<span id='TolomeoExt-widgets-form-spatialselector-ToloBBOXSpatialSelectorMethod'>/**
+</span> * Plugin per la selezione di una area di interesse a Bounding Box (BBOX).
+ *
+ * @author Tobia Di Pisa at tobia.dipisa@geo-solutions.it
+ */
+Ext.define(&#39;TolomeoExt.widgets.form.spatialselector.ToloBBOXSpatialSelectorMethod&#39;, {
+		
+	extend: &#39;TolomeoExt.widgets.form.spatialselector.ToloSpatialSelectorMethod&#39;,
+
+	alias : &#39;widget.tolomeo_spatial_bbox_selector&#39;,
+	
+	requires: [
+       &#39;TolomeoExt.widgets.form.spatialselector.ToloSpatialSelectorMethod&#39;
+	],
+
+<span id='TolomeoExt-widgets-form-spatialselector-ToloBBOXSpatialSelectorMethod-cfg-latitudeEmptyText'>    /**
+</span>     * @cfg {String} latitudeEmptyText [displayProjection=&quot;null&quot;]
+     * La proiezione per il display delle coordinate (se null si usa la proiezione dell mappa).
+     */
+    displayProjection: null,
+    
+<span id='TolomeoExt-widgets-form-spatialselector-ToloBBOXSpatialSelectorMethod-cfg-name'>    /**
+</span>     * @cfg {String} name.
+     * Nome da mostrare nella combo box di selezione spaziale.
+     */
+	name  : &#39;BBOX&#39;,
+
+<span id='TolomeoExt-widgets-form-spatialselector-ToloBBOXSpatialSelectorMethod-cfg-label'>    /**
+</span>     * @cfg {String} label.
+     * Etichetta da mostrare nella combo box di selezione spaziale.
+     */
+	label : &#39;Bounding Box&#39;,
+
+<span id='TolomeoExt-widgets-form-spatialselector-ToloBBOXSpatialSelectorMethod-cfg-spatialFilterOptions'> 	/**
+</span>     * @cfg {Object} spatialFilterOptions.
+     * Opzioni di configurazione per i campi di coordinata (valori massimi e minini consentiti per i campi).
+     * 
+     * @example
+	 *    spatialFilterOptions: {
+	 *	        lonMax: 180,   
+	 *	        lonMin: -180,
+	 *	        latMax: 90,   
+	 *	        latMin: -90  
+	 *	  }
+     */
+	spatialFilterOptions : {
+		lonMax : 20037508.34, //90,
+		lonMin : -20037508.34, //-90,
+		latMax : 20037508.34, //180,
+		latMin : -20037508.34 //-180
+	},
+
+<span id='TolomeoExt-widgets-form-spatialselector-ToloBBOXSpatialSelectorMethod-property-northLabel'> 	/**
+</span>     * @property {String} northLabel.
+     * Testo dell&#39;etichetta per la coordinata Nord.
+     */
+    northLabel: &quot;Nord&quot;,
+    
+<span id='TolomeoExt-widgets-form-spatialselector-ToloBBOXSpatialSelectorMethod-property-westLabel'> 	/**
+</span>     * @property {String} westLabel.
+     * Testo dell&#39;etichetta per la coordinata Ovest.
+     */
+    westLabel: &quot;Ovest&quot;,
+    
+<span id='TolomeoExt-widgets-form-spatialselector-ToloBBOXSpatialSelectorMethod-property-eastLabel'> 	/**
+</span>     * @property {String} eastLabel.
+     * Testo dell&#39;etichetta per la coordinata Est.
+     */
+    eastLabel: &quot;Est&quot;,
+    
+<span id='TolomeoExt-widgets-form-spatialselector-ToloBBOXSpatialSelectorMethod-property-southLabel'> 	/**
+</span>     * @property {String} southLabel.
+     * Testo dell&#39;etichetta per la coordinata Sud.
+     */
+    southLabel: &quot;Sud&quot;,
+
+<span id='TolomeoExt-widgets-form-spatialselector-ToloBBOXSpatialSelectorMethod-property-setAoiTitle'> 	/**
+</span>     * @property {String} setAoiTitle.
+     * Titolo del field set di contenimento.
+     */
+	setAoiTitle : &quot;Bounding Box&quot;,
+
+<span id='TolomeoExt-widgets-form-spatialselector-ToloBBOXSpatialSelectorMethod-property-setAoiText'> 	/**
+</span>     * @property {String} setAoiText.
+     * Testo di etichetta per il pulsante di attivazione del controllo di disegno del BOX.
+     */
+    setAoiText: &quot;Box&quot;,
+
+<span id='TolomeoExt-widgets-form-spatialselector-ToloBBOXSpatialSelectorMethod-property-setAoiTooltip'> 	/**
+</span>     * @property {String} setAoiTooltip.
+     * Testo per il tooltip del pulsante di attivazione del controllo di disegno del BOX.
+     */
+    setAoiTooltip: &quot;Abilita il controllo Box per il disegno della ROI (BBOX) sulla mappa&quot;,
+
+<span id='TolomeoExt-widgets-form-spatialselector-ToloBBOXSpatialSelectorMethod-method-initComponent'>	/**
+</span>     * Inizializza un nuovo TolomeoExt.widgets.form.spatialselector.ToloBBOXSpatialSelectorMethod.
+     * @param {Object} [config] Un opzionale oggetto di configurazione per il componente ExtJs.
+     */
+    initComponent: function(config) {   
+    	var displayProjection = this.displayProjection;
+		
+    	// ///////////////////////////////////////////
+		// Spatial AOI Selector FieldSet
+		// ///////////////////////////////////////////
+		var confbbox = {
+            map: null, 
+            outputSRS : this.displayProjection  || null, 
+            spatialFilterOptions: this.spatialFilterOptions,
+            ref: &quot;spatialFieldset&quot;,
+            id: this.id + &quot;_bbox&quot;,
+            defaultStyle: this.defaultStyle,
+            selectStyle: this.selectStyle,
+            temporaryStyle: this.temporaryStyle,
+            anchor: &quot;100%&quot;,
+            title: this.setAoiTitle,
+		    northLabel:this.northLabel,
+		    westLabel:this.westLabel,
+		    eastLabel:this.eastLabel,
+		    southLabel:this.southLabel,
+		    setAoiText: this.setAoiText,
+		    setAoiTooltip: this.setAoiTooltip,
+		    waitEPSGMsg: &quot;Please Wait...&quot;
+        };
+
+    	this.output = Ext.create(&#39;TolomeoExt.widgets.form.ToloBBOXFieldset&#39;, confbbox);
+
+    	this.items = [this.output];
+
+    	this.callParent();
+    },
+
+<span id='TolomeoExt-widgets-form-spatialselector-ToloBBOXSpatialSelectorMethod-method-activate'>	/**
+</span>     * Attiva il controllo.
+     * 
+     */
+	activate: function(){
+		TolomeoExt.widgets.form.spatialselector.ToloBBOXSpatialSelectorMethod.superclass.activate.call(this);
+		if(this.output){
+			this.output.enable();
+		}
+	},
+
+<span id='TolomeoExt-widgets-form-spatialselector-ToloBBOXSpatialSelectorMethod-method-deactivate'>	/**
+</span>     * Disattiva il controllo.
+     * 
+     */
+	deactivate: function(){
+		TolomeoExt.widgets.form.spatialselector.ToloBBOXSpatialSelectorMethod.superclass.deactivate.call(this);
+		if(this.output){
+			if(this.qbEventManager){
+				this.qbEventManager.fireEvent(&quot;removelayer&quot;, this.output.layerName);
+			}
+			this.output.disable();
+		}
+	},
+
+<span id='TolomeoExt-widgets-form-spatialselector-ToloBBOXSpatialSelectorMethod-method-reset'>	/**
+</span>     * Reimposta il controllo di disegno del BBOX.
+     * 
+     */
+    reset: function(){
+    	TolomeoExt.widgets.form.spatialselector.ToloBBOXSpatialSelectorMethod.superclass.reset.call(this);
+    	
+		if(this.qbEventManager){
+			this.qbEventManager.fireEvent(&quot;removelayer&quot;, this.output.layerName);
+		}
+    	this.output.reset();
+    }
+
+});
+</pre>
+</body>
+</html>

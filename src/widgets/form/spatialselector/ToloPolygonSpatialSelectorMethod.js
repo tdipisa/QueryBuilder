@@ -1,10 +1,10 @@
 
 Ext.ns('TolomeoExt.widgets.form.spatialselector');
 
-/** api: constructor
- *  .. class:: ToloPolygonSpatialSelectorMethod(config)
+/**
+ * Plugin per la selezione poligonale
  *
- *    Plugin for spatial selection based on simple polygon
+ * @author Tobia Di Pisa at tobia.dipisa@geo-solutions.it
  */
 Ext.define('TolomeoExt.widgets.form.spatialselector.ToloPolygonSpatialSelectorMethod', {
 	
@@ -16,19 +16,22 @@ Ext.define('TolomeoExt.widgets.form.spatialselector.ToloPolygonSpatialSelectorMe
        'TolomeoExt.widgets.form.spatialselector.ToloSpatialSelectorMethod'
 	],
 
-	/** api: config[name]
-	 *  ``String``
-	 *  Name to show on the combo box of the spatial selected.
-	 */
+    /**
+     * @cfg {String} name.
+     * Nome da mostrare nella combo box di selezione spaziale.
+     */
 	name  : 'Poligono',
 
-	/** api: config[label]
-	 *  ``String``
-	 *  Label to show on the combo box of the spatial selected.
-	 */
+    /**
+     * @cfg {String} label.
+     * Etichetta da mostrare nella combo box di selezione spaziale.
+     */
 	label : 'Poligono',
 
-	// trigger action when activate the plugin
+	/**
+     * Attiva il controllo.
+     * 
+     */
 	activate: function(){
 		TolomeoExt.widgets.form.spatialselector.ToloPolygonSpatialSelectorMethod.superclass.activate.call(this);
 
@@ -37,7 +40,10 @@ Ext.define('TolomeoExt.widgets.form.spatialselector.ToloPolygonSpatialSelectorMe
 		}
 	},
 
-	// obtain draw control
+	/**
+     * Restituisce il controllo di disegno di questo componente.
+     * 
+     */
 	getDrawControl: function(){
 		return new OpenLayers.Control.DrawFeature(
             this.drawings,
@@ -45,7 +51,10 @@ Ext.define('TolomeoExt.widgets.form.spatialselector.ToloPolygonSpatialSelectorMe
         );
 	},
 
-	// trigger action when deactivate the plugin
+	/**
+     * Disattiva il controllo.
+     * 
+     */
 	deactivate: function(){
 		TolomeoExt.widgets.form.spatialselector.ToloPolygonSpatialSelectorMethod.superclass.deactivate.call(this);
 		if(this.draw){
@@ -60,7 +69,10 @@ Ext.define('TolomeoExt.widgets.form.spatialselector.ToloPolygonSpatialSelectorMe
 		}
 	},
 
-    // Reset method
+	/**
+     * Reimposta il controllo di sidegno poligonale.
+     * 
+     */
     reset: function(){
     	TolomeoExt.widgets.form.spatialselector.ToloPolygonSpatialSelectorMethod.superclass.reset.call(this);
 		if(this.drawings){

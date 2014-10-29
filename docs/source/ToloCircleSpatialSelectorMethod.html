@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>The source code</title>
+  <link href="../resources/prettify/prettify.css" type="text/css" rel="stylesheet" />
+  <script type="text/javascript" src="../resources/prettify/prettify.js"></script>
+  <style type="text/css">
+    .highlight { display: block; background-color: #ddd; }
+  </style>
+  <script type="text/javascript">
+    function highlight() {
+      document.getElementById(location.hash.replace(/#/, "")).className = "highlight";
+    }
+  </script>
+</head>
+<body onload="prettyPrint(); highlight();">
+  <pre class="prettyprint lang-js">
+Ext.ns(&#39;TolomeoExt.widgets.form.spatialselector&#39;);
+
+<span id='TolomeoExt-widgets-form-spatialselector-ToloCircleSpatialSelectorMethod'>/**
+</span> * Plugin per la selezione di una area di interesse circolare.
+ *
+ * @author Tobia Di Pisa at tobia.dipisa@geo-solutions.it
+ */
+Ext.define(&#39;TolomeoExt.widgets.form.spatialselector.ToloCircleSpatialSelectorMethod&#39;, {
+	
+	extend: &#39;TolomeoExt.widgets.form.spatialselector.ToloPolygonSpatialSelectorMethod&#39;,
+
+	alias: &#39;widget.tolomeo_spatial_circle_selector&#39;,
+	
+	requires: [
+       &#39;TolomeoExt.widgets.form.spatialselector.ToloSpatialSelectorMethod&#39;
+	],
+  
+<span id='TolomeoExt-widgets-form-spatialselector-ToloCircleSpatialSelectorMethod-cfg-name'>    /**
+</span>     * @cfg {String} name.
+     * Nome da mostrare nella combo box di selezione spaziale.
+     */
+	name  : &#39;Cerchio&#39;,
+
+<span id='TolomeoExt-widgets-form-spatialselector-ToloCircleSpatialSelectorMethod-cfg-label'>    /**
+</span>     * @cfg {String} label.
+     * Etichetta da mostrare nella combo box di selezione spaziale.
+     */
+	label : &#39;Cerchio&#39;,
+
+<span id='TolomeoExt-widgets-form-spatialselector-ToloCircleSpatialSelectorMethod-method-getDrawControl'>	/**
+</span>     * Restituisce il controllo di disegno di questo componente.
+     * 
+     */
+	getDrawControl: function(){
+        var polyOptions = {sides: 100};
+        
+        return new OpenLayers.Control.DrawFeature(
+            this.drawings,
+            OpenLayers.Handler.RegularPolygon,
+            {
+                handlerOptions: polyOptions
+            }
+        );
+	},
+
+<span id='TolomeoExt-widgets-form-spatialselector-ToloCircleSpatialSelectorMethod-method-reset'>	/**
+</span>     * Reimposta il controllo di disegno poligonale.
+     * 
+     */
+    reset: function(){
+    	TolomeoExt.widgets.form.spatialselector.ToloCircleSpatialSelectorMethod.superclass.reset.call(this);
+		if(this.circleCentroidLayer){
+			this.circleCentroidLayer.removeAllFeatures();
+		}
+    }
+
+});
+</pre>
+</body>
+</html>

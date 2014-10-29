@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>The source code</title>
+  <link href="../resources/prettify/prettify.css" type="text/css" rel="stylesheet" />
+  <script type="text/javascript" src="../resources/prettify/prettify.js"></script>
+  <style type="text/css">
+    .highlight { display: block; background-color: #ddd; }
+  </style>
+  <script type="text/javascript">
+    function highlight() {
+      document.getElementById(location.hash.replace(/#/, "")).className = "highlight";
+    }
+  </script>
+</head>
+<body onload="prettyPrint(); highlight();">
+  <pre class="prettyprint lang-js">
+Ext.ns(&#39;TolomeoExt.widgets.form.spatialselector&#39;);
+
+<span id='TolomeoExt-widgets-form-spatialselector-ToloPolygonSpatialSelectorMethod'>/**
+</span> * Plugin per la selezione poligonale
+ *
+ * @author Tobia Di Pisa at tobia.dipisa@geo-solutions.it
+ */
+Ext.define(&#39;TolomeoExt.widgets.form.spatialselector.ToloPolygonSpatialSelectorMethod&#39;, {
+	
+	extend: &#39;TolomeoExt.widgets.form.spatialselector.ToloSpatialSelectorMethod&#39;,
+	
+	alias: &#39;widget.tolomeo_spatial_polygon_selector&#39;,
+	
+	requires: [
+       &#39;TolomeoExt.widgets.form.spatialselector.ToloSpatialSelectorMethod&#39;
+	],
+
+<span id='TolomeoExt-widgets-form-spatialselector-ToloPolygonSpatialSelectorMethod-cfg-name'>    /**
+</span>     * @cfg {String} name.
+     * Nome da mostrare nella combo box di selezione spaziale.
+     */
+	name  : &#39;Poligono&#39;,
+
+<span id='TolomeoExt-widgets-form-spatialselector-ToloPolygonSpatialSelectorMethod-cfg-label'>    /**
+</span>     * @cfg {String} label.
+     * Etichetta da mostrare nella combo box di selezione spaziale.
+     */
+	label : &#39;Poligono&#39;,
+
+<span id='TolomeoExt-widgets-form-spatialselector-ToloPolygonSpatialSelectorMethod-method-activate'>	/**
+</span>     * Attiva il controllo.
+     * 
+     */
+	activate: function(){
+		TolomeoExt.widgets.form.spatialselector.ToloPolygonSpatialSelectorMethod.superclass.activate.call(this);
+
+		if(this.qbEventManager){
+			this.qbEventManager.fireEvent(&quot;polygonSpatialSelectorActive&quot;, this);
+		}
+	},
+
+<span id='TolomeoExt-widgets-form-spatialselector-ToloPolygonSpatialSelectorMethod-method-getDrawControl'>	/**
+</span>     * Restituisce il controllo di disegno di questo componente.
+     * 
+     */
+	getDrawControl: function(){
+		return new OpenLayers.Control.DrawFeature(
+            this.drawings,
+            OpenLayers.Handler.Polygon
+        );
+	},
+
+<span id='TolomeoExt-widgets-form-spatialselector-ToloPolygonSpatialSelectorMethod-method-deactivate'>	/**
+</span>     * Disattiva il controllo.
+     * 
+     */
+	deactivate: function(){
+		TolomeoExt.widgets.form.spatialselector.ToloPolygonSpatialSelectorMethod.superclass.deactivate.call(this);
+		if(this.draw){
+			this.draw.deactivate();	
+		}
+		if (this.drawings) {
+			if(this.qbEventManager){
+				this.qbEventManager.fireEvent(&quot;removelayer&quot;, this.drawings);
+			}
+			
+			this.drawings = null;
+		}
+	},
+
+<span id='TolomeoExt-widgets-form-spatialselector-ToloPolygonSpatialSelectorMethod-method-reset'>	/**
+</span>     * Reimposta il controllo di sidegno poligonale.
+     * 
+     */
+    reset: function(){
+    	TolomeoExt.widgets.form.spatialselector.ToloPolygonSpatialSelectorMethod.superclass.reset.call(this);
+		if(this.drawings){
+			this.drawings.removeAllFeatures();
+		}
+    }
+	
+});
+</pre>
+</body>
+</html>

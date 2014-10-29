@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>The source code</title>
+  <link href="../resources/prettify/prettify.css" type="text/css" rel="stylesheet" />
+  <script type="text/javascript" src="../resources/prettify/prettify.js"></script>
+  <style type="text/css">
+    .highlight { display: block; background-color: #ddd; }
+  </style>
+  <script type="text/javascript">
+    function highlight() {
+      document.getElementById(location.hash.replace(/#/, "")).className = "highlight";
+    }
+  </script>
+</head>
+<body onload="prettyPrint(); highlight();">
+  <pre class="prettyprint lang-js">// ///////////////////////////////////////////////////////////////////////////
+//  include widgets/form/spatialselector/BBOXToloSpatialSelectorMethod.js
+//  include widgets/form/spatialselector/BufferToloSpatialSelectorMethod.js
+//  include widgets/form/spatialselector/CircleToloSpatialSelectorMethod.js
+//  include widgets/form/spatialselector/PolygonToloSpatialSelectorMethod.js
+/////////////////////////////////////////////////////////////////////////////
+
+Ext.ns(&#39;TolomeoExt.widgets.form.spatialselector&#39;);
+
+<span id='TolomeoExt-widgets-form-spatialselector-ToloSpatialSelectorMethod'>/**
+</span> * Plugin comune per la selezione spaziale.
+ * Widgets conosciute: 
+ *    &lt;ul&gt;
+ *       &lt;li&gt;BBOXToloSpatialSelectorMethod: `widget.tolomeo_spatial_bbox_selector` ptype&lt;/li&gt;
+ *       &lt;li&gt;BufferToloSpatialSelectorMethod: `widget.tolomeo_spatial_buffer_selectorr` ptype&lt;/li&gt;
+ *       &lt;li&gt;CircleToloSpatialSelectorMethod: `widget.tolomeo_spatial_circle_selector` ptype&lt;/li&gt;
+ *       &lt;li&gt;PolygonToloSpatialSelectorMethod: `widget.tolomeo_spatial_polygon_selector` ptype&lt;/li&gt;
+ * 	  &lt;/ul&gt;
+ *
+ * @author Tobia Di Pisa at tobia.dipisa@geo-solutions.it
+ */
+Ext.define(&#39;TolomeoExt.widgets.form.spatialselector.ToloSpatialSelectorMethod&#39;, {
+	
+	extend: &#39;Ext.Container&#39;,
+
+<span id='TolomeoExt-widgets-form-spatialselector-ToloSpatialSelectorMethod-cfg-name'>    /**
+</span>     * @cfg {String} name.
+     * Nome da mostrare nella combo box di selezione spaziale.
+     */
+
+<span id='TolomeoExt-widgets-form-spatialselector-ToloSpatialSelectorMethod-cfg-label'>    /**
+</span>     * @cfg {String} label.
+     * Etichetta da mostrare nella combo box di selezione spaziale.
+     */
+
+<span id='TolomeoExt-widgets-form-spatialselector-ToloSpatialSelectorMethod-cfg-output'>    /**
+</span>     * @cfg {Object} output.
+     * Configurazione di output per questo plugin.
+     */
+
+<span id='TolomeoExt-widgets-form-spatialselector-ToloSpatialSelectorMethod-cfg-currentGeometry'>    /**
+</span>     * @cfg {OpenLayers.Geometry} currentGeometry.
+     * Rappresenta la geometria selezionata.
+     */
+
+<span id='TolomeoExt-widgets-form-spatialselector-ToloSpatialSelectorMethod-cfg-filterGeometryName'>    /**
+</span>     * @cfg {OpenLayers.Geometry} filterGeometryName.
+     * Rappresenta il nome del campo geometrico da usare nel filtro.
+     */
+   
+<span id='TolomeoExt-widgets-form-spatialselector-ToloSpatialSelectorMethod-property-zoomToCurrentExtent'> 	/**
+</span>     * @property {Boolean} zoomToCurrentExtent [zoomToCurrentExtent=&quot;false&quot;]
+     * Flag per stabilire lo zoom all&#39;extent della geometria selezionata.
+     */
+	zoomToCurrentExtent: false,
+
+<span id='TolomeoExt-widgets-form-spatialselector-ToloSpatialSelectorMethod-property-defaultStyle'>    /**
+</span>     * @property {Object} defaultStyle.
+     * Configurazione del OpenLayer.Style predefinito usato come stile del BBOX su mappa.
+     */
+	defaultStyle : {
+        &quot;fillColor&quot;   : &quot;#FFFFFF&quot;,
+        &quot;strokeColor&quot; : &quot;#FF0000&quot;,
+        &quot;fillOpacity&quot; : 0.5,
+        &quot;strokeWidth&quot; : 1
+	},
+
+<span id='TolomeoExt-widgets-form-spatialselector-ToloSpatialSelectorMethod-property-selectStyle'>    /**
+</span>     * @property {Object} selectStyle.
+     * Configurazione del OpenLayer.Style di selezione usato come stile del BBOX su mappa.
+     */
+	selectStyle : {
+        &quot;fillColor&quot;   : &quot;#FFFFFF&quot;,
+        &quot;strokeColor&quot; : &quot;#FF0000&quot;,
+        &quot;fillOpacity&quot; : 0.5,
+        &quot;strokeWidth&quot; : 1
+	},
+
+<span id='TolomeoExt-widgets-form-spatialselector-ToloSpatialSelectorMethod-property-temporaryStyle'>    /**
+</span>     * @property {Object} temporaryStyle.
+     * Configurazione del OpenLayer.Style temporaneo usato come stile del BBOX su mappa.
+     */
+	temporaryStyle : {
+		&quot;strokeColor&quot;: &quot;#ee9900&quot;,
+		&quot;fillColor&quot;: &quot;#ee9900&quot;,
+		&quot;fillOpacity&quot;: 0.4,
+		&quot;strokeWidth&quot;: 1
+	},
+	
+<span id='TolomeoExt-widgets-form-spatialselector-ToloSpatialSelectorMethod-property-zoomToCurrentExtent'> 	/**
+</span>     * @property {Boolean} zoomToCurrentExtent [addGeometryOperation=&quot;true&quot;]
+     * Flag per stabilire se aggiungere o meno il tool di selezione dell&#39;operazione geometrica per la selezione spaziale scelta.
+     */
+	addGeometryOperation: true,
+
+<span id='TolomeoExt-widgets-form-spatialselector-ToloSpatialSelectorMethod-cfg-geometryOperations'> 	/**
+</span>     * @cfg {Object} geometryOperations.
+     * Lista delle operazioni geometriche consentite.
+     * 
+     * @example
+	 *	geometryOperations:[{
+	 *		name: &quot;INTERSECTS&quot;,
+	 *		label: &quot;INTERSECTS&quot;,
+	 *		value: OpenLayers.Filter.Spatial.INTERSECTS
+	 *	},{
+	 *		name: &quot;BBOX&quot;,
+	 *		label: &quot;BBOX&quot;,
+	 *		value: OpenLayers.Filter.Spatial.BBOX
+	 *	},{
+ 	 *		name: &quot;CONTAINS&quot;,
+	 *		label: &quot;CONTAINS&quot;,
+	 *		value: OpenLayers.Filter.Spatial.CONTAINS
+	 *	},{
+	 *		name: &quot;DWITHIN&quot;,
+	 *		label: &quot;DWITHIN&quot;,
+	 *		value: OpenLayers.Filter.Spatial.DWITHIN
+	 *	},{
+	 *		name: &quot;WITHIN&quot;,
+	 *		label: &quot;WITHIN&quot;,
+	 *		value: OpenLayers.Filter.Spatial.WITHIN
+	 *	}]
+     */
+	geometryOperations:[{
+		name: &quot;INTERSECTS&quot;,
+		label: &quot;INTERSECTS&quot;,
+		value: OpenLayers.Filter.Spatial.INTERSECTS
+	},{
+		name: &quot;BBOX&quot;,
+		label: &quot;BBOX&quot;,
+		value: OpenLayers.Filter.Spatial.BBOX
+	},{
+		name: &quot;CONTAINS&quot;,
+		label: &quot;CONTAINS&quot;,
+		value: OpenLayers.Filter.Spatial.CONTAINS
+	},{
+		name: &quot;DWITHIN&quot;,
+		label: &quot;DWITHIN&quot;,
+		value: OpenLayers.Filter.Spatial.DWITHIN
+	},{
+		name: &quot;WITHIN&quot;,
+		label: &quot;WITHIN&quot;,
+		value: OpenLayers.Filter.Spatial.WITHIN
+	}],
+
+<span id='TolomeoExt-widgets-form-spatialselector-ToloSpatialSelectorMethod-property-defaultGeometryOperation'>    /**
+</span>     * @property {OpenLayers.Filter.Spatial} defaultGeometryOperation.
+     * Operazione geometrica selezionata di default.
+     */
+	defaultGeometryOperation: OpenLayers.Filter.Spatial.INTERSECTS,
+
+<span id='TolomeoExt-widgets-form-spatialselector-ToloSpatialSelectorMethod-property-geometryOperationText'>    /**
+</span>     * @property {String} geometryOperationText.
+     * Testo da mostrare per l&#39;etichetta della operazione geometrica.
+     */
+	geometryOperationText: &quot;Operazione Geometrica&quot;,
+
+<span id='TolomeoExt-widgets-form-spatialselector-ToloSpatialSelectorMethod-property-geometryOperationEmptyText'>    /**
+</span>     * @property {String} geometryOperationEmptyText.
+     * Testo da mostrare per la combo box della operazione geometrica se non valorizzata.
+     */
+	geometryOperationEmptyText: &quot;Selezione Operazione&quot;,
+
+<span id='TolomeoExt-widgets-form-spatialselector-ToloSpatialSelectorMethod-property-distanceTitleText'>    /**
+</span>     * @property {String} distanceTitleText.
+     * Testo da mostrare per il campo distanza.
+     */
+	distanceTitleText: &quot;Distanza&quot;,
+
+<span id='TolomeoExt-widgets-form-spatialselector-ToloSpatialSelectorMethod-property-distanceUnitsTitleText'>    /**
+</span>     * @property {String} distanceUnitsTitleText.
+     * Testo da mostrare per il campo delle unità relative al campo distanza.
+     */
+	distanceUnitsTitleText: &quot;Unità Distanza&quot;,
+
+<span id='TolomeoExt-widgets-form-spatialselector-ToloSpatialSelectorMethod-property-noOperationTitleText'>    /**
+</span>     * @property {String} noOperationTitleText.
+     * Messaggio di operazione non valida.
+     */
+	noOperationTitleText: &quot;Operazione non Valida&quot;,
+
+<span id='TolomeoExt-widgets-form-spatialselector-ToloSpatialSelectorMethod-property-noOperationMsgText'>    /**
+</span>     * @property {String} noOperationMsgText.
+     * Messaggio per operazione non selezionata.
+     */
+	noOperationMsgText: &quot;Seleziona una operazione prima della richiesta&quot;,
+
+<span id='TolomeoExt-widgets-form-spatialselector-ToloSpatialSelectorMethod-property-noCompleteMsgText'>    /**
+</span>     * @property {String} noCompleteMsgText.
+     * Messaggio per form non completa.
+     */
+	noCompleteMsgText: &quot;Completare la form prima della richiesta&quot;,
+	
+<span id='TolomeoExt-widgets-form-spatialselector-ToloSpatialSelectorMethod-cfg-qbEventManager'>	/**
+</span>	 * @cfg {TolomeoExt.events.ToloQueryBuilderEvtManager} qbEventManager (required)
+	 * Gestore di eventi per il query builder.
+	 */
+	qbEventManager: null,
+
+<span id='TolomeoExt-widgets-form-spatialselector-ToloSpatialSelectorMethod-method-constructor'>	/**
+</span>     * Crea un nuovo TolomeoExt.widgets.form.spatialselector.ToloSpatialSelectorMethod.
+     * @param {Object} [config] Un opzionale oggetto di configurazione per il componente ExtJs.
+     */
+	constructor : function(config) {
+		Ext.apply(this, config);		
+		this.callParent(arguments);
+	},
+
+<span id='TolomeoExt-widgets-form-spatialselector-ToloSpatialSelectorMethod-method-initComponent'>	/**
+</span>     * Inizializza un nuovo TolomeoExt.widgets.form.spatialselector.ToloSpatialSelectorMethod.
+     * @param {Object} [config] Un opzionale oggetto di configurazione per il componente ExtJs.
+     */
+    initComponent: function(config) {   
+		Ext.apply(this, config);
+
+		if(!this.output){
+			this.output = this;
+		}
+
+		if(this.addGeometryOperation){
+			if (!this.items){
+				this.items = [];
+			}
+
+			this.items.push({
+				xtype: &#39;fieldset&#39;,
+				ref: &quot;geometryOperationFieldset&quot;,
+				title: this.geometryOperationText,
+                checkboxToggle: true,
+                collapsed : true,
+				items: [this.getGeometryOperationCombo()]
+			});
+			
+			this.items.push(this.getDistanceFieldset());
+		}
+
+		this.output.addEvents(
+				&quot;geometrySelect&quot;
+		);	
+		
+		this.callParent();
+		
+        this.on(&quot;added&quot;, function(scope){
+        	scope.geometryOperationFieldset = scope.query(&#39;fieldset[ref=geometryOperationFieldset]&#39;)[0];
+        	scope.geometryOperation = scope.query(&#39;combo[ref=geometryOperation]&#39;)[0];
+        	scope.distanceFieldset = scope.query(&#39;fieldset[ref=distanceFieldset]&#39;)[0];
+        	scope.distance = scope.query(&#39;numberfield[ref=&quot;distance&quot;]&#39;)[0];
+        	scope.dunits = scope.query(&#39;textfield[ref=dunits]&#39;)[0];
+//TODO: fix this     	
+//			if(scope.qbEventManager){
+//				scope.qbEventManager.fireEvent(&quot;setmapunitsvaluefield&quot;, scope.dunits);
+//			}
+        });
+    },
+
+<span id='TolomeoExt-widgets-form-spatialselector-ToloSpatialSelectorMethod-method-getSelectionMethodItem'>	/**
+</span>     * Genera un oggetto per la combo di selezione.
+     * @return {Object} l&#39;oggetto selezionato dalla combo.
+     */
+	getSelectionMethodItem: function(){
+        return {
+        	label: this.label, 
+        	name: this.name
+        };
+	},
+
+<span id='TolomeoExt-widgets-form-spatialselector-ToloSpatialSelectorMethod-method-getQueryFilter'>	/**
+</span>     * Genera un filtro per il metodo si selezione.
+     * @return {OpenLayers.Filter} Il filtro impostato dall&#39;utente.
+     */
+	getQueryFilter: function(){
+		var operation = null;
+		
+		if(this.addGeometryOperation &amp;&amp; !this.geometryOperationFieldset.collapsed){
+			if(this.geometryOperation.isValid() ){
+				operation = this.geometryOperation.getValue();
+			}else{
+                Ext.Msg.show({
+                    title: this.noOperationTitleText,
+                    msg: this.noOperationMsgText,
+                    buttons: Ext.Msg.OK,
+                    icon: Ext.MessageBox.ERROR
+                });
+				return null;
+			}
+		}else{
+			operation = OpenLayers.Filter.Spatial.INTERSECTS;
+		}
+		
+		if(this.currentGeometry){
+			switch (operation){
+				case OpenLayers.Filter.Spatial.CONTAINS:
+				case OpenLayers.Filter.Spatial.INTERSECTS:
+					this.currentFilter = new OpenLayers.Filter.Spatial({
+						type: operation,
+						property:  this.filterGeometryName,
+						value: this.currentGeometry,
+						bounds: this.currentGeometry.getBounds()
+					});
+					break;
+				case OpenLayers.Filter.Spatial.WITHIN:
+					this.currentFilter = new OpenLayers.Filter.Spatial({
+						type: operation,
+						property:  this.filterGeometryName,
+						value: this.currentGeometry
+					});
+					break;
+				case OpenLayers.Filter.Spatial.DWITHIN:
+					if(this.distance.isValid()
+						&amp;&amp; this.dunits.isValid()){
+						this.currentFilter = new OpenLayers.Filter.Spatial({
+							type: operation,
+							property:  this.filterGeometryName,
+					        distanceUnits: this.dunits.getValue(),
+					        distance: this.distance.getValue(),
+							value: this.currentGeometry
+						});
+					}else{
+		                Ext.Msg.show({
+		                    title: this.noOperationTitleText,
+		                    msg: this.noCompleteMsgText,
+		                    buttons: Ext.Msg.OK,
+		                    icon: Ext.MessageBox.ERROR
+		                });
+		                return null;
+					}
+					break;
+				case OpenLayers.Filter.Spatial.BBOX:
+				default: 
+					this.currentFilter = new OpenLayers.Filter.Spatial({
+						type: OpenLayers.Filter.Spatial.BBOX,
+						property:  this.filterGeometryName,
+						value: this.currentGeometry.getBounds()
+					});
+			}
+			
+		}else{
+	        this.currentFilter = null;
+		}
+
+		return this.currentFilter;
+	},
+
+<span id='TolomeoExt-widgets-form-spatialselector-ToloSpatialSelectorMethod-method-activate'>	/**
+</span>     * Attiva il plugin.
+     * 
+     */
+	activate: function(){
+		this.reset();
+		this.doLayout();
+		this.show();
+	},
+
+<span id='TolomeoExt-widgets-form-spatialselector-ToloSpatialSelectorMethod-method-deactivate'>	/**
+</span>     * Disattiva il plugin.
+     * 
+     */
+	deactivate: function(){
+		this.reset();
+		this.hide();
+	},
+
+<span id='TolomeoExt-widgets-form-spatialselector-ToloSpatialSelectorMethod-method-reset'>	/**
+</span>     * Reimposta il componente (filtro e geometria).
+     * 
+     */
+    reset: function(){
+    	this.currentGeometry = null;
+    	this.currentFilter = null;
+    },
+
+<span id='TolomeoExt-widgets-form-spatialselector-ToloSpatialSelectorMethod-method-setCurrentGeometry'>	/** api: method[setCurrentGeometry]
+</span>     *  :arg geometry: ``Object`` The geometry to be setted as current geometry.
+     *  Set current geometry
+	 */
+    setCurrentGeometry: function(geometry){
+		this.currentGeometry = geometry;
+		
+    	if (geometry) {
+			if (this.zoomToCurrentExtent &amp;&amp; geometry &amp;&amp; geometry.getBounds) {
+				var dataExtent = geometry.getBounds();
+				
+				// create an event to manage the zoom to extent
+				this.qbEventManager.fireEvents(&quot;zoomtomapextent&quot;, {dataExtent: dataExtent});
+			}
+
+			this.output.fireEvent(&quot;geometrySelect&quot;, geometry);
+		} 
+    },
+
+<span id='TolomeoExt-widgets-form-spatialselector-ToloSpatialSelectorMethod-method-getGeometryOperationCombo'>	/**
+</span>     * Genera la combo box Ext per la selezione dell&#39;operazione geometrica.
+     * @return {Ext.form.ComboBox} La combo box di selezione dell&#39;operazione geometrica.
+     */
+	getGeometryOperationCombo: function() {
+		var geometryOperationMethodCombo = Ext.create(&#39;Ext.form.ComboBox&#39;, {
+			ref : &#39;geometryOperation&#39;,
+			typeAhead : true,
+			forceSelection: true, 
+			queryMode: &#39;local&#39;,
+			triggerAction: &#39;all&#39;,
+			emptyText : this.geometryOperationEmptyText,
+			selectOnFocus: true,
+			editable:false,
+			fieldLabel : this.geometryOperationText,
+			name : &#39;geometryOperation&#39;,
+			displayField : &#39;label&#39;,
+			valueField : &#39;value&#39;,
+			readOnly : false,
+			lazyRender : false,
+			value: this.defaultGeometryOperation,
+			allowBlank : false,
+			store : Ext.create(&#39;Ext.data.JsonStore&#39;, {
+				autoLoad : true,
+				fields : [{
+					name : &#39;name&#39;,
+					dataIndex : &#39;name&#39;
+				}, {
+					name : &#39;label&#39;,
+					dataIndex : &#39;label&#39;
+				}, {
+					name : &#39;value&#39;,
+					dataIndex : &#39;value&#39;
+				}],
+				data : this.geometryOperations
+			}),
+			listeners : {
+				// Show/Hide distance units for DWITHIN
+				select : function(c, record, index) {
+					if(c.getValue() == OpenLayers.Filter.Spatial.DWITHIN){
+						this.distanceFieldset.show();
+					}else if(this.distanceFieldset.isVisible()){
+						this.distanceFieldset.hide();
+					}
+				},
+				scope : this
+			}
+		});
+		 
+		return geometryOperationMethodCombo;
+	},
+
+<span id='TolomeoExt-widgets-form-spatialselector-ToloSpatialSelectorMethod-method-getDistanceFieldset'>	/**
+</span>     * Genera la combo box Ext per la selezione della distanza (specifica selezione geometrica vedi &quot;DWITHIN&quot;).
+     * @return {Ext.form.FieldSet} il FieldSet per l&#39;impostazione della distanza.
+     */
+	getDistanceFieldset: function(){
+		return {
+			xtype: &#39;fieldset&#39;,
+			title: this.distanceTitleText,
+			ref: &quot;distanceFieldset&quot;,
+			hidden: true,
+			items: [{
+				xtype: &quot;textfield&quot;,
+				fieldLabel: this.distanceUnitsTitleText,
+				name: &quot;dunits&quot;,
+				ref: &quot;dunits&quot;,
+				labelStyle: &#39;width: 130px;&#39;,
+				allowBlank: false
+			},{
+				xtype: &quot;numberfield&quot;,
+				fieldLabel: this.distanceTitleText,
+				name: &quot;distance&quot;,
+				ref: &quot;distance&quot;,
+				labelStyle: &#39;width: 130px;&#39;,
+				allowBlank: false
+			}]
+		}
+	}
+	
+});
+</pre>
+</body>
+</html>

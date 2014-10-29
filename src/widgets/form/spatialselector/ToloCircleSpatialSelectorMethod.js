@@ -1,10 +1,10 @@
 
 Ext.ns('TolomeoExt.widgets.form.spatialselector');
 
-/** api: constructor
- *  .. class:: ToloCircleSpatialSelectorMethod(config)
+/**
+ * Plugin per la selezione di una area di interesse circolare.
  *
- *    Plugin for spatial selection based on circle drawing
+ * @author Tobia Di Pisa at tobia.dipisa@geo-solutions.it
  */
 Ext.define('TolomeoExt.widgets.form.spatialselector.ToloCircleSpatialSelectorMethod', {
 	
@@ -16,37 +16,22 @@ Ext.define('TolomeoExt.widgets.form.spatialselector.ToloCircleSpatialSelectorMet
        'TolomeoExt.widgets.form.spatialselector.ToloSpatialSelectorMethod'
 	],
   
-    /** api: config[metricUnit]
-	 *  ``Object``
-	 *  The metric unit to display summary
-	 */
-    metricUnit :"km",
-  
-    /** api: config[displayProjection]
-	 *  ``Object``
-	 *  The projection for coordinate display (if null, the native) default null
-	 */
-    displayProjection: null,
-  
-    /** api: config[CRSDecimalPrecision]
-	 *  ``Object``
-	 *  The decimal precision of lon lat
-	 */
-    CRSDecimalPrecision: 3,
-    
-	/** api: config[name]
-	 *  ``String``
-	 *  Name to show on the combo box of the spatial selected.
-	 */
+    /**
+     * @cfg {String} name.
+     * Nome da mostrare nella combo box di selezione spaziale.
+     */
 	name  : 'Cerchio',
 
-	/** api: config[label]
-	 *  ``String``
-	 *  Label to show on the combo box of the spatial selected.
-	 */
+    /**
+     * @cfg {String} label.
+     * Etichetta da mostrare nella combo box di selezione spaziale.
+     */
 	label : 'Cerchio',
 
-	// obtain draw control
+	/**
+     * Restituisce il controllo di disegno di questo componente.
+     * 
+     */
 	getDrawControl: function(){
         var polyOptions = {sides: 100};
         
@@ -59,7 +44,10 @@ Ext.define('TolomeoExt.widgets.form.spatialselector.ToloCircleSpatialSelectorMet
         );
 	},
 
-    // Reset method
+	/**
+     * Reimposta il controllo di disegno poligonale.
+     * 
+     */
     reset: function(){
     	TolomeoExt.widgets.form.spatialselector.ToloCircleSpatialSelectorMethod.superclass.reset.call(this);
 		if(this.circleCentroidLayer){

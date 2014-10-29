@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>The source code</title>
+  <link href="../resources/prettify/prettify.css" type="text/css" rel="stylesheet" />
+  <script type="text/javascript" src="../resources/prettify/prettify.js"></script>
+  <style type="text/css">
+    .highlight { display: block; background-color: #ddd; }
+  </style>
+  <script type="text/javascript">
+    function highlight() {
+      document.getElementById(location.hash.replace(/#/, "")).className = "highlight";
+    }
+  </script>
+</head>
+<body onload="prettyPrint(); highlight();">
+  <pre class="prettyprint lang-js">
+Ext.ns(&#39;TolomeoExt.widgets&#39;);
+
+<span id='TolomeoExt-widgets-ToloLayerSelector'>/**
+</span> * Widget per la selezione dei layers per cui il plugin query form è abilitato all&#39;uso.
+ *
+ * @author Tobia Di Pisa at tobia.dipisa@geo-solutions.it
+ */
+Ext.define(&#39;TolomeoExt.widgets.ToloLayerSelector&#39;, {
+
+	extend: &#39;Ext.Panel&#39;,
+	
+<span id='TolomeoExt-widgets-ToloLayerSelector-cfg-layers'>	/**
+</span>	 * @cfg {Array} layers
+	 * Array dei layers rappresentante lo store.
+	 */
+	layers: null,
+
+<span id='TolomeoExt-widgets-ToloLayerSelector-method-initComponent'>	/**
+</span>     * Inizializza un componente di tipo TolomeoExt.widgets.ToloLayerSelector.
+     * @param {Object} [config] Un opzionale oggetto di configurazione per il componente ExtJs.
+     */
+	initComponent: function(config){	
+		this.border = 0;
+		
+		this.layerStore = Ext.create(&#39;Ext.data.Store&#39;, {
+		    fields: [{
+		    	name: &#39;descrizione&#39;,
+		    	mapping: &#39;descrizione&#39;
+		    },{
+		    	name: &#39;name&#39;, 
+		    	mapping: &#39;name&#39;
+		    },{
+		    	name: &#39;codTPN&#39;, 
+		    	mapping: &#39;codTPN&#39;
+		    }],
+		    data: this.layers
+		});
+
+		this.layerSelectorCombo = Ext.create(&#39;Ext.form.ComboBox&#39;,{
+			typeAhead: true,
+			forceSelection: true, 
+			anchor: &quot;-1&quot;,
+			queryMode: &#39;local&#39;,
+			triggerAction: &#39;all&#39;,
+			emptyText: &#39;Seleziona il livello...&#39;,
+			selectOnFocus: true,
+			editable:false,
+			fieldLabel: &#39;Livello&#39;,
+			name: &#39;name&#39;,
+			valueField: &#39;name&#39;,
+			displayField: &#39;name&#39;,
+			store: this.layerStore,
+		    listeners:{
+		         scope: this,
+		         select: function(combo, records, eOpts){
+		        	 this.fireEvent(&quot;layerselected&quot;, records);
+		         }
+		    }
+		});	
+		
+		this.layerFieldSet = Ext.create(&#39;Ext.form.FieldSet&#39;, {
+			title: &#39;Seleziona Livello&#39;,
+			anchor: &quot;-1&quot;,
+			autoWidth: true,
+			autoHeight: true,
+			items:[this.layerSelectorCombo]
+		});
+		
+		this.callParent();
+		
+		this.add(this.layerFieldSet);
+    }   
+	
+});
+</pre>
+</body>
+</html>

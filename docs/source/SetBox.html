@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>The source code</title>
+  <link href="../resources/prettify/prettify.css" type="text/css" rel="stylesheet" />
+  <script type="text/javascript" src="../resources/prettify/prettify.js"></script>
+  <style type="text/css">
+    .highlight { display: block; background-color: #ddd; }
+  </style>
+  <script type="text/javascript">
+    function highlight() {
+      document.getElementById(location.hash.replace(/#/, "")).className = "highlight";
+    }
+  </script>
+</head>
+<body onload="prettyPrint(); highlight();">
+  <pre class="prettyprint lang-js">// /////////////////////////////////////
+// requires OpenLayers/Control.js
+// requires OpenLayers/Handler/Box.js
+// /////////////////////////////////////
+
+<span id='OpenLayers-Control-SetBox'>/**
+</span> * Controllo OpenLayers per la selezione del Box.
+ * 
+ * @extents {OpenLayers.Control}
+ * @author Tobia Di Pisa at tobia.dipisa@geo-solutions.it
+ */
+OpenLayers.Control.SetBox = OpenLayers.Class(OpenLayers.Control, {
+
+<span id='OpenLayers-Control-SetBox-cfg-type'>    /**
+</span>     * @cfg {OpenLayers.Control.TYPE} type [displayProjection=&quot;OpenLayers.Control.TYPE_TOOL&quot;]
+     * 
+     */ 
+    type: OpenLayers.Control.TYPE_TOOL,
+
+<span id='OpenLayers-Control-SetBox-cfg-out'>    /**
+</span>     * @cfg {Boolean} out [displayProjection=&quot;false&quot;]
+     * 
+     */ 
+    out: false,
+    
+<span id='OpenLayers-Control-SetBox-cfg-aoi'>    /**
+</span>     * @cfg {Object} aoi [displayProjection=&quot;false&quot;]
+     * 
+     */ 
+    aoi: null,
+    
+<span id='OpenLayers-Control-SetBox-cfg-boxes'>    /**
+</span>     * @cfg {OpenLayers.Bounds} boxes [displayProjection=&quot;false&quot;]
+     * 
+     */ 
+    boxes: null,
+    
+<span id='OpenLayers-Control-SetBox-cfg-currentAOI'>    /**
+</span>     * @cfg {String} currentAOI [displayProjection=&quot;false&quot;]
+     * 
+     */ 
+    currentAOI: &quot;&quot;,
+    
+<span id='OpenLayers-Control-SetBox-cfg-onChangeAOI'>    /**
+</span>     * @cfg {Function} onChangeAOI [displayProjection=&quot;false&quot;]
+     * 
+     */ 
+    onChangeAOI: null,
+    
+<span id='OpenLayers-Control-SetBox-cfg-layerName'>    /**
+</span>     * @cfg {String} layerName [displayProjection=&quot;false&quot;]
+     * 
+     */ 
+    layerName: &quot;AOI&quot;,
+    
+<span id='OpenLayers-Control-SetBox-cfg-aoiStyle'>    /**
+</span>     * @cfg {Object} aoiStyle [displayProjection=&quot;false&quot;]
+     * 
+     */ 
+    aoiStyle: null,
+    
+<span id='OpenLayers-Control-SetBox-cfg-out'>    /**
+</span>     * @cfg {OpenLayers.Map} out [displayProjection=&quot;false&quot;]
+     * 
+     */ 
+    map: null,
+    
+<span id='OpenLayers-Control-SetBox-cfg-displayInLayerSwitcher'>    /**
+</span>     * @cfg {Boolean} displayInLayerSwitcher [displayProjection=&quot;false&quot;]
+     * 
+     */ 
+    displayInLayerSwitcher: false,
+
+<span id='OpenLayers-Control-SetBox-method-draw'>	/**
+</span>     * Disegna il BOX.
+     * 
+     */ 
+    draw: function() {
+       
+        this.handler = new OpenLayers.Handler.Box(this,
+        {
+            done: this.setAOI
+        }, 
+        {
+            boxDivClassName: this.boxDivClassName   
+        },
+        {
+            keyMask: this.keyMask
+        });
+    },
+
+<span id='OpenLayers-Control-SetBox-method-setAOI'>	/**
+</span>     * Imposta la regione di interesse risultante dal disegno dell&#39;utente sulla mappa.
+     * @param {Object} la posizione del Box nella mappa.
+     * 
+     */
+    setAOI: function (position) {
+        var control;
+      
+        if(this.map.enebaleMapEvent)
+            control = this.map.enebaleMapEvent;
+        else
+            control = false;
+           
+        if(control){        
+            if(this.aoi!=null){       
+                this.boxes.removeFeatures(this.aoi);
+            }
+            
+            var bounds;
+            
+            if (position instanceof OpenLayers.Bounds) {
+                if (!this.out) {
+                    var minXY = this.map.getLonLatFromPixel(
+                        new OpenLayers.Pixel(position.left, position.bottom));
+                    var maxXY = this.map.getLonLatFromPixel(
+                        new OpenLayers.Pixel(position.right, position.top));
+                    bounds = new OpenLayers.Bounds(minXY.lon, minXY.lat,
+                        maxXY.lon, maxXY.lat);
+
+                    this.currentAOI= minXY.lon+&#39;,&#39;+minXY.lat+&#39;,&#39;+
+                    maxXY.lon+&#39;,&#39;+maxXY.lat;   
+                } else {
+                    var pixWidth = Math.abs(position.right-position.left);
+                    var pixHeight = Math.abs(position.top-position.bottom);
+                    var zoomFactor = Math.min((this.map.size.h / pixHeight),
+                        (this.map.size.w / pixWidth));
+                    var extent = this.map.getExtent();
+                    var center = this.map.getLonLatFromPixel(
+                        position.getCenterPixel());
+                    var xmin = center.lon - (extent.getWidth()/2)*zoomFactor;
+                    var xmax = center.lon + (extent.getWidth()/2)*zoomFactor;
+                    var ymin = center.lat - (extent.getHeight()/2)*zoomFactor;
+                    var ymax = center.lat + (extent.getHeight()/2)*zoomFactor;
+                    bounds = new OpenLayers.Bounds(xmin, ymin, xmax, ymax);
+
+                    this.currentAOI=xmin+&#39;,&#39;+ymin+&#39;,&#39;+xmax+&#39;,&#39;+ymax;
+                }
+
+                if(this.layerName){
+                    var x=this.map.getLayersByName(this.layerName);
+                    var index=null;
+                    if(x.length&gt;0){
+                        index=this.map.getLayerIndex(x[0]);
+                        this.map.removeLayer(x[0]);
+                    }
+                    var me=this;
+                    this.boxes  = new OpenLayers.Layer.Vector( this.layerName,{
+                        displayInLayerSwitcher: me.displayInLayerSwitcher,
+                        styleMap: me.aoiStyle
+                    });
+                    this.aoi = new OpenLayers.Feature.Vector(bounds.toGeometry());
+                    this.boxes.addFeatures(this.aoi);
+                    this.map.addLayer(this.boxes);
+
+                    if(index)
+                        this.map.setLayerIndex(this.boxes,index); 
+                }
+
+                if(this.onChangeAOI)
+                    this.onChangeAOI();
+                   
+            } else { 
+                //
+                // it&#39;s a pixel
+                //
+                if (!this.out) {
+                    this.map.setCenter(this.map.getLonLatFromPixel(position),
+                        this.map.getZoom() + 1);
+                } else {
+                    this.map.setCenter(this.map.getLonLatFromPixel(position),
+                        this.map.getZoom() - 1);
+                }
+            }
+        }      
+    },
+
+    CLASS_NAME: &quot;OpenLayers.Control.SetBox&quot;
+    	
+});
+</pre>
+</body>
+</html>

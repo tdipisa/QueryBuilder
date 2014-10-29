@@ -1,10 +1,11 @@
 
 Ext.ns("TolomeoExt.widgets.form");
 
-/** api: constructor
- *  .. class:: ToloBBOXFieldset(config)
- *   
- *    BBOX fieldset
+/**
+ * Widget per la gestione delle funzionalità relative alla modalità di selezione
+ * per BBOX 
+ *
+ * @author Tobia Di Pisa at tobia.dipisa@geo-solutions.it
  */
 Ext.define('TolomeoExt.widgets.form.ToloBBOXFieldset', {
 	
@@ -12,58 +13,38 @@ Ext.define('TolomeoExt.widgets.form.ToloBBOXFieldset', {
 	
     alias: "widget.tolomeo_bboxfieldset",
  
-    /** api: config[id]
-     *  ``String``
-     *  
-     */
     id: "bboxFieldSet",
   
-    /** api: property[map]
-     *  ``Object``
-     *  
-     */
-    map: "BBOX",
-
-    /** api: property[layerName]
-     *  ``String``
-     *  
+ 	/**
+     * @property {String} layerName.
+     * Nome da usare per il layer vettoriale che rappresenta il BBOX disegnato.
      */
     layerName: "BBOX",
 
     /**
-     * Property: decimalPrecision
-     * {int} precision of the BBOX textFields   
+     * @cfg {Integer} decimalPrecision.
+     * Massimo numero possibile di cifre decimali per i campi di coordinate.
      */
-    decimalPrecision:5,
+    decimalPrecision: 5,
     
-    /**
-     * Property: outputSRS
-     * {String} EPSG code of the BBOX
-     *     
+ 	/**
+     * @property {String} outputSRS.
+     * Codice EPSG per la trasformazione delle coordinate in 
+     * visualizzazione all'interno della form.
      */
     outputSRS: 'EPSG:4326',
 
-    /** api: property[infoEPSGURL]
-     *  ``String``
-     *  
-     */
-    infoEPSGURL: null,
-    
-    /** api: property[epsgWinWidth]
-     *  ``String``
-     *  
-     */
-    epsgWinWidth: null,
-
-    /** api: property[epsgWinHeight]
-     *  ``String``
-     *  
-     */
-    epsgWinHeight: null,
-
-    /** api: config[spatialFilterOptions]
-     *  ``Object``
-     *  
+ 	/**
+     * @cfg {Object} spatialFilterOptions.
+     * Opzioni di configurazione per i campi di coordinata (valori massimi e minini consentiti per i campi).
+     * 
+     * @example
+	 *    spatialFilterOptions: {
+	 *	        lonMax: 180,   
+	 *	        lonMin: -180,
+	 *	        latMax: 90,   
+	 *	        latMin: -90  
+	 *	  }
      */
     spatialFilterOptions: {
         lonMax: null,   
@@ -72,15 +53,16 @@ Ext.define('TolomeoExt.widgets.form.ToloBBOXFieldset', {
         latMin: null  
     },
 
-    /** api: config[displayBBOXInLayerSwitcher]
-     *  ``Boolean``
-     *  
+    /**
+     * @cfg {Boolean} displayBBOXInLayerSwitcher.
+     * Usato per determinare se il layer vettoriale deve apparire all'interno del LayerSwitcher OpenLayers.
      */
     displayBBOXInLayerSwitcher: false,
 
-    /** api: config[defaultStyle]
-	 *  ``Object``
-	 */
+    /**
+     * @property {Object} defaultStyle.
+     * Configurazione del OpenLayer.Style predefinito usato come stile del BBOX su mappa.
+     */
 	defaultStyle : {
 		"strokeColor" : "#ee9900",
 		"fillColor" : "#ee9900",
@@ -88,9 +70,10 @@ Ext.define('TolomeoExt.widgets.form.ToloBBOXFieldset', {
 		"strokeWidth" : 1
 	},
 
-	/** api: config[selectStyle]
-	 *  ``Object``
-	 */
+    /**
+     * @property {Object} selectStyle.
+     * Configurazione del OpenLayer.Style di selezione usato come stile del BBOX su mappa.
+     */
 	selectStyle : {
 		"strokeColor" : "#ee9900",
 		"fillColor" : "#ee9900",
@@ -98,9 +81,10 @@ Ext.define('TolomeoExt.widgets.form.ToloBBOXFieldset', {
 		"strokeWidth" : 1
 	},
 
-	/** api: config[temporaryStyle]
-	 *  ``Object``
-	 */
+    /**
+     * @property {Object} temporaryStyle.
+     * Configurazione del OpenLayer.Style temporaneo usato come stile del BBOX su mappa.
+     */
 	temporaryStyle : {
 		"pointRadius" : 6,
 		"fillColor" : "#FF00FF",
@@ -109,21 +93,53 @@ Ext.define('TolomeoExt.widgets.form.ToloBBOXFieldset', {
 		"graphicZIndex" : 2
 	},
 
-    // start i18n
-    northLabel:"Nord",
-    westLabel:"Ovest",
-    eastLabel:"Est",
-    southLabel:"Sud",
-    setAoiText: "ROI",
-    waitEPSGMsg: "Si prega di attendere...",
-    setAoiTooltip: "Abilita il controllo Box per il disegno della ROI (BBOX) sulla mappa",
-    title: "Regione di Interesse",
-    // end i18n
-
-    /** private: method[initComponent]
-     *  Override
+ 	/**
+     * @property {String} northLabel.
+     * Testo dell'etichetta per la coordinata Nord.
      */
-    initComponent: function() {       
+    northLabel: "Nord",
+    
+ 	/**
+     * @property {String} westLabel.
+     * Testo dell'etichetta per la coordinata Ovest.
+     */
+    westLabel: "Ovest",
+    
+ 	/**
+     * @property {String} eastLabel.
+     * Testo dell'etichetta per la coordinata Est.
+     */
+    eastLabel: "Est",
+    
+ 	/**
+     * @property {String} southLabel.
+     * Testo dell'etichetta per la coordinata Sud.
+     */
+    southLabel: "Sud",
+    
+ 	/**
+     * @property {String} setAoiText.
+     * Testo di etichetta per il pulsante di attivazione del controllo di disegno del BOX.
+     */
+    setAoiText: "ROI",
+    
+ 	/**
+     * @property {String} setAoiTooltip.
+     * Testo per il tooltip del pulsante di attivazione del controllo di disegno del BOX.
+     */
+    setAoiTooltip: "Abilita il controllo Box per il disegno della ROI (BBOX) sulla mappa",
+    
+ 	/**
+     * @property {String} title.
+     * Titolo del field set di contenimento.
+     */
+    title: "Regione di Interesse",
+
+	/**
+     * Inizializza un nuovo TolomeoExt.widgets.form.ToloBBOXFieldset.
+     * @param {Object} [config] Un opzionale oggetto di configurazione per il componente ExtJs.
+     */
+    initComponent: function(config) {       
         this.autoHeight = true;
         this.layout = {
             type: 'table',
@@ -289,8 +305,9 @@ Ext.define('TolomeoExt.widgets.form.ToloBBOXFieldset', {
         this.callParent();
     },
     
-    /** public: method[reset]	 
-     *    reset BBOX Panel
+	/**
+     * Reimposta il pannello.
+     * 
      */
     reset: function(){
 		if(this.ownerCt.qbEventManager){
@@ -304,9 +321,10 @@ Ext.define('TolomeoExt.widgets.form.ToloBBOXFieldset', {
 		this.fireEvent('unselect', this);
     },
 
-    /** public: method[isValid]
-     *  
-     *     
+	/**
+     * Controlla la validità dei valori inserito.
+     * 
+     * @return {Boolean} Restituisce true se valido e false se non lo è.
      */
     isValid: function(){
         return(this.westField.isValid() &&
@@ -315,9 +333,10 @@ Ext.define('TolomeoExt.widgets.form.ToloBBOXFieldset', {
             this.northField.isValid());
     },
     
-    /** public: method[isDirty]
-     *  
-     *     
+	/**
+     * Controlla se i campi della form sono sttai modificati.
+     * 
+     * @return {Boolean} Restituisce true se modificati e false altrimenti.
      */
     isDirty: function(){
         return(this.westField.isDirty() &&
@@ -326,9 +345,10 @@ Ext.define('TolomeoExt.widgets.form.ToloBBOXFieldset', {
             this.northField.isDirty());
     },
 
-    /** public: method[getBBOXBounds]
-     *  
-     *  return the selected BBOX bounds defined with the Panel Projection   
+	/**
+     * Restituisce i BBOX selezionato nella proiezione configurata.
+     * 
+     * @return {OpenLayers.Bounds} Il Bounding Box selezionato.
      */
     getBBOXBounds: function(){
         return new OpenLayers.Bounds(

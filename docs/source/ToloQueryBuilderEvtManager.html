@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>The source code</title>
+  <link href="../resources/prettify/prettify.css" type="text/css" rel="stylesheet" />
+  <script type="text/javascript" src="../resources/prettify/prettify.js"></script>
+  <style type="text/css">
+    .highlight { display: block; background-color: #ddd; }
+  </style>
+  <script type="text/javascript">
+    function highlight() {
+      document.getElementById(location.hash.replace(/#/, "")).className = "highlight";
+    }
+  </script>
+</head>
+<body onload="prettyPrint(); highlight();">
+  <pre class="prettyprint lang-js">
+<span id='global-method-createGeodesicPolygon'>/**
+</span> * Crea un poligono regolar dato il raggio. Utile per la creazione di cerchi gedetici.
+ * @param {Object} origin Corrisponde al centro del poligono.
+ * @param {Number} radius Rappresenta il raggio del poligono regolare.
+ * @param {Number} sides Rappresenta il numero di lati per determinare il livello di aprossimazione 
+                   del poligono regolare 20 approssima un cerchio. 
+ * @param {Number} rotation angolo di rotazione in gradi.
+ * @param {OpenLayers.Projection} projection Sistema di proiezione delle coordinate.
+ */
+OpenLayers.Geometry.Polygon.createGeodesicPolygon = function(origin, radius, sides, rotation, projection){
+	if (projection.getCode() !== &quot;EPSG:4326&quot;) {
+		origin.transform(projection, new OpenLayers.Projection(&quot;EPSG:4326&quot;));
+	}
+	var latlon = new OpenLayers.LonLat(origin.x, origin.y);
+	
+	var angle;
+	var new_lonlat, geom_point;
+	var points = [];
+	
+	for (var i = 0; i &lt; sides; i++) {
+		angle = (i * 360 / sides) + rotation;
+		new_lonlat = OpenLayers.Util.destinationVincenty(latlon, angle, radius);
+		new_lonlat.transform(new OpenLayers.Projection(&quot;EPSG:4326&quot;), projection);
+		geom_point = new OpenLayers.Geometry.Point(new_lonlat.lon, new_lonlat.lat);
+		points.push(geom_point);
+	}
+	var ring = new OpenLayers.Geometry.LinearRing(points);
+	return new OpenLayers.Geometry.Polygon([ring]);
+};
+
+Ext.ns(&#39;TolomeoExt.events&#39;);
+
+<span id='TolomeoExt-events-ToloQueryBuilderEvtManager'>/**
+</span> * Plugin per la gesitione degli eventi che coinvolgono il query builder.
+ *
+ * @author Tobia Di Pisa at tobia.dipisa@geo-solutions.it
+ */
+Ext.define(&#39;TolomeoExt.events.ToloQueryBuilderEvtManager&#39;, {
+	
+	extend: &#39;Ext.util.Observable&#39;,
+	
+<span id='TolomeoExt-events-ToloQueryBuilderEvtManager-property-id'>	id: &quot;qb_event_manager&quot;,
+</span>	
+<span id='TolomeoExt-events-ToloQueryBuilderEvtManager-method-constructor'>	/**
+</span>     * Crea un nuovo TolomeoExt.events.ToloQueryBuilderEvtManager.
+     * @param {Object} [config] Un opzionale oggetto di configurazione per il componente ExtJs.
+     */
+	constructor: function(config) {
+		this.callParent(arguments);
+		
+		Ext.apply(this, config);
+		
+		this.addEvents(
+<span id='TolomeoExt-events-ToloQueryBuilderEvtManager-event-afterboxlayout'>		        /**
+</span>				 * @event
+				 * Lanciato successivamente al disegno del box.
+				 */
+				&quot;afterboxlayout&quot;,
+<span id='TolomeoExt-events-ToloQueryBuilderEvtManager-event-zoomtomapextent'>				/**
+</span>				 * @event
+				 * Lanciato dai componenti che lo necessitano per lo zoom all&#39;extent specificato.
+				 */
+				&quot;zoomtomapextent&quot;,
+<span id='TolomeoExt-events-ToloQueryBuilderEvtManager-event-removelayer'>				/**
+</span>				 * @event
+				 * Lanciato dai componenti che lo necessitano per la rimozione di un layer della mappa.
+				 */
+				&quot;removelayer&quot;,
+<span id='TolomeoExt-events-ToloQueryBuilderEvtManager-event-addcoordinatepickercontrol'>				/**
+</span>				 * @event
+				 * Lanciato per l&#39;aggiunta del controllo di selezione delle coordiante su mappa.
+				 */
+				&quot;addcoordinatepickercontrol&quot;,
+<span id='TolomeoExt-events-ToloQueryBuilderEvtManager-event-updatemappoint'>				/**
+</span>				 * @event
+				 * Lanciato per l&#39;aggiornemento del punto sulla mappa.
+				 */
+				&quot;updatemappoint&quot;,
+<span id='TolomeoExt-events-ToloQueryBuilderEvtManager-event-drawbuffer'>				/**
+</span>				 * @event
+				 * Lanciato successivamente al disegno del box.
+				 */
+				&quot;drawbuffer&quot;,
+<span id='TolomeoExt-events-ToloQueryBuilderEvtManager-event-polygonSpatialSelectorActive'>				/**
+</span>				 * @event
+				 * Lanciato per l&#39;attivazione del controllo di selezione spaziale.
+				 */
+				&quot;polygonSpatialSelectorActive&quot;,
+<span id='TolomeoExt-events-ToloQueryBuilderEvtManager-event-setmapvaluefield'>				/**
+</span>				 * @event
+				 * Lanciato per l&#39;impostazione delle unit di misura.
+				 */
+				&quot;setmapvaluefield&quot;,
+<span id='TolomeoExt-events-ToloQueryBuilderEvtManager-event-mapmoved'>				/**
+</span>				 * @event
+				 * Lanciato a seguito di una operazione di spostamento della mappa.
+				 */
+				&quot;mapmoved&quot;,
+<span id='TolomeoExt-events-ToloQueryBuilderEvtManager-event-addvectorlayer'>				/**
+</span>				 * @event
+				 * Lanciato per l&#39;agginte di un layer vetoriale.
+				 */
+				&quot;addvectorlayer&quot;
+		);	
+		
+		this.on(&quot;afterboxlayout&quot;, this.onAfterBoxLayout);
+		this.on(&quot;zoomtomapextent&quot;, this.zoomToMapExtent);
+		this.on(&quot;removelayer&quot;, this.removeLayer);
+		this.on(&quot;addlayer&quot;, this.addLayer);
+		this.on(&quot;addcoordinatepickercontrol&quot;, this.addCoordinatePickerControl);
+		this.on(&quot;updatemappoint&quot;, this.updateMapPoint);
+		this.on(&quot;drawbuffer&quot;, this.drawBuffer);
+		this.on(&quot;polygonspatialselectoractive&quot;, this.polygonSpatialSelectorActive);
+		this.on(&quot;setmapunitsvaluefield&quot;, this.setMapUnitsValueField);
+	},
+	
+<span id='TolomeoExt-events-ToloQueryBuilderEvtManager-method-setMap'>	/**
+</span>     * Imposta la mappa per le operaioni interne di gestione.
+     * @param {OpenLayers.Map} map La mappa di TolomeoExt.
+     */
+	setMap: function(map){
+		this.map = map;		
+		this.map.events.register(&quot;moveend&quot;, this, function(){
+			this.fireEvent(&quot;mapmoved&quot;, this.map.getExtent());
+		});
+	},
+	
+<span id='TolomeoExt-events-ToloQueryBuilderEvtManager-method-addLayer'>	/**
+</span>     * Aggiunge un dato layer alla mappa.
+     * @param {OpenLayers.Layer} layer Layer OpenLayers WMS o Vector.
+     */
+	addLayer: function(layer){
+		if(layer &amp;&amp; this.map){
+			//
+			// check if already exists if yes remove it
+			//
+			var lay = this.map.getLayersByName(layer.name)[0];    	        
+	        if(lay){
+	            this.map.removeLayer(lay);
+	        }	        
+	        
+			this.map.addLayer(layer);
+		}
+	},
+	
+<span id='TolomeoExt-events-ToloQueryBuilderEvtManager-method-removeLayer'>	/**
+</span>     * Rimuove un dato layer dalla mappa.
+     * @param {OpenLayers.Layer} layer Layer OpenLayers WMS o Vector.
+     */
+	removeLayer: function(layer){
+		if(layer &amp;&amp; this.map){
+			var lay;
+			if(typeof layer === &#39;string&#39;){
+				lay = this.map.getLayersByName(layer)[0];
+			}else{
+				lay = layer;
+			}        
+	        
+			var remove = lay ? true : false;
+			if(lay &amp;&amp; lay instanceof OpenLayers.Layer.Vector &amp;&amp; lay.features.length &lt; 1){
+				remove = false;
+			}
+			
+	        if(remove){
+	            this.map.removeLayer(lay);
+	        }
+		}
+	}, 
+	
+<span id='TolomeoExt-events-ToloQueryBuilderEvtManager-method-zoomToMapExtent'>	/**
+</span>     * Esegue una operazione di zoom usando l&#39;extent fornito come argomento.
+     * @param {Object} evt Oggetto contenente le proprietà di zoom.
+	 * @param {OpenLayers.Bounds} [evt.dataExtent] Extent a cui eseguire lo zoom.
+     */
+	zoomToMapExtent: function(evt){
+		if(evt.dataExtent){
+			this.map.zoomToExtent(evt.dataExtent, false);
+		}
+	},
+	
+<span id='TolomeoExt-events-ToloQueryBuilderEvtManager-method-onAfterBoxLayout'>	/**
+</span>     * Disegna il box relativo alla selezione utente.
+     * @param {Object} evt Oggetto contenente le proprietà relative alle operazioni da eseguire.
+	 * @param {Object} [evt.scope] Scope su cui applicare le operazioni contenute.
+     */
+	onAfterBoxLayout: function(evt){
+		var map = this.map;
+		var scope = evt.scope;
+		
+        var link = Ext.get(scope.id+&quot;_bboxAOI-set-EPSG&quot;);
+        if(link){
+          link.addListener(&quot;click&quot;, scope.openEPSGWin, scope);  
+        }
+        
+		var baseProj = map.getProjection();
+		var projection = baseProj ? baseProj : map.projection; 		
+		
+        scope.mapProjection = new OpenLayers.Projection(projection);
+        
+        scope.selectBBOX = new OpenLayers.Control.SetBox({      
+            map: map,       
+            layerName: scope.layerName,
+            displayInLayerSwitcher: scope.displayBBOXInLayerSwitcher,
+            boxDivClassName: &quot;olHandlerBoxZoomBox_&quot; + scope.id,
+            aoiStyle: new OpenLayers.StyleMap({
+				&quot;default&quot; : scope.defaultStyle,
+				&quot;select&quot;: scope.selectStyle,
+				&quot;temporary&quot;: scope.temporaryStyle
+			}),
+            onChangeAOI: function(){
+            	var bounds = new OpenLayers.Bounds.fromString(this.currentAOI);  
+              
+                scope.northField.setValue(bounds.top);
+                scope.southField.setValue(bounds.bottom);
+                scope.westField.setValue(bounds.left);
+                scope.eastField.setValue(bounds.right); 
+                
+                this.deactivate();
+                scope.bboxButton.toggle();
+                
+                var geom = bounds.toGeometry();
+                scope.ownerCt.setCurrentGeometry(geom);
+            } 
+        }); 
+
+        map.addControl(scope.selectBBOX);
+        map.enebaleMapEvent = true;
+	},
+	
+<span id='TolomeoExt-events-ToloQueryBuilderEvtManager-method-addCoordinatePickerControl'>    /**
+</span>     * Aggiunge il conrollo di selezione delle coordinate sulla mappa.
+	 * @param {Object} scope Scope su cui applicare le operazioni contenute.
+     */
+	addCoordinatePickerControl: function(scope){
+		var map = this.map;
+		
+		if(scope &amp;&amp; map){
+			var compositeField = scope;
+			scope.projectionObject = map.getProjectionObject();
+			
+	        //create the click control
+	        var ClickControl = OpenLayers.Class(OpenLayers.Control, {                
+	            defaultHandlerOptions: {
+	                &#39;single&#39;: true,
+	                &#39;double&#39;: false,
+	                &#39;pixelTolerance&#39;: 0,
+	                &#39;stopSingle&#39;: false,
+	                &#39;stopDouble&#39;: false
+	            },
+
+	            initialize: function(options) {
+	                this.handlerOptions = OpenLayers.Util.extend(
+	                    {}, this.defaultHandlerOptions
+	                );
+	                OpenLayers.Control.prototype.initialize.apply(
+	                    this, arguments
+	                ); 
+	                this.handler = new OpenLayers.Handler.Click(
+	                    compositeField, {
+	                        &#39;click&#39;: this.trigger
+	                    }, this.handlerOptions
+	                );
+	            }, 
+	            trigger: function(e){
+	                //get lon lat
+	                var lonlat = map.getLonLatFromPixel(e.xy);
+	                var geoJsonPoint = lonlat.clone();
+	                geoJsonPoint.transform(map.getProjectionObject(), new OpenLayers.Projection(scope.outputSRS));
+	                
+	                scope.latitudeField.setValue(geoJsonPoint.lat);
+	                scope.longitudeField.setValue(geoJsonPoint.lon);
+	                
+	                //update point on the map
+	                scope.updateMapPoint(lonlat);
+	                scope.toggleButton(false);
+	            },
+	            map: map
+	        });       
+	        
+	        scope.selectLonLat = new ClickControl();
+	        this.map.addControl(scope.selectLonLat);	
+		}
+	},
+	
+<span id='TolomeoExt-events-ToloQueryBuilderEvtManager-method-updateMapPoint'>	/**
+</span>     * Aggiorna il punto sulla mappa a seguito di una selezione.
+	 * @param {OpenLayers.LonLat} lonlat Coordinate relative al punto selezionato.
+	 * @param {Object} scope Scope su cui applicare le operazioni contenute.
+     */
+	updateMapPoint: function(lonlat, scope){
+		if(lonlat){
+	        var style = new OpenLayers.Style(scope.selectStyle);
+	        scope.layer = new OpenLayers.Layer.Vector(scope.selectLayerName, {
+	            styleMap: style                
+	        });
+	        var point = new OpenLayers.Geometry.Point(lonlat.lon, lonlat.lat);
+	        var pointFeature = new OpenLayers.Feature.Vector(point);
+	        scope.layer.addFeatures([pointFeature]);
+	        scope.layer.displayInLayerSwitcher = scope.displayInLayerSwitcher;
+	        this.map.addLayer(scope.layer);  
+		}
+	},
+	
+<span id='TolomeoExt-events-ToloQueryBuilderEvtManager-method-drawBuffer'>	/**
+</span>     * Disegna il buffer sulla mappa a seguinto delle impostazioni utente.
+	 * @param {OpenLayers.Geometry.Point} point Centro del poligono.
+	 * @param {Boolean} geodesic Scope su cui applicare le operazioni contenute.
+	 * @param {number} radius Raggio del poligono.
+	 * @param {OpenLayers.Style} style Style con cui disegnare il buffer.
+	 * @param {String} layername Il nome del layer.
+	 * @param {Boolean} displayInLayerSwitcher Indica se mostrare il layers all&#39;interno del layers switcher OpenLayers.
+	 * @param {Function} callback Funzione di callback da invocare successivamente alle operazioni contenute.
+	 * @param {Object} scope Scope su cui applicare le operazioni contenute.
+     */
+	drawBuffer: function(point, geodesic, radius, style, 
+			layername, displayInLayerSwitcher, callback, scope){
+		var regularPolygon;
+		var map = this.map;
+		
+		if(geodesic){
+			regularPolygon = OpenLayers.Geometry.Polygon.createGeodesicPolygon(
+				point,
+				radius,
+				100, 
+				0,
+				map.getProjectionObject()
+			);
+		}else{
+			regularPolygon = OpenLayers.Geometry.Polygon.createRegularPolygon(
+				point,
+				radius,
+				100, 
+				0
+			);
+		}
+
+		if(style){
+			var layer = map.getLayersByName(layername)[0];
+            if(layer){
+                map.removeLayer(layer);
+            }
+                
+            var style = new OpenLayers.Style(style);
+            
+			var bufferLayer = new OpenLayers.Layer.Vector(layername, {
+                styleMap: style                
+            });
+
+            var bufferFeature = new OpenLayers.Feature.Vector(regularPolygon);
+            bufferLayer.addFeatures([bufferFeature]);			
+            bufferLayer.displayInLayerSwitcher = displayInLayerSwitcher;
+            
+            if(callback){
+            	callback.call(scope ? scope : this, bufferLayer, bufferFeature);
+            }
+            
+            map.addLayer(bufferLayer);  
+        } 
+	},
+	
+<span id='TolomeoExt-events-ToloQueryBuilderEvtManager-method-polygonSpatialSelectorActive'>	/**
+</span>     * Attiva il controllo OpenLayers di selezione spaziale.
+	 * @param {Object} scope Scope su cui applicare le operazioni contenute.
+     */
+	polygonSpatialSelectorActive: function(scope){
+<span id='TolomeoExt-events-ToloQueryBuilderEvtManager-property-drawings'>		/**
+</span>		 * Create Polygon Selector
+		 */
+		scope.drawings = new OpenLayers.Layer.Vector({},
+			{
+				displayInLayerSwitcher:false,
+				styleMap : new OpenLayers.StyleMap({
+					&quot;default&quot; : scope.defaultStyle,
+					&quot;select&quot; : scope.selectStyle,
+					&quot;temporary&quot; : scope.temporaryStyle
+				})
+			}
+		);
+
+		scope.drawings.events.on({
+            &quot;featureadded&quot;: function(event) {
+            	scope.setCurrentGeometry(event.feature.geometry);
+            },                                
+            &quot;beforefeatureadded&quot;: function(event) {
+            	scope.drawings.destroyFeatures();
+            },
+            scope: scope
+        });                                 
+    
+		// Aggiunge il layers di selezione spaziale alla mappa
+		this.addLayer(scope.drawings);
+        
+		scope.draw = scope.getDrawControl();
+        
+		// disable pan while drawing
+		scope.draw.handler.stopDown = true;
+		scope.draw.handler.stopUp = true;
+
+		this.map.addControl(scope.draw);
+		
+        scope.draw.activate();
+	},
+	
+<span id='TolomeoExt-events-ToloQueryBuilderEvtManager-method-setMapUnitsValueField'>	/**
+</span>     * Aggiorna le unità della mappa sul componente selezinato.
+	 * @param {Object} component Componente su cui applicare le operazioni contenute.
+     */
+	setMapUnitsValueField: function(component){
+		if(component){
+			component.setValue(this.map.units);
+		}
+	}
+	
+});</pre>
+</body>
+</html>

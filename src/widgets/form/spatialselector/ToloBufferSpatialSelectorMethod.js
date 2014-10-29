@@ -1,10 +1,10 @@
 
 Ext.ns('TolomeoExt.widgets.form.spatialselector');
 
-/** api: constructor
- *  .. class:: ToloBufferSpatialSelectorMethod(config)
+/**
+ * Plugin per la selezione di una area di interesse a buffer.
  *
- *    Plugin for spatial selection based on buffer fieldset
+ * @author Tobia Di Pisa at tobia.dipisa@geo-solutions.it
  */
 Ext.define('TolomeoExt.widgets.form.spatialselector.ToloBufferSpatialSelectorMethod',  {
 	
@@ -16,33 +16,41 @@ Ext.define('TolomeoExt.widgets.form.spatialselector.ToloBufferSpatialSelectorMet
        'TolomeoExt.widgets.form.spatialselector.ToloSpatialSelectorMethod'
 	],
 
-	/** api: config[name]
-	 *  ``String``
-	 *  Name to show on the combo box of the spatial selected.
-	 */
+    /**
+     * @cfg {String} name.
+     * Nome da mostrare nella combo box di selezione spaziale.
+     */
 	name  : 'Buffer',
 
-	/** api: config[label]
-	 *  ``String``
-	 *  Label to show on the combo box of the spatial selected.
-	 */
+    /**
+     * @cfg {String} label.
+     * Etichetta da mostrare nella combo box di selezione spaziale.
+     */
 	label : 'Buffer',
 
     /**
-     * Property: latitudeEmptyText
-     * {string} emptyText of the latitude field
+     * @cfg {String} latitudeEmptyText.
+     * Testo da mostrare se ili campo Y (latitude) non è valorizzato.
      */
     latitudeEmptyText : 'Y',
 
     /**
-     * Property: longitudeEmptyText
-     * {string} emptyText of the longitude field
+     * @cfg {String} longitudeEmptyText.
+     * Testo da mostrare se ili campo X (longitude) non è valorizzato.
      */
     longitudeEmptyText : 'X',
 
-	/** api: config[bufferOptions]
-	 *  ``Object``
-	 * Buffer spatial selector options.
+	/**
+	 * @cfg {Object} bufferOptions 
+	 * Opzioni di configurazione per la selezione del buffer.
+	 *
+	 * @example
+	 *	bufferOptions : {
+	 *		"minValue": 1,
+	 *		"maxValue": 1000, 
+	 *			"decimalPrecision": 2,
+	 *		"distanceUnits": "m"
+	 *	}
 	 */
 	bufferOptions : {
 		"minValue": 1,
@@ -51,9 +59,11 @@ Ext.define('TolomeoExt.widgets.form.spatialselector.ToloBufferSpatialSelectorMet
 		"distanceUnits": "m"
 	},
 
-    /** api: method[initComponent]
+	/**
+     * Inizializza un nuovo TolomeoExt.widgets.form.spatialselector.ToloBufferSpatialSelectorMethod.
+     * @param {Object} [config] Un opzionale oggetto di configurazione per il componente ExtJs.
      */
-    initComponent: function() {
+    initComponent: function(config) {
 		// ///////////////////////////////////////////
 		// Spatial Buffer Selector FieldSet
 		// ///////////////////////////////////////////
@@ -90,7 +100,10 @@ Ext.define('TolomeoExt.widgets.form.spatialselector.ToloBufferSpatialSelectorMet
     	this.callParent();
     },
 
-	// trigger action when activate the plugin
+	/**
+     * Attiva il controllo.
+     * 
+     */
 	activate: function(){
 		TolomeoExt.widgets.form.spatialselector.ToloBufferSpatialSelectorMethod.superclass.activate.call(this);
 		if(this.output){
@@ -101,7 +114,10 @@ Ext.define('TolomeoExt.widgets.form.spatialselector.ToloBufferSpatialSelectorMet
 		}
 	},
 
-	// trigger action when deactivate the plugin
+	/**
+     * Disattiva il controllo.
+     * 
+     */
 	deactivate: function(){
 		TolomeoExt.widgets.form.spatialselector.ToloBufferSpatialSelectorMethod.superclass.deactivate.call(this);
 		if(this.output){
@@ -112,7 +128,10 @@ Ext.define('TolomeoExt.widgets.form.spatialselector.ToloBufferSpatialSelectorMet
 		}
 	},
 
-    // Reset method
+	/**
+     * Reimposta il controllo di disegno del buffer.
+     * 
+     */
     reset: function(){
     	TolomeoExt.widgets.form.spatialselector.ToloBufferSpatialSelectorMethod.superclass.reset.call(this);
 		if(this.output){

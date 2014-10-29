@@ -1,11 +1,11 @@
 
 Ext.ns('TolomeoExt.widgets.form');
 
-/** api: constructor
- *  .. class:: ToloComparisonComboBox(config)
- *   
- *      A combo box for selecting comparison operators available in OGC
- *      filters.
+/**
+ * Una combo box Ext per selezionare gli operatori di comparazione disponibili 
+ * per i filtri OGC.
+ *
+ * @author Tobia Di Pisa at tobia.dipisa@geo-solutions.it
  */
 Ext.define('TolomeoExt.widgets.form.ToloComparisonComboBox', {
 	
@@ -13,6 +13,10 @@ Ext.define('TolomeoExt.widgets.form.ToloComparisonComboBox', {
 	
 	alias: 'widget.tolomeo_comparisoncombo',
     
+ 	/**
+     * @property {Array} allowedTypes.
+     * Tipi di operatori disponibili.
+     */
     allowedTypes: [
         [OpenLayers.Filter.Comparison.EQUAL_TO, "="],
         [OpenLayers.Filter.Comparison.NOT_EQUAL_TO, "<>"],
@@ -26,21 +30,53 @@ Ext.define('TolomeoExt.widgets.form.ToloComparisonComboBox', {
         [OpenLayers.Filter.Comparison.BETWEEN, "between"]
     ],
 
+ 	/**
+     * @cfg {Boolean} allowBlank.
+     * Stabilisce se consentire testo vuoto all'interno della combo.
+     */
     allowBlank: false,
 
+ 	/**
+     * @cfg {String} mode.
+     * Stabilisce il metodo di caricamento dello store.
+     */
     mode: "local",
 
+ 	/**
+     * @cfg {Boolean} typeAhead.
+     * 
+     */
     typeAhead: true,
 
+ 	/**
+     * @cfg {Boolean} forceSelection.
+     * 
+     */
     forceSelection: true,
 
+ 	/**
+     * @cfg {String} triggerAction.
+     * 
+     */
     triggerAction: "all",
 
+ 	/**
+     * @cfg {Integer} width.
+     * 
+     */
     width: 80,
 
+ 	/**
+     * @cfg {Boolean} editable.
+     * 
+     */
     editable: true,
   
-    initComponent: function() {
+	/**
+     * Inizializza un nuovo TolomeoExt.widgets.form.ToloComparisonComboBox.
+     * @param {Object} [config] Un opzionale oggetto di configurazione per il componente ExtJs.
+     */
+    initComponent: function(config) {
         var defConfig = {
             displayField: "text",
             valueField: "value",
@@ -67,4 +103,5 @@ Ext.define('TolomeoExt.widgets.form.ToloComparisonComboBox', {
         
         this.callParent();
     }
+
 });

@@ -1,47 +1,80 @@
-/**
- * requires OpenLayers/Control.js
- * requires OpenLayers/Handler/Box.js
- */
+// /////////////////////////////////////
+// requires OpenLayers/Control.js
+// requires OpenLayers/Handler/Box.js
+// /////////////////////////////////////
 
 /**
- * Class: OpenLayers.Control.SetBox
- *
- * Inherits from:
- *  - <OpenLayers.Control>
+ * Controllo OpenLayers per la selezione del Box.
+ * 
+ * @extents {OpenLayers.Control}
+ * @author Tobia Di Pisa at tobia.dipisa@geo-solutions.it
  */
 OpenLayers.Control.SetBox = OpenLayers.Class(OpenLayers.Control, {
 
     /**
-     * Property: type
-     * {OpenLayers.Control.TYPE}
-     */    
+     * @cfg {OpenLayers.Control.TYPE} type [displayProjection="OpenLayers.Control.TYPE_TOOL"]
+     * 
+     */ 
     type: OpenLayers.Control.TYPE_TOOL,
 
     /**
-     * Property: out
-     * {Boolean} Should the control be used for zooming out?
-     */
+     * @cfg {Boolean} out [displayProjection="false"]
+     * 
+     */ 
     out: false,
     
+    /**
+     * @cfg {Object} aoi [displayProjection="false"]
+     * 
+     */ 
     aoi: null,
     
+    /**
+     * @cfg {OpenLayers.Bounds} boxes [displayProjection="false"]
+     * 
+     */ 
     boxes: null,
     
-    currentAOI:"",
+    /**
+     * @cfg {String} currentAOI [displayProjection="false"]
+     * 
+     */ 
+    currentAOI: "",
     
+    /**
+     * @cfg {Function} onChangeAOI [displayProjection="false"]
+     * 
+     */ 
     onChangeAOI: null,
     
+    /**
+     * @cfg {String} layerName [displayProjection="false"]
+     * 
+     */ 
     layerName: "AOI",
     
+    /**
+     * @cfg {Object} aoiStyle [displayProjection="false"]
+     * 
+     */ 
     aoiStyle: null,
     
+    /**
+     * @cfg {OpenLayers.Map} out [displayProjection="false"]
+     * 
+     */ 
     map: null,
     
+    /**
+     * @cfg {Boolean} displayInLayerSwitcher [displayProjection="false"]
+     * 
+     */ 
     displayInLayerSwitcher: false,
 
-    /**
-     * Method: draw
-     */    
+	/**
+     * Disegna il BOX.
+     * 
+     */ 
     draw: function() {
        
         this.handler = new OpenLayers.Handler.Box(this,
@@ -56,14 +89,12 @@ OpenLayers.Control.SetBox = OpenLayers.Class(OpenLayers.Control, {
         });
     },
 
-    /**
-     * Method: zoomBox
-     *
-     * Parameters:
-     * position - {<OpenLayers.Bounds>} or {<OpenLayers.Pixel>}
+	/**
+     * Imposta la regione di interesse risultante dal disegno dell'utente sulla mappa.
+     * @param {Object} la posizione del Box nella mappa.
+     * 
      */
     setAOI: function (position) {
-
         var control;
       
         if(this.map.enebaleMapEvent)

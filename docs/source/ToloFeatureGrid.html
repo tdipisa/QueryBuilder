@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>The source code</title>
+  <link href="../resources/prettify/prettify.css" type="text/css" rel="stylesheet" />
+  <script type="text/javascript" src="../resources/prettify/prettify.js"></script>
+  <style type="text/css">
+    .highlight { display: block; background-color: #ddd; }
+  </style>
+  <script type="text/javascript">
+    function highlight() {
+      document.getElementById(location.hash.replace(/#/, "")).className = "highlight";
+    }
+  </script>
+</head>
+<body onload="prettyPrint(); highlight();">
+  <pre class="prettyprint lang-js">
+Ext.ns(&#39;TolomeoExt.widgets.grid&#39;);
+
+<span id='TolomeoExt-widgets-grid-ToloFeatureGrid'>/**
+</span> * Griglia Ext dinamica per gestire la visualizzazione dei risultati 
+ * di una ricerca sulla base del filtro composto.
+ *
+ * @author Tobia Di Pisa at tobia.dipisa@geo-solutions.it
+ */
+Ext.define(&#39;TolomeoExt.widgets.grid.ToloFeatureGrid&#39;, {
+	
+	extend: &#39;Ext.grid.GridPanel&#39;,
+	
+    alias: &quot;widget.tolomeo_featuregrid&quot;,
+
+<span id='TolomeoExt-widgets-grid-ToloFeatureGrid-property-schema'>	/**
+</span>     * @property {Object} schema
+	 * Lo schema per la griglia.
+     */
+	 
+<span id='TolomeoExt-widgets-grid-ToloFeatureGrid-property-dateFormat'>	/**
+</span>     * @property {Ext.form.DateField.prototype.format} dateFormat
+	 * Lo schema per la griglia.
+     */
+	 
+<span id='TolomeoExt-widgets-grid-ToloFeatureGrid-property-timeFormat'>	/**
+</span>     * @property {Ext.form.TimeField.prototype.format} timeFormat
+	 * Lo schema per la griglia.
+     */
+
+<span id='TolomeoExt-widgets-grid-ToloFeatureGrid-cfg-actionTooltip'>	/**
+</span>     * @cfg {String} actionTooltip
+     *
+     */
+	actionTooltip: &quot;Zoom alla Feature&quot;,
+    
+<span id='TolomeoExt-widgets-grid-ToloFeatureGrid-method-initComponent'>	/**
+</span>     * Inizializza un nuovo TolomeoExt.widgets.grid.ToloFeatureGrid.
+     * @param {Object} [config] Un opzionale oggetto di configurazione per il componente ExtJs.
+     */
+    initComponent: function(config){
+        if (!this.dateFormat) {
+            this.dateFormat = Ext.form.DateField.prototype.format;
+        }
+        if (!this.timeFormat) {
+            this.timeFormat = Ext.form.TimeField.prototype.format;
+        }
+        
+        if(this.store) {
+            this.cm = this.createColumnModel(this.store);
+        }
+        
+        this.callParent();
+    },
+
+<span id='TolomeoExt-widgets-grid-ToloFeatureGrid-method-onDestroy'>	/**
+</span>     * Cancella ogni cosa creata prima di chiamare il distruttore della classe padre.
+     * 
+     */
+    onDestroy: function() {
+        TolomeoExt.widgets.grid.FeatureGrid.superclass.onDestroy.apply(this, arguments);
+    },
+    
+<span id='TolomeoExt-widgets-grid-ToloFeatureGrid-method-setStore'>	/**
+</span>     * Imposta lo store per questa griglia, riconfigurando il modello delle colonne.
+     * @param {Ext.Data.Store} store Lo store da impostare.
+	 * @param {Array} schema Schema opzionale per determinare i campi appropriati da mostrare per la griglia.
+     */
+    setStore: function(store, schema) {
+        if (schema) {
+            this.schema = schema;
+        }
+        
+        if (store) {
+            this.reconfigure(store, this.createColumnModel(store));
+        }
+    },
+
+<span id='TolomeoExt-widgets-grid-ToloFeatureGrid-method-getColumns'>	/**
+</span>     * Restituisce la configurazione per il modello delle colonne.
+     * @param {Ext.Data.Store} store Lo store corrente da usare.
+	 * @return {Array} Il modello delle colonne
+     */
+    getColumns: function(store) {
+//        function getRenderer(format) {
+//            return function(value) {
+//                //TODO When http://trac.osgeo.org/openlayers/ticket/3131
+//                // is resolved, change the 5 lines below to
+//                // return value.format(format);
+//                var date = value;
+//                if (typeof value == &quot;string&quot;) {
+//                	date = Date.parseDate(value.replace(/Z$/, &quot;&quot;), &quot;c&quot;);
+//                }
+//                return date = date ? date.format(format) : value;
+//            };
+//        }
+		
+        var columns = [{
+			xtype: &#39;actioncolumn&#39;,
+			header: &quot;&quot;, 
+			width: 30,
+			hidden: false,
+			scope: this,
+			items: [{
+				iconCls: &#39;zoomaction&#39;,
+				tooltip: this.actionTooltip,
+				scope: this,
+				handler: function(grid, rowIndex, colIndex){
+					var store = grid.getStore();
+					var row = store.getAt(rowIndex);
+					var feature = row.data;
+					if(feature){
+						
+						var geometry = OpenLayers.Geometry.fromWKT(feature.geometry);
+						var bounds = geometry.getBounds();
+						if(bounds){
+							
+							this.fireEvent(&quot;zoomtofeatureextent&quot;, {dataExtent: bounds});
+// RESTORE THIS
+//							grid.getSelectionModel().selectRow(rowIndex);					
+						}
+					}
+				}
+			}]
+		}];
+				
+		var name, dbname, type, xtype, format, renderer;	
+		
+		if(this.schema){			
+			var fields = this.store.model.prototype.fields;
+			
+			for(var i=0; i&lt;this.schema.length; i++){
+				var item = this.schema[i];
+				
+	            if (item) {
+	                name = item.get(&quot;name&quot;);
+	                dbname = item.get(&quot;dbname&quot;);
+	                type = item.get(&quot;type&quot;);
+	                format = null;
+	                switch (type) {
+	                    case &quot;java.util.Date&quot;:
+	                        format = this.dateFormat;
+	                    case &quot;java.util.Calendar&quot;:
+	                        format = format ? format : this.dateFormat + &quot; &quot; + this.timeFormat;
+	                        xtype = undefined;
+	                        renderer = Ext.util.Format.dateRenderer(format) //getRenderer(format);
+	                        break;
+	                    case &quot;java.lang.Boolean&quot;:
+	                        xtype = &quot;booleancolumn&quot;;
+	                        break;
+	                    case &quot;java.lang.String&quot;:
+	                        xtype = &quot;gridcolumn&quot;;
+	                        break;
+	                    default:
+	                        xtype = &quot;numbercolumn&quot;;
+	                }
+	            } 
+	            
+                columns.push({
+                    dataIndex: dbname,
+                    header: name,
+                    sortable: true,
+                    xtype: xtype,
+                    format: format,
+                    renderer: xtype ? undefined : renderer
+                });
+			}
+		}
+        
+        return columns;
+    },
+
+<span id='TolomeoExt-widgets-grid-ToloFeatureGrid-method-createColumnModel'>	/**
+</span>     * Invocare questo metodo per creare il modello delle colonne per la griglia.
+     * @param {Ext.Data.Store} store Lo store corrente su cui creare il modello.
+	 * 
+     */
+    createColumnModel: function(store) {
+    	 this.columns = this.getColumns(store);
+    	 return this.columns;
+    }
+    
+});
+</pre>
+</body>
+</html>

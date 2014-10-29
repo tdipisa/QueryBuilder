@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>The source code</title>
+  <link href="../resources/prettify/prettify.css" type="text/css" rel="stylesheet" />
+  <script type="text/javascript" src="../resources/prettify/prettify.js"></script>
+  <style type="text/css">
+    .highlight { display: block; background-color: #ddd; }
+  </style>
+  <script type="text/javascript">
+    function highlight() {
+      document.getElementById(location.hash.replace(/#/, "")).className = "highlight";
+    }
+  </script>
+</head>
+<body onload="prettyPrint(); highlight();">
+  <pre class="prettyprint lang-js">
+Ext.ns(&#39;TolomeoExt.widgets.form&#39;);
+
+<span id='TolomeoExt-widgets-form-ToloCoordinatePicker'>/**
+</span> * Widget relativa al Form Container per la gestione del campo di selezione 
+ * delle coordinate puntuali su mappa. 
+ *
+ * @author Tobia Di Pisa at tobia.dipisa@geo-solutions.it
+ */
+Ext.define(&#39;TolomeoExt.widgets.form.ToloCoordinatePicker&#39;, {
+	
+	extend: &#39;Ext.form.FieldContainer&#39;,
+
+    alias: &#39;tolomeo_coordinate_picker&#39;,
+	
+<span id='TolomeoExt-widgets-form-ToloCoordinatePicker-property-fieldLabel'>	/**
+</span>     * @property {String} fieldLabel.
+     *
+     */
+    fieldLabel: &#39;Coordinate&#39;,
+	
+<span id='TolomeoExt-widgets-form-ToloCoordinatePicker-property-pointSelectionButtionTip'>	/**
+</span>     * @property {String} pointSelectionButtionTip.
+     *
+     */
+    pointSelectionButtionTip: &#39;Click per abilitare la selezione del punto&#39;,
+	
+<span id='TolomeoExt-widgets-form-ToloCoordinatePicker-property-latitudeEmptyText'>	/**
+</span>     * @property {String} latitudeEmptyText.
+     * Stringa da mostrare per componente non valorizzato (latitudine)
+     */
+    latitudeEmptyText: &#39;Latitudine&#39;,
+	 
+<span id='TolomeoExt-widgets-form-ToloCoordinatePicker-property-longitudeEmptyText'> 	/**
+</span>      * @property {String} longitudeEmptyText.
+      * Stringa da mostrare per componente non valorizzato (longitudine)
+      */
+    longitudeEmptyText: &#39;Longitudine&#39;,
+	 
+<span id='TolomeoExt-widgets-form-ToloCoordinatePicker-property-outputSRS'> 	/**
+</span>     * @property {String} outputSRS.
+     * Codice EPSG per la trasformazione delle coordinate in 
+     * visualizzazione all&#39;interno della form.
+     */
+    outputSRS: &#39;EPSG:4326&#39;,
+    
+<span id='TolomeoExt-widgets-form-ToloCoordinatePicker-property-buttonIconCls'> 	/**
+</span>     * @property {String} buttonIconCls.
+     * Classe di stile usata per l&#39;icona del pulsante di selezione.
+     */
+    buttonIconCls:&#39;gx-cursor&#39;,
+
+<span id='TolomeoExt-widgets-form-ToloCoordinatePicker-property-selectStyle'>    /**
+</span>     * @property {Object} selectStyle.
+     * Configurazione del OpenLayer.Style usato come stile del punto su mappa.
+     */
+    selectStyle:{
+        pointRadius: 4,
+        graphicName: &quot;cross&quot;,
+        fillColor: &quot;#FFFFFF&quot;,
+        strokeColor: &quot;#FF0000&quot;,
+        fillOpacity:0.5,
+        strokeWidth:2
+    },
+
+<span id='TolomeoExt-widgets-form-ToloCoordinatePicker-property-defaultSelectStyle'>    /**
+</span>     * @property {Object} defaultSelectStyle.
+     * Configurazione del OpenLayer.Style usato per riempire i campi mancati di &quot;selectStyle&quot;.
+     */
+    defaultSelectStyle:{
+        pointRadius: 4, // sized according to type attribute
+        graphicName: &quot;cross&quot;,
+        fillColor: &quot;#0000FF&quot;,
+        strokeColor: &quot;#0000FF&quot;,
+        fillOpacity:0.5,
+        strokeWidth:2        
+    },
+	
+<span id='TolomeoExt-widgets-form-ToloCoordinatePicker-cfg-decimalPrecision'>    /**
+</span>     * @cfg {Integer} decimalPrecision.
+     * Massimo numero possibile di cifre decimali per i campi di coordinate.
+     */
+    decimalPrecision:10,
+    
+<span id='TolomeoExt-widgets-form-ToloCoordinatePicker-cfg-selectLayerName'>    /**
+</span>     * @cfg {String} selectLayerName.
+     * Nome del layer vettoriale che rappresenta il punto su mappa.
+     */
+    selectLayerName: &quot;select_marker_position_layer&quot;,
+    
+<span id='TolomeoExt-widgets-form-ToloCoordinatePicker-cfg-displayInLayerSwitcher'>    /**
+</span>     * @cfg {Boolean} displayInLayerSwitcher.
+     * Usato per determinare se il layer vettoriale deve apparire all&#39;interno del LayerSwitcher OpenLayers.
+     */
+    displayInLayerSwitcher: false,
+    
+<span id='TolomeoExt-widgets-form-ToloCoordinatePicker-method-initComponent'>	/**
+</span>     * Inizializza un nuovo TolomeoExt.widgets.form.ToloCoordinatePicker.
+     * @param {Object} [config] Un opzionale oggetto di configurazione per il componente ExtJs.
+     */
+    initComponent:function(config){
+        this.layout = {
+            type: &#39;hbox&#39;
+        };
+        
+        this.defaults = {
+            // applied to each contained panel
+            bodyStyle:&#39;padding:5px;&#39;
+        };
+		
+        var compositeField = this;
+		
+		Ext.applyIf(this.selectStyle, this.defaultSelectStyle);
+		
+        this.items= [
+				{
+                    xtype     : &#39;numberfield&#39;,
+                    emptyText : this.longitudeEmptyText,
+                    ref:&#39;longitudeField&#39;,
+                    decimalPrecision:this.decimalPrecision,
+                    flex      : 1,
+                    allowBlank:false,
+                    name: &#39;lon&#39;,
+					listeners: {
+						scope:this,
+						change: this.updatePoint
+					}
+                }, {
+                    xtype: &#39;button&#39;,
+					ref:&#39;clickToggle&#39;,
+                    tooltip: this.pointSelectionButtionTip,
+                    iconCls:this.buttonIconCls,
+                    enableToggle: true,
+                    toggleGroup: this.toggleGroup,
+                    width:20,
+                    listeners: {
+                      scope: this, 
+                      toggle: function(button, pressed) {  
+                         if(pressed){
+                              this.selectLonLat.activate();
+                          }else{
+                              this.selectLonLat.deactivate();
+                          }
+                      }
+                    }
+                }, {
+                    xtype     : &#39;numberfield&#39;,
+                    emptyText : this.latitudeEmptyText,
+                    ref: &#39;latitudeField&#39;,
+                    flex      : 1,
+                    decimalPrecision: this.decimalPrecision,
+                    allowBlank:false,
+                    name: &#39;lat&#39;,
+					listeners: {
+						scope:this,
+						change: this.updatePoint
+					}
+                }
+            ];
+        
+        this.callParent(arguments);
+        
+        this.on(&quot;added&quot;, function(scope){
+        	scope.latitudeField = scope.query(&#39;numberfield[ref=latitudeField]&#39;)[0];
+        	scope.longitudeField = scope.query(&#39;numberfield[ref=longitudeField]&#39;)[0];
+        	scope.clickToggle = scope.query(&#39;button[ref=clickToggle]&#39;)[0];
+        });
+    },
+    
+<span id='TolomeoExt-widgets-form-ToloCoordinatePicker-method-isValid'>	/**
+</span>     * Controlla la validità dei valori inseriti.
+     * 
+     * @return {Boolean} Restituisce true se valido e false se non lo è.
+     */
+    isValid: function(){
+    	if(this.latitudeField.isValid() &amp;&amp;
+    	    	this.longitudeField.isValid()){
+    		return true;
+    	}else{
+    		return false;
+    	}
+    },
+	
+<span id='TolomeoExt-widgets-form-ToloCoordinatePicker-method-updatePoint'>	/**
+</span>     * Prende i valori dai campi e avvia la procedura di disegno sulla mappa.
+     * 
+     */
+    updatePoint: function(){
+        var lat = this.latitudeField.getValue();
+		var lon = this.longitudeField.getValue();
+		if( lon &amp;&amp; lat ){
+			//add point
+			var lonlat = new OpenLayers.LonLat(lon,lat);
+			lonlat.transform(new OpenLayers.Projection(this.outputSRS), this.projectionObject);
+			this.updateMapPoint(lonlat);
+		}
+    },
+	
+<span id='TolomeoExt-widgets-form-ToloCoordinatePicker-method-resetMapPoint'>	/**
+</span>     * Lancia l&#39;evento per la rimozione del layer vettoriale 
+     * che rappresente la selezione del punto sulla mappa.
+     * 
+     */
+    resetMapPoint:function(){
+    	this.fireEvent(&quot;reset&quot;, this.selectLayerName);
+    },
+
+<span id='TolomeoExt-widgets-form-ToloCoordinatePicker-method-resetPoint'>	/**
+</span>     * Reimposta i campi della form e rimuove il layer dalla mappa.
+     *
+     */
+    resetPoint:function(){
+		this.latitudeField.reset();
+        this.longitudeField.reset();
+		
+        this.resetMapPoint();
+	},
+
+<span id='TolomeoExt-widgets-form-ToloCoordinatePicker-method-toggleButton'>	/**
+</span>     * Usato per impostare la pressione del pulsante di attivazione 
+     * del controllo di disegno.
+     * @param {Boolean} toggle valore del toggle da impostare per il componente Ext.
+     */
+	toggleButton: function(toggle){
+		this.clickToggle.toggle(toggle);
+	},
+	
+<span id='TolomeoExt-widgets-form-ToloCoordinatePicker-method-updateMapPoint'>	/**
+</span>     * Aggiorna il punto sulla mappa tramite eventi gestiti dal Manager a livello superiore.
+     * del controllo di disegno.
+     * @param {OpenLayers.LonLat} lonlat valore delle coordinate da usare per il punto su mappa.
+     */
+    updateMapPoint:function(lonlat){
+        if(this.selectStyle){
+        	this.resetMapPoint();
+        	this.fireEvent(&quot;update&quot;, lonlat, this);
+        	this.fireEvent(&quot;updatebuffer&quot;, lonlat, this);
+        }    
+    },
+	 
+<span id='TolomeoExt-widgets-form-ToloCoordinatePicker-method-getCoordinate'>	/**
+</span>     * Recupera le coordinate dai campi della form.
+     * del controllo di disegno.
+     * @return {Array} Array delle coordinate.
+     */
+	getCoordinate: function(){
+		return [this.longitudeField.getValue(), this.latitudeField.getValue()];
+	}
+    
+});
+</pre>
+</body>
+</html>

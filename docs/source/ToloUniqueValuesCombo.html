@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>The source code</title>
+  <link href="../resources/prettify/prettify.css" type="text/css" rel="stylesheet" />
+  <script type="text/javascript" src="../resources/prettify/prettify.js"></script>
+  <style type="text/css">
+    .highlight { display: block; background-color: #ddd; }
+  </style>
+  <script type="text/javascript">
+    function highlight() {
+      document.getElementById(location.hash.replace(/#/, "")).className = "highlight";
+    }
+  </script>
+</head>
+<body onload="prettyPrint(); highlight();">
+  <pre class="prettyprint lang-js">
+Ext.ns(&#39;TolomeoExt.widgets.form&#39;);
+
+<span id='TolomeoExt-widgets-form-ToloUniqueValuesCombo'>/**
+</span> * Una combo box utilizzata per visualizzare valori unici per un dato campo del layer.
+ * Questo componente accetta tutte le configurazioni previste per una Ext.ComboBox
+ *
+ * @author Tobia Di Pisa at tobia.dipisa@geo-solutions.it
+ */
+Ext.define(&#39;TolomeoExt.widgets.form.ToloUniqueValuesCombo&#39;, {
+	
+	extend: &#39;Ext.form.ComboBox&#39;,
+	
+	alias: &#39;widget.tolomeo_uniquevaluescb&#39;,
+	
+<span id='TolomeoExt-widgets-form-ToloUniqueValuesCombo-method-getParams'>	/**
+</span>     * Restituisce i parametri usati nella richiesta ajax per il popolamento dello store.
+     * @param {Object} q I parametri delo store per la richiesta.
+	 * @return {Object} I patametri per la richiesta di popolamento dello store
+     */
+    getParams : function(q){
+    	var superclass = this.superclass;
+    	
+        var params = superclass.getParams.call(this, q);
+        Ext.apply(params, this.store.baseParams);
+        return params;
+    },
+    
+<span id='TolomeoExt-widgets-form-ToloUniqueValuesCombo-method-initList'>	/**
+</span>     * Inizializza la lista dei valori della paging toolbar
+	 * 
+     */
+    initList : function() { 
+    	// warning: overriding ComboBox private method
+        this.superclass.initList.call(this);
+        if (this.pageTb &amp;&amp; this.pageTb instanceof Ext.PagingToolbar) {
+            this.pageTb.afterPageText = &quot;&quot;;
+            this.pageTb.beforePageText = &quot;&quot;;
+            this.pageTb.displayMsg = &quot;&quot;;
+        }
+    }
+});
+
+</pre>
+</body>
+</html>

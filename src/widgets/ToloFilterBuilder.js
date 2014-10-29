@@ -684,9 +684,9 @@ Ext.define('TolomeoExt.widgets.ToloFilterBuilder', {
 
 });
 
-/**
- * Tipi di costruttore
- */
+// //////////////////////////////////////////
+// Tipi di costruttore
+// //////////////////////////////////////////
 TolomeoExt.widgets.ToloFilterBuilder.ANY_OF = 0;
 TolomeoExt.widgets.ToloFilterBuilder.ALL_OF = 1;
 TolomeoExt.widgets.ToloFilterBuilder.NONE_OF = 2;

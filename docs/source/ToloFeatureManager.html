@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>The source code</title>
+  <link href="../resources/prettify/prettify.css" type="text/css" rel="stylesheet" />
+  <script type="text/javascript" src="../resources/prettify/prettify.js"></script>
+  <style type="text/css">
+    .highlight { display: block; background-color: #ddd; }
+  </style>
+  <script type="text/javascript">
+    function highlight() {
+      document.getElementById(location.hash.replace(/#/, "")).className = "highlight";
+    }
+  </script>
+</head>
+<body onload="prettyPrint(); highlight();">
+  <pre class="prettyprint lang-js">
+<span id='TolomeoExt-ToloFeatureManager'>/**
+</span> * Plugin per la gestione di richieste e operazioni 
+ * che coinvolgono le features.
+ *
+ * @author Tobia Di Pisa at tobia.dipisa@geo-solutions.it
+ */
+Ext.define(&#39;TolomeoExt.ToloFeatureManager&#39;, {
+	
+	extend: &#39;Ext.util.Observable&#39;,
+	
+<span id='TolomeoExt-ToloFeatureManager-property-id'>	id: &quot;qb_featuremanager&quot;,
+</span>	
+<span id='TolomeoExt-ToloFeatureManager-cfg-TOLOMEOServer'>	/**
+</span>	 * @cfg {String} TOLOMEOServer
+	 * URL di base del contesto di Tolomeo.
+	 */
+	TOLOMEOServer: null,
+	
+<span id='TolomeoExt-ToloFeatureManager-cfg-TOLOMEOContext'>	/**
+</span>	 * @cfg {String} TOLOMEOContext
+	 * Contesto di Tolomeo.
+	 */
+	TOLOMEOContext: null,
+
+<span id='TolomeoExt-ToloFeatureManager-property-featureStore'>	/**
+</span>	 * @property {Ext.Data.Store} featureStore
+	 * Store delle features ritornate dal server a seguito di una richiesta.
+	 */
+	featureStore: null,
+	
+<span id='TolomeoExt-ToloFeatureManager-cfg-maxFeatures'>	/**
+</span>	 * @cfg {Number} maxFeatures [maxFeatures=&quot;10&quot;]
+	 * Massimo numero di elementi per pagina.
+	 */
+	maxFeatures: 10,
+	
+<span id='TolomeoExt-ToloFeatureManager-cfg-startIndex'>	/**
+</span>	 * @cfg {Number} startIndex [startIndex=&quot;0&quot;]
+	 * Indice di pagina per richieste paginate.
+	 */
+	startIndex: 0,
+	
+<span id='TolomeoExt-ToloFeatureManager-property-proxy'>	/**
+</span>	 * @property {Ext.Data.Proxy} proxy
+	 * Proxy Ext per le richieste Ajax cross-domain.
+	 */
+	proxy: null,
+	
+<span id='TolomeoExt-ToloFeatureManager-method-constructor'>	/**
+</span>     * Crea un nuovo TolomeoExt.ToloFeatureManager.
+     * @param {Object} [config] Un opzionale oggetto di configurazione per il componente ExtJs.
+     */
+	constructor: function(config) {
+		this.callParent(arguments);
+		
+		Ext.apply(this, config);
+		
+		this.addEvents(
+<span id='TolomeoExt-ToloFeatureManager-event-layerchange'>	        /**
+</span>			 * @event
+			 * Lanciato alla selezione di un nuovo layer dalla form.
+			 */
+			&quot;layerchange&quot;,
+			
+<span id='TolomeoExt-ToloFeatureManager-event-loadfeaturesfailure'>	        /**
+</span>			 * @event
+			 * Lanciato se il caricamento delle features fallisce.
+			 */
+			&quot;loadfeaturesfailure&quot;,
+			
+<span id='TolomeoExt-ToloFeatureManager-event-loadfeatures'>	        /**
+</span>			 * @event
+			 * Lanciato quando le features sono state caricate.
+			 */
+			&quot;loadfeatures&quot;,
+			
+<span id='TolomeoExt-ToloFeatureManager-event-beforeloadfeatures'>	        /**
+</span>			 * @event
+			 * Lanciato prima di caricare le features da servizio remoto.
+			 */
+			&quot;beforeloadfeatures&quot;,
+			
+<span id='TolomeoExt-ToloFeatureManager-event-resetquery'>	        /**
+</span>			 * @event
+			 * Lanciato per reimpostare i parametri della richiesta.
+			 */
+			&quot;resetquery&quot;,
+			
+<span id='TolomeoExt-ToloFeatureManager-event-beforelayerchange'>	        /**
+</span>			 * @event
+			 * Lanciato prima che avvenga la selezione di un nuovo layer dalla form del query builder.
+			 */
+			&quot;beforelayerchange&quot;,
+			
+<span id='TolomeoExt-ToloFeatureManager-event-export'>	        /**
+</span>			 * @event
+			 * Lanciato al termine delle operazioni di export.
+			 */
+			&quot;export&quot;,
+			
+<span id='TolomeoExt-ToloFeatureManager-event-beforedataexport'>	        /**
+</span>			 * @event
+			 * Lanciato prima dell&#39;avvio di una operazione di export.
+			 */
+			&quot;beforedataexport&quot;
+		);	
+		
+		this.on(&quot;resetquery&quot;, this.resetQuery);
+		this.on(&quot;export&quot;, this.exportPage);
+	},
+	
+<span id='TolomeoExt-ToloFeatureManager-method-exportPage'>	/**
+</span>     * Esporta i dati in griglia secondo i formati supportati (SHP, CSV, Spatialite).
+     * @param {Object} options Oggetto contenente le opzioni per lo scaricamento dei dati. 
+     *
+     */
+	exportPage: function(options){
+        this.fireEvent(&quot;beforedataexport&quot;);
+		
+		var params = {
+			filter: this.proxy.extraParams.filter,
+			codTPN: this.proxy.extraParams.codTPN,
+			format: options.format,
+			startIndex: options.items == &quot;all&quot; ? -1 :  this.startIndex,
+			maxFeatures: options.items == &quot;all&quot; ? -1 :  this.maxFeatures,
+			ogcFilterVersion: this.proxy.extraParams.ogcFilterVersion
+		};
+		
+    	var submitOpt = {
+    		url: this.TOLOMEOServer + this.TOLOMEOContext + &#39;/SearchExportServlet&#39;,
+    		method: &#39;POST&#39;,
+    		params: params,
+    		waitMsg: &#39;Export in corso...&#39;,
+    		success: function(results, store){
+    			var result = results[0];
+    			if(result){
+    				location.href = this.TOLOMEOServer + this.TOLOMEOContext + &#39;/SearchExportServlet?filename=&#39; + result.data.Descrizione;
+    			}
+    		},
+    		failure: this.doAjaxFailure(),
+    		scope: this
+    	};
+    	
+		new TolomeoExt.ToloCrossAjax().request(submitOpt);
+	},
+	
+<span id='TolomeoExt-ToloFeatureManager-method-setFeatureStore'>	/**
+</span>     * Imposta lo store delle features.
+     * @param {Ext.Data.Store} store Oggetto rappresentante lo store dei dati. 
+     *
+     */
+	setFeatureStore: function(store){
+		this.featureStore = store
+		
+		this.featureStore.on(&quot;load&quot;, function(){
+			this.fireEvent(&quot;loadfeatures&quot;);
+		}, this);
+	},
+	
+<span id='TolomeoExt-ToloFeatureManager-method-getSchema'>    /**
+</span>     * Recupera lo schema degli attributi.
+     * @param {Object} fparams Oggetto contenente i parametri che saranno usati nella richista. 
+     *
+     */
+	getSchema: function(fparams){
+        if (!this.schemaCache) {
+            this.schemaCache = {};
+        }
+        
+        this.fireEvent(&quot;beforelayerchange&quot;);
+        
+        var schema = this.schemaCache[fparams.codTPN];
+        if(schema){
+			this.fireEvent(&quot;layerchange&quot;, schema);
+        }else{
+        	var submitOpt = {
+        		url: this.TOLOMEOServer + this.TOLOMEOContext + &#39;/FilterBuilderMetadataServlet&#39;,
+        		method: &#39;POST&#39;,
+        		params: fparams,
+        		waitMsg: &#39;Ricerca in corso...&#39;,
+        		success: function(results, store){
+        			var schema = results;
+        			this.schemaCache[fparams.codTPN] = schema;
+        			this.fireEvent(&quot;layerchange&quot;, results);
+        		},
+        		failure: this.doAjaxFailure,
+        		scope: this
+        	};
+        	
+    		new TolomeoExt.ToloCrossAjax().request(submitOpt);
+        }        
+	},
+	
+<span id='TolomeoExt-ToloFeatureManager-method-doAjaxFailure'>	/**
+</span>     * Handler invocato in caso di fallimento della richiesta Ajax.
+     * @param {Ext.Data.Store} store Oggetto rappresentante lo store dei dati. 
+     *
+     */
+	doAjaxFailure: function (store) {
+		this.fireEvent(&quot;loadfeaturesfailure&quot;, store);
+    },
+    
+<span id='TolomeoExt-ToloFeatureManager-method-loadFeatures'>    /**
+</span>     * Metodo di caricamento dello store delle features.
+     * @param {Object} fparams Oggetto contenente i parametri che saranno usati nella richista. 
+     *
+     */
+    loadFeatures: function(fparams){       	
+    	//
+    	// Prepare the proxy params
+    	//
+		this.proxy.extraParams = this.proxy.extraParams || {};
+		this.proxy.startParam = &quot;startIndex&quot;;
+		this.proxy.limitParam = &quot;maxFeatures&quot;;
+		this.proxy.actionMethods = &quot;POST&quot;;
+		
+    	Ext.apply(this.proxy.extraParams, fparams); 
+    	
+    	this.fireEvent(&quot;beforeloadfeatures&quot;);
+    	
+    	this.featureStore.loadPage(1, {
+    	    params:{
+    	    	startIndex: this.startIndex,
+    	    	maxFeatures: this.maxFeatures
+    	    }
+    	});
+    },
+    
+<span id='TolomeoExt-ToloFeatureManager-method-setProxy'>	/**
+</span>     * Imposta il proxy per le richieste cross-domain. 
+     *
+     */
+    setProxy: function(){
+		this.proxy = TolomeoExt.ToloCrossAjaxUtil.getProxy(null, this.TOLOMEOServer + this.TOLOMEOContext + &#39;/SearchExportServlet&#39;);
+		var reader = this.proxy.getReader();
+		reader.root = &quot;rows&quot;;
+		reader.totalProperty = &quot;total&quot;;
+    },
+    
+<span id='TolomeoExt-ToloFeatureManager-method-getProxy'>    /**
+</span>     * Recupera il proxy usato per le richiesta cross-domani. 
+     *
+     */
+    getProxy: function(){
+    	return this.proxy;
+    },
+    
+<span id='TolomeoExt-ToloFeatureManager-method-resetQuery'>	/**
+</span>     * Reimposta i parametri di richiesta per la racclta delle features risultato della ricerca. 
+     *
+     */
+    resetQuery: function(){
+    	if(this.featureStore){
+    		this.featureStore.removeAll();
+    	}
+		
+    	this.fireEvent(&quot;resetfeaturelayer&quot;);
+    }
+	
+});</pre>
+</body>
+</html>

@@ -1,75 +1,63 @@
-/**
- * include widgets/form/spatialselector/BBOXToloSpatialSelectorMethod.js
- * include widgets/form/spatialselector/BufferToloSpatialSelectorMethod.js
- * include widgets/form/spatialselector/CircleToloSpatialSelectorMethod.js
- * include widgets/form/spatialselector/GeocoderToloSpatialSelectorMethod.js
- * include widgets/form/spatialselector/PolygonToloSpatialSelectorMethod.js
- */
+// //////////////////////////////////////////////////////////////////////////
+//  include widgets/form/spatialselector/BBOXToloSpatialSelectorMethod.js
+//  include widgets/form/spatialselector/BufferToloSpatialSelectorMethod.js
+//  include widgets/form/spatialselector/CircleToloSpatialSelectorMethod.js
+//  include widgets/form/spatialselector/PolygonToloSpatialSelectorMethod.js
+/////////////////////////////////////////////////////////////////////////////
 
 Ext.ns('TolomeoExt.widgets.form.spatialselector');
 
-/** api: constructor
- *  .. class:: ToloSpatialSelectorMethod(config)
- *
- *    Common code for plugins for spatial selection.
- *    Known plugins: <ul>
- *       <li>BBOXToloSpatialSelectorMethod: `gxp_spatial_bbox_selector` ptype</li>
- *       <li>BufferToloSpatialSelectorMethod: `gxp_spatial_buffer_selector` ptype</li>
- *       <li>CircleToloSpatialSelectorMethod: `gxp_spatial_circle_selector` ptype</li>
- *       <li>GeocoderToloSpatialSelectorMethod: `gxp_spatial_geocoding_selector` ptype</li>
- *       <li>PolygonToloSpatialSelectorMethod: `gxp_spatial_polygon_selector` ptype</li>
+/**
+ * Plugin comune per la selezione spaziale.
+ * Widgets conosciute: 
+ *    <ul>
+ *       <li>BBOXToloSpatialSelectorMethod: `widget.tolomeo_spatial_bbox_selector` ptype</li>
+ *       <li>BufferToloSpatialSelectorMethod: `widget.tolomeo_spatial_buffer_selectorr` ptype</li>
+ *       <li>CircleToloSpatialSelectorMethod: `widget.tolomeo_spatial_circle_selector` ptype</li>
+ *       <li>PolygonToloSpatialSelectorMethod: `widget.tolomeo_spatial_polygon_selector` ptype</li>
  * 	  </ul>
+ *
+ * @author Tobia Di Pisa at tobia.dipisa@geo-solutions.it
  */
 Ext.define('TolomeoExt.widgets.form.spatialselector.ToloSpatialSelectorMethod', {
 	
 	extend: 'Ext.Container',
 
-	/** api: config[name]
-	 *  ``String``
-	 *  Name to show on the combo box of the spatial selected.
-	 */
+    /**
+     * @cfg {String} name.
+     * Nome da mostrare nella combo box di selezione spaziale.
+     */
 
-	/** api: config[label]
-	 *  ``String``
-	 *  Label to show on the combo box of the spatial selected.
-	 */
+    /**
+     * @cfg {String} label.
+     * Etichetta da mostrare nella combo box di selezione spaziale.
+     */
 
-	/** api: config[output]
-	 *  ``Object``
-	 *  Output for this plugin
-	 */
+    /**
+     * @cfg {Object} output.
+     * Configurazione di output per questo plugin.
+     */
 
-	/** api: config[currentGeometry]
-	 *  ``Object``
-	 *  Selected geometry
-	 */
+    /**
+     * @cfg {OpenLayers.Geometry} currentGeometry.
+     * Rappresenta la geometria selezionata.
+     */
 
-	/** api: config[filterGeometryName]
-	 *  ``Object``
-	 *  Parameter to perform the filter
-	 */
+    /**
+     * @cfg {OpenLayers.Geometry} filterGeometryName.
+     * Rappresenta il nome del campo geometrico da usare nel filtro.
+     */
    
-   /** api: config[metricUnit]
-	 *  ``Object``
-	 *  The metric unit to display summary
-	 */
-    metricUnit :"km",
-    
-	/** api: config[hideWhenDeactivate]
-	 *  ``Boolean``
-	 *  Flag to hide output when the selection method is deactivated. Default is true
-	 */
-	hideWhenDeactivate: true,
-
-	/** api: config[zoomToCurrentExtent]
-	 *  ``Boolean``
-	 *  Flag to zoom the current map to the selected geometry when you select one. Default is false
-	 */
+ 	/**
+     * @property {Boolean} zoomToCurrentExtent [zoomToCurrentExtent="false"]
+     * Flag per stabilire lo zoom all'extent della geometria selezionata.
+     */
 	zoomToCurrentExtent: false,
 
-	/** api: config[defaultStyle]
-	 *  ``Object``
-	 */
+    /**
+     * @property {Object} defaultStyle.
+     * Configurazione del OpenLayer.Style predefinito usato come stile del BBOX su mappa.
+     */
 	defaultStyle : {
         "fillColor"   : "#FFFFFF",
         "strokeColor" : "#FF0000",
@@ -77,9 +65,10 @@ Ext.define('TolomeoExt.widgets.form.spatialselector.ToloSpatialSelectorMethod', 
         "strokeWidth" : 1
 	},
 
-	/** api: config[selectStyle]
-	 *  ``Object``
-	 */
+    /**
+     * @property {Object} selectStyle.
+     * Configurazione del OpenLayer.Style di selezione usato come stile del BBOX su mappa.
+     */
 	selectStyle : {
         "fillColor"   : "#FFFFFF",
         "strokeColor" : "#FF0000",
@@ -87,9 +76,10 @@ Ext.define('TolomeoExt.widgets.form.spatialselector.ToloSpatialSelectorMethod', 
         "strokeWidth" : 1
 	},
 
-	/** api: config[temporaryStyle]
-	 *  ``Object``
-	 */
+    /**
+     * @property {Object} temporaryStyle.
+     * Configurazione del OpenLayer.Style temporaneo usato come stile del BBOX su mappa.
+     */
 	temporaryStyle : {
 		"strokeColor": "#ee9900",
 		"fillColor": "#ee9900",
@@ -97,22 +87,39 @@ Ext.define('TolomeoExt.widgets.form.spatialselector.ToloSpatialSelectorMethod', 
 		"strokeWidth": 1
 	},
 	
-	/** api: config[showSelectionSummary]
-	 *  ``Boolean``
-	 *  Whether we want to show or not the selection summary as a pop-up on the map.
-	 */
-	showSelectionSummary : true,
-
-	/** api: config[addGeometryOperation]
-	 *  ``Boolean``
-	 *  Append geometry operation as fieldset.
-	 */
+ 	/**
+     * @property {Boolean} zoomToCurrentExtent [addGeometryOperation="true"]
+     * Flag per stabilire se aggiungere o meno il tool di selezione dell'operazione geometrica per la selezione spaziale scelta.
+     */
 	addGeometryOperation: true,
 
-	/** api: config[geometryOperations]
-	 *  ``Array``
-	 *  With allowed geometry operations.
-	 */
+ 	/**
+     * @cfg {Object} geometryOperations.
+     * Lista delle operazioni geometriche consentite.
+     * 
+     * @example
+	 *	geometryOperations:[{
+	 *		name: "INTERSECTS",
+	 *		label: "INTERSECTS",
+	 *		value: OpenLayers.Filter.Spatial.INTERSECTS
+	 *	},{
+	 *		name: "BBOX",
+	 *		label: "BBOX",
+	 *		value: OpenLayers.Filter.Spatial.BBOX
+	 *	},{
+ 	 *		name: "CONTAINS",
+	 *		label: "CONTAINS",
+	 *		value: OpenLayers.Filter.Spatial.CONTAINS
+	 *	},{
+	 *		name: "DWITHIN",
+	 *		label: "DWITHIN",
+	 *		value: OpenLayers.Filter.Spatial.DWITHIN
+	 *	},{
+	 *		name: "WITHIN",
+	 *		label: "WITHIN",
+	 *		value: OpenLayers.Filter.Spatial.WITHIN
+	 *	}]
+     */
 	geometryOperations:[{
 		name: "INTERSECTS",
 		label: "INTERSECTS",
@@ -135,104 +142,74 @@ Ext.define('TolomeoExt.widgets.form.spatialselector.ToloSpatialSelectorMethod', 
 		value: OpenLayers.Filter.Spatial.WITHIN
 	}],
 
-	/** api: config[defaultGeometryOperation]
-	 *  ``String``
-	 *  Default geometry operation selected.
-	 */
+    /**
+     * @property {OpenLayers.Filter.Spatial} defaultGeometryOperation.
+     * Operazione geometrica selezionata di default.
+     */
 	defaultGeometryOperation: OpenLayers.Filter.Spatial.INTERSECTS,
 
-//	/** api: config[areaLabel]
-//	 * ``String``
-//	 * Text for the Selection Summary Area Label (i18n).
-//	 */
-//	areaLabel : "Area",
-//
-//	/** api: config[lengthLabel]
-//	 * ``String``
-//	 * Text for the Selection Summary Perimeter Label (i18n).
-//	 */
-//	lengthLabel : "Length",
-//
-//	/** api: config[perimeterLabel]
-//	 * ``String``
-//	 * Text for the Selection Summary Perimeter Label (i18n).
-//	 */
-//	perimeterLabel : "Perimeter",
-//
-//	/** api: config[selectionSummary]
-//	 * ``String``
-//	 * Text for the Selection Summary (i18n).
-//	 */
-//	selectionSummary : "Selection Summary",
-//
-//	/** api: config[radiusLabel]
-//	 * ``String``
-//	 * Text for the Selection Summary Radius Label (i18n).
-//	 */
-//	radiusLabel : "Radius",
-//
-//	/** api: config[centroidLabel]
-//	 * ``String``
-//	 * Text for the Selection Summary Centroid Label (i18n).
-//	 */
-//	centroidLabel : "Centroid",
-
-	/** api: config[geometryOperationText]
-	 * ``String``
-	 * Text for the Geometry Operation Label (i18n).
-	 */
+    /**
+     * @property {String} geometryOperationText.
+     * Testo da mostrare per l'etichetta della operazione geometrica.
+     */
 	geometryOperationText: "Operazione Geometrica",
 
-	/** api: config[geometryOperationEmptyText]
-	 * ``String``
-	 * Text for the empty geometry operation combo (i18n).
-	 */
+    /**
+     * @property {String} geometryOperationEmptyText.
+     * Testo da mostrare per la combo box della operazione geometrica se non valorizzata.
+     */
 	geometryOperationEmptyText: "Selezione Operazione",
 
-	/** api: config[distanceTitleText]
-	 * ``String``
-	 * Text for the Distance field label (i18n).
-	 */
+    /**
+     * @property {String} distanceTitleText.
+     * Testo da mostrare per il campo distanza.
+     */
 	distanceTitleText: "Distanza",
 
-	/** api: config[centroidLabel]
-	 * ``String``
-	 * Text for distance unit field label (i18n).
-	 */
+    /**
+     * @property {String} distanceUnitsTitleText.
+     * Testo da mostrare per il campo delle unità relative al campo distanza.
+     */
 	distanceUnitsTitleText: "Unità Distanza",
 
-	/** api: config[noOperationTitleText]
-	 * ``String``
-	 * Text for no valud operation title msg (i18n).
-	 */
+    /**
+     * @property {String} noOperationTitleText.
+     * Messaggio di operazione non valida.
+     */
 	noOperationTitleText: "Operazione non Valida",
 
-	/** api: config[noOperationMsgText]
-	 * ``String``
-	 * Text for no operation msg (i18n).
-	 */
-	noOperationMsgText: "Selezione una operazione prima della richiesta",
+    /**
+     * @property {String} noOperationMsgText.
+     * Messaggio per operazione non selezionata.
+     */
+	noOperationMsgText: "Seleziona una operazione prima della richiesta",
 
-	/** api: config[noCompleteMsgText]
-	 * ``String``
-	 * Text msg for no complete form (i18n).
-	 */
+    /**
+     * @property {String} noCompleteMsgText.
+     * Messaggio per form non completa.
+     */
 	noCompleteMsgText: "Completare la form prima della richiesta",
 	
+	/**
+	 * @cfg {TolomeoExt.events.ToloQueryBuilderEvtManager} qbEventManager (required)
+	 * Gestore di eventi per il query builder.
+	 */
 	qbEventManager: null,
 
-	// init spatialSelector method
+	/**
+     * Crea un nuovo TolomeoExt.widgets.form.spatialselector.ToloSpatialSelectorMethod.
+     * @param {Object} [config] Un opzionale oggetto di configurazione per il componente ExtJs.
+     */
 	constructor : function(config) {
-		Ext.apply(this, config);
-		
+		Ext.apply(this, config);		
 		this.callParent(arguments);
 	},
 
-    /** private: method[initComponent]
-     *  Override
+	/**
+     * Inizializza un nuovo TolomeoExt.widgets.form.spatialselector.ToloSpatialSelectorMethod.
+     * @param {Object} [config] Un opzionale oggetto di configurazione per il componente ExtJs.
      */
     initComponent: function(config) {   
-
 		Ext.apply(this, config);
 
 		if(!this.output){
@@ -275,10 +252,10 @@ Ext.define('TolomeoExt.widgets.form.spatialselector.ToloSpatialSelectorMethod', 
         });
     },
 
-	/** api: method[getSelectionMethodItem]
-     *  :returns: ``Object`` For the selection type combo
-	 * Generate a item for the selection type combo
-	 */
+	/**
+     * Genera un oggetto per la combo di selezione.
+     * @return {Object} l'oggetto selezionato dalla combo.
+     */
 	getSelectionMethodItem: function(){
         return {
         	label: this.label, 
@@ -286,10 +263,10 @@ Ext.define('TolomeoExt.widgets.form.spatialselector.ToloSpatialSelectorMethod', 
         };
 	},
 
-	/** api: method[getQueryFilter]
-     *  :returns: ``Object`` filter to perform a WFS query
-	 * Generate a filter for the selected method
-	 */
+	/**
+     * Genera un filtro per il metodo si selezione.
+     * @return {OpenLayers.Filter} Il filtro impostato dall'utente.
+     */
 	getQueryFilter: function(){
 		var operation = null;
 		
@@ -363,32 +340,29 @@ Ext.define('TolomeoExt.widgets.form.spatialselector.ToloSpatialSelectorMethod', 
 		return this.currentFilter;
 	},
 
-	/** api: method[activate]
-     *  Trigger action when activate the plugin
-	 */
+	/**
+     * Attiva il plugin.
+     * 
+     */
 	activate: function(){
 		this.reset();
 		this.doLayout();
 		this.show();
 	},
 
-	/** api: method[deactivate]
-     *  Trigger action when deactivate the plugin
-	 */
+	/**
+     * Disattiva il plugin.
+     * 
+     */
 	deactivate: function(){
 		this.reset();
 		this.hide();
 	},
 
-    /** api: method[addOutput]
+	/**
+     * Reimposta il componente (filtro e geometria).
+     * 
      */
-    addOutput: function() {
-    	// TODO: Override it on plugins
-    },
-
-	/** api: method[reset]
-     *  Trigger action when reset the plugin
-	 */
     reset: function(){
     	this.currentGeometry = null;
     	this.currentFilter = null;
@@ -413,10 +387,11 @@ Ext.define('TolomeoExt.widgets.form.spatialselector.ToloSpatialSelectorMethod', 
 		} 
     },
 
-	/** api: method[getGeometryOperationCombo]
-     *  Obtain the geometry operation combo
-	 */
-	getGeometryOperationCombo : function() {
+	/**
+     * Genera la combo box Ext per la selezione dell'operazione geometrica.
+     * @return {Ext.form.ComboBox} La combo box di selezione dell'operazione geometrica.
+     */
+	getGeometryOperationCombo: function() {
 		var geometryOperationMethodCombo = Ext.create('Ext.form.ComboBox', {
 			ref : 'geometryOperation',
 			typeAhead : true,
@@ -449,7 +424,7 @@ Ext.define('TolomeoExt.widgets.form.spatialselector.ToloSpatialSelectorMethod', 
 				data : this.geometryOperations
 			}),
 			listeners : {
-				// SHOW /Hide distance units for DWITHIN
+				// Show/Hide distance units for DWITHIN
 				select : function(c, record, index) {
 					if(c.getValue() == OpenLayers.Filter.Spatial.DWITHIN){
 						this.distanceFieldset.show();
@@ -464,9 +439,10 @@ Ext.define('TolomeoExt.widgets.form.spatialselector.ToloSpatialSelectorMethod', 
 		return geometryOperationMethodCombo;
 	},
 
-	/** api: method[getDistanceFieldset]
-     *  Obtain the distance fieldset for DWITHIN
-	 */
+	/**
+     * Genera la combo box Ext per la selezione della distanza (specifica selezione geometrica vedi "DWITHIN").
+     * @return {Ext.form.FieldSet} il FieldSet per l'impostazione della distanza.
+     */
 	getDistanceFieldset: function(){
 		return {
 			xtype: 'fieldset',
@@ -490,4 +466,5 @@ Ext.define('TolomeoExt.widgets.form.spatialselector.ToloSpatialSelectorMethod', 
 			}]
 		}
 	}
+	
 });

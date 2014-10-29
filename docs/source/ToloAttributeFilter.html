@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>The source code</title>
+  <link href="../resources/prettify/prettify.css" type="text/css" rel="stylesheet" />
+  <script type="text/javascript" src="../resources/prettify/prettify.js"></script>
+  <style type="text/css">
+    .highlight { display: block; background-color: #ddd; }
+  </style>
+  <script type="text/javascript">
+    function highlight() {
+      document.getElementById(location.hash.replace(/#/, "")).className = "highlight";
+    }
+  </script>
+</head>
+<body onload="prettyPrint(); highlight();">
+  <pre class="prettyprint lang-js">
+Ext.ns(&#39;TolomeoExt.widgets&#39;);
+
+<span id='TolomeoExt-widgets-ToloAttributeFilter'>/**
+</span> * Crea il pannello contenitore per il filtro degli attributi.
+ *
+ * @author Tobia Di Pisa at tobia.dipisa@geo-solutions.it
+ */
+Ext.define(&#39;TolomeoExt.widgets.ToloAttributeFilter&#39;, {
+
+	extend: &#39;Ext.Panel&#39;,
+	
+<span id='TolomeoExt-widgets-ToloAttributeFilter-cfg-caseInsensitiveMatch'>	/**
+</span>     * @cfg {Boolean} caseInsensitiveMatch [caseInsensitiveMatch=&quot;false&quot;]
+	 * Il filtro di comparazione per i campi di tipo stringa deve essere case insensitive ?
+     */
+	caseInsensitiveMatch: false,
+    
+<span id='TolomeoExt-widgets-ToloAttributeFilter-cfg-autoCompleteCfg'>	/**
+</span>     * @cfg {Object} autoCompleteCfg [autoCompleteCfg=&quot;{}&quot;]
+	 * Stabilisce la configurazione da usare per la funzionalità di autocompletamento.
+	 *
+	 * @example
+	 * autoCompleteCfg: {
+	 *  	url: &#39;http://localhost:8080/tolomeobinj/UniqueValueServlet&#39;,
+	 *		pageSize: 10
+	 * }
+     */
+	autoCompleteCfg: {},
+	
+<span id='TolomeoExt-widgets-ToloAttributeFilter-cfg-autoComplete'>	/**
+</span>     * @cfg {Boolean} autoComplete [autoComplete=&quot;false&quot;]
+	 * Abilita la funzionalità di autocompletamento per i campi stringa.
+     */
+	autoComplete: false,
+
+<span id='TolomeoExt-widgets-ToloAttributeFilter-method-initComponent'>	/**
+</span>     * Inizializza un nuovo TolomeoExt.widgets.ToloAttributeFilter.
+     * @param {Object} [config] Un opzionale oggetto di configurazione per il componente ExtJs.
+     */
+	initComponent: function(config){				
+		this.border = 0;
+		
+		this.attributeFieldSet = Ext.create(&#39;Ext.form.FieldSet&#39;, {
+			title: &#39;Filtro Per Attributo&#39;,
+			//anchor: &quot;-1&quot;,
+			autoWidth: true,
+			autoHeight: true,
+			collapsed : true,
+			checkboxToggle: true
+		});
+		
+		this.items = [this.attributeFieldSet];
+        
+		this.callParent();
+    },
+    
+<span id='TolomeoExt-widgets-ToloAttributeFilter-method-addFilterBuilder'>	/**
+</span>     * Aggiunge alla form un nuovo nuovo costruttore per il filtro.
+     * @param {Array} records corrispondenti allo schema della FeatureType da gestire.
+     */
+    addFilterBuilder: function(results){
+    	var schema = results;
+    	
+		this.filterBuilder = new TolomeoExt.widgets.ToloFilterBuilder({
+			 caseInsensitiveMatch: this.caseInsensitiveMatch,
+			 autoCompleteCfg: this.autoCompleteCfg,
+			 autoComplete: this.autoComplete,
+			 TOLOMEOServer: this.TOLOMEOServer,
+			 TOLOMEOContext: this.TOLOMEOContext,
+			 attributes: Ext.create(&#39;Ext.data.Store&#39;, {
+	   		    fields: [{
+	   		    	name: &#39;name&#39;,
+	   		    	mapping: &#39;name&#39;
+	   		    },{
+	   		    	name: &#39;type&#39;, 
+	   		    	mapping: &#39;type&#39;
+	   		    },{
+	   		    	name: &#39;restriction&#39;, 
+	   		    	mapping: &#39;restriction&#39;
+	   		    },{
+	   		    	name: &#39;regex&#39;, 
+	   		    	mapping: &#39;regex&#39;
+	   		    },{
+	   		    	name: &#39;dbname&#39;, 
+	   		    	mapping: &#39;dbname&#39;
+	   		    },{
+	   		    	name: &#39;codTPN&#39;, 
+	   		    	mapping: &#39;codTPN&#39;
+	   		    }],
+	   		    data: schema
+	   		}),
+            allowBlank: true,
+            allowGroups: false
+        });
+		
+		this.attributeFieldSet.add(this.filterBuilder);
+		
+		this.enable();
+    }
+    
+});
+</pre>
+</body>
+</html>

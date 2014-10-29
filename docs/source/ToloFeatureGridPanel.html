@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>The source code</title>
+  <link href="../resources/prettify/prettify.css" type="text/css" rel="stylesheet" />
+  <script type="text/javascript" src="../resources/prettify/prettify.js"></script>
+  <style type="text/css">
+    .highlight { display: block; background-color: #ddd; }
+  </style>
+  <script type="text/javascript">
+    function highlight() {
+      document.getElementById(location.hash.replace(/#/, "")).className = "highlight";
+    }
+  </script>
+</head>
+<body onload="prettyPrint(); highlight();">
+  <pre class="prettyprint lang-js">
+<span id='TolomeoExt-ToloFeatureGridPanel'>/**
+</span> * Plugin per il display di feature vettoriali 
+ * in una griglia ExtJs.
+ *
+ * @author Tobia Di Pisa at tobia.dipisa@geo-solutions.it
+ */
+Ext.define(&#39;TolomeoExt.ToloFeatureGridPanel&#39;, {
+
+	extend: &#39;Ext.Panel&#39;,
+
+	alias: &quot;widget.tolomeo_featurecomponent&quot;,
+	
+<span id='TolomeoExt-ToloFeatureGridPanel-property-id'>	id: &quot;tolomeo_featuregrid&quot;,
+</span>
+<span id='TolomeoExt-ToloFeatureGridPanel-property-paramsJS'>	/**
+</span>	 * @property {Object} paramsJS
+	 * Configurazioni specifiche del file di preset.
+	 */
+	paramsJS: null,
+
+<span id='TolomeoExt-ToloFeatureGridPanel-cfg-TOLOMEOServer'>	/**
+</span>	 * @cfg {String} TOLOMEOServer
+	 * URL di base del contesto di Tolomeo.
+	 */
+	TOLOMEOServer: null,
+
+<span id='TolomeoExt-ToloFeatureGridPanel-cfg-TOLOMEOContext'>	/**
+</span>	 * @cfg {String} TOLOMEOContext
+	 * Contesto di Tolomeo.
+	 */
+	TOLOMEOContext: null,
+
+<span id='TolomeoExt-ToloFeatureGridPanel-property-schema'>	/**
+</span>	 * @property {Object} schema
+	 * Schema nome e tipo degli attributi usati per la configurazione delle griglia
+	 */
+	schema: null,
+
+<span id='TolomeoExt-ToloFeatureGridPanel-cfg-qbFeatureManager'>	/**
+</span>	 * @cfg {TolomeoExt.ToloFeatureManager} qbFeatureManager (required)
+	 * Gestore di richieste e operazioni che coinvolgono le features.
+	 */
+	qbFeatureManager: null,
+
+<span id='TolomeoExt-ToloFeatureGridPanel-property-qbEventManager'>	/**
+</span>	 * @property {TolomeoExt.events.ToloQueryBuilderEvtManager} qbEventManager
+	 * Gestore di eventi per il query builder.
+	 */
+	qbEventManager: null,
+		
+<span id='TolomeoExt-ToloFeatureGridPanel-property-featureLayer'>    /**
+</span>	 * @property {OpenLayers.Layer.Vector} featureLayer 
+	 * Layer vettoriale contenente le features corrispondenti alla ricerca.
+	 */
+	featureLayer: null,
+	
+<span id='TolomeoExt-ToloFeatureGridPanel-method-initComponent'>	/**
+</span>     * Inizializza un oggeto di tipo TolomeoExt.ToloFeatureGridPanel.
+     * @param {Object} [config] Un opzionale oggetto di configurazione per il componente ExtJs.
+     */
+	initComponent: function(config) {
+	
+		if(!this.featureLayer){
+			this.featureLayer = new OpenLayers.Layer.Vector(&quot;gridFeatureLayer&quot;, {
+				displayInLayerSwitcher: false
+			});
+		}
+		
+		if(!this.qbEventManager){
+			this.qbEventManager = Ext.create(&#39;TolomeoExt.events.ToloQueryBuilderEvtManager&#39;);
+		}
+		
+		this.qbFeatureManager.setProxy();
+		this.qbFeatureManager.setFeatureStore(Ext.create(&#39;Ext.data.JsonStore&#39;, {
+			fields: [],
+			pageSize: this.qbFeatureManager.maxFeatures,
+			proxy: this.qbFeatureManager.getProxy()
+		}));
+		
+		var exportMenu = Ext.create(&#39;Ext.button.Split&#39;, {
+            tooltip: &#39;Esporta Dati&#39;,
+            iconCls: &quot;pageexport&quot;,
+            menu : {
+                items: [{
+                    text: &#39;Esporta SHP&#39;,
+                    menu: {
+                        showSeparator: false,
+                        items: [{
+							text: &quot;Tutte le pagine&quot;,
+							handler: function(){
+								this.qbFeatureManager.fireEvent(&quot;export&quot;, {format: &quot;shp&quot;, items: &quot;all&quot;});
+							}, 
+							scope: this
+						}, {
+							text: &quot;Pagina corrente&quot;,
+							handler: function(){
+								this.qbFeatureManager.fireEvent(&quot;export&quot;, {format: &quot;shp&quot;, items: &quot;single&quot;});
+							}, 
+							scope: this
+						}]
+                    }
+                }, {
+                    text: &#39;Esporta Spatialite&#39;,
+                    menu: {
+                      showSeparator: false,
+                      items: [{
+							text: &quot;Tutte le pagine&quot;,
+							handler: function(){
+								this.qbFeatureManager.fireEvent(&quot;export&quot;, {format: &quot;spatialite&quot;, items: &quot;all&quot;});
+							}, 
+							scope: this
+					   }, {
+							text: &quot;Pagina corrente&quot;,
+							handler: function(){
+								this.qbFeatureManager.fireEvent(&quot;export&quot;, {format: &quot;spatialite&quot;, items: &quot;single&quot;});
+							}, 
+							scope: this
+					   }]
+                    }
+                }, {
+                    text: &#39;Esporta CSV&#39;,
+                    menu: {
+                      showSeparator: false,
+                      items: [{
+							text: &quot;Tutte le pagine&quot;,
+							handler: function(){
+								this.qbFeatureManager.fireEvent(&quot;export&quot;, {format: &quot;csv&quot;, items: &quot;all&quot;});
+							}, 
+							scope: this
+					   }, {
+							text: &quot;Pagina corrente&quot;,
+							handler: function(){
+								this.qbFeatureManager.fireEvent(&quot;export&quot;, {format: &quot;csv&quot;, items: &quot;single&quot;});
+							}, 
+							scope: this
+					   }]
+                    }
+                }]
+            }
+		});
+        
+		config = Ext.apply({
+			xtype: &quot;tolomeo_featuregrid&quot;,
+			autoScroll: true,
+			header: {
+				hidden: true
+			},
+			height: 250,
+			border: false,
+			title: this.title,
+			store: this.qbFeatureManager.featureStore,
+			colums: [],
+		    dockedItems: [{
+		        xtype: &#39;pagingtoolbar&#39;,
+		        store: this.qbFeatureManager.featureStore,   // same store GridPanel is using
+		        dock: &#39;bottom&#39;,
+		        displayInfo: true,
+		        disabled: true,
+		        items: [
+					{
+						tooltip: &quot;Visualizza su Mappa&quot;,
+						name: &quot;viewOnMapButton&quot;,
+						enableToggle: true,
+						iconCls: &quot;pageviewonmap&quot;,
+						handler: function(button){
+							this.updateLayerOnMap(this.qbFeatureManager.featureStore, button.pressed);
+						},
+						scope: this
+					},
+					{
+						tooltip: &quot;Zoom alla Pagina&quot;,
+						name: &quot;zoomOnPageButton&quot;,
+					    iconCls: &quot;pagezoomonmap&quot;,
+						handler: function(){
+							this.qbEventManager.fireEvent(&quot;zoomtomapextent&quot;, {dataExtent: this.pageBBOx});
+						}, 
+						scope: this
+					}, &quot;-&quot;, exportMenu
+		        ]
+		    }],
+		    listeners:{
+		    	scope: this,
+		    	zoomtofeatureextent: function(evt){
+		    		this.qbEventManager.fireEvent(&quot;zoomtomapextent&quot;, evt);
+		    	}
+		    }
+		}, config || {});
+
+		this.items = [config];
+		this.callParent();
+		
+		this.on(&quot;afterrender&quot;, function(){
+			this.waitMask = new Ext.LoadMask(this.id, {msg: &quot;Ricerca in corso...&quot;});
+		}, this);
+
+		// /////////////////////////////////////
+		// FeatureManager events&#39;s listeners
+		// /////////////////////////////////////
+		this.qbFeatureManager.on({
+			scope: this,
+			layerchange: function(results){
+				this.ownerCt.expand();
+				
+				var featureGrid = this.query(&quot;tolomeo_featuregrid&quot;)[0];
+				featureGrid.setStore(featureGrid.store, results);
+			},
+			loadfeatures: function(results, store){
+				this.waitMask.hide();
+				this.ownerCt.expand();
+			},
+			loadfeaturesfailure: function(){
+				this.waitMask.hide();
+			},
+			resetfeaturelayer: function(){
+				this.updateLayerOnMap(null, false);
+				
+				//
+        		// Disable the paging toolbar
+        		//
+        		this.query(&quot;pagingtoolbar&quot;)[0].disable();
+        		
+        		// Collapse the Grid
+        		this.ownerCt.collapse();
+			}
+		});
+		
+    	this.qbFeatureManager.featureStore.on(&quot;beforeload&quot;, function(store, operation, eOpts){
+    		if(operation){
+    			//this.qbFeatureManager.maxFeatures = operation.limit;
+    			//this.qbFeatureManager.startIndex = operation.start;
+    		}
+    	}, this);
+    	
+    	this.qbFeatureManager.featureStore.on(&quot;load&quot;, function(store, records, successful, eOpts){
+    		if(records.length &gt; 0){
+        		var proxy = store.getProxy();
+        		var reader = proxy.getReader();
+        		var metadata = reader.metaData;
+        		
+        		this.pageBBOx = OpenLayers.Geometry.fromWKT(metadata.pageBBOX).getBounds();
+        		
+        		//
+        		// Enable the paging toolbar
+        		//
+        		this.query(&quot;pagingtoolbar&quot;)[0].enable();
+        		
+        		//
+        		// Check if the vector layers on map should be updated
+        		//
+        		var button = this.query(&quot;[name=viewOnMapButton]&quot;)[0];
+        		if(button.pressed){
+        			this.updateLayerOnMap(store, button.pressed);
+        		}
+    		}else{
+                Ext.Msg.show({
+                    title: &quot;Informazioni sul Risultato&quot;,
+                    msg: &quot;La ricerca non ha prodotto risultati.&quot;,
+                    buttons: Ext.Msg.OK,
+                    icon: Ext.MessageBox.INFO
+                });
+    		}
+    	}, this);
+	},
+	
+<span id='TolomeoExt-ToloFeatureGridPanel-method-updateLayerOnMap'>	/**
+</span>     * Aggiorna il layer vettoriale sulla mappa aggiornando le features in esso contenute.
+     * @param {Ext.Data.Store} store Un oggetto che rappresenta lo store della griglia. 
+	 * @param {Boolean} pressed Indica se il relativo pulsante nella paging toolbar è premuto.
+     */
+	updateLayerOnMap: function(store, pressed){
+		if(pressed){
+			var store = this.qbFeatureManager.featureStore;
+			var count = store.getCount(); // the elements inside the current page
+			var records = store.getRange(0, count-1);
+			
+			// Create the OL features vector
+			var features = [];
+			for(var i=0; i&lt;records.length; i++){
+				var record = records[i];
+				
+				var attributes = {};
+				for(key in record.data){
+					if(key != &quot;geometry&quot;){
+						attributes[key] = record.data[key];
+					}
+				}
+				
+				var geometry = OpenLayers.Geometry.fromWKT(record.data.geometry);
+				var feature = new OpenLayers.Feature.Vector(geometry, attributes, null);
+				features.push(feature);						
+			}
+			
+			this.featureLayer.removeAllFeatures();
+			this.featureLayer.addFeatures(features);
+			this.qbEventManager.fireEvent(&quot;addlayer&quot;, this.featureLayer);
+		}else{
+			this.qbEventManager.fireEvent(&quot;removelayer&quot;, this.featureLayer);
+		}
+	}
+
+});
+
+</pre>
+</body>
+</html>

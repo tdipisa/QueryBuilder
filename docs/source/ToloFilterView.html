@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>The source code</title>
+  <link href="../resources/prettify/prettify.css" type="text/css" rel="stylesheet" />
+  <script type="text/javascript" src="../resources/prettify/prettify.js"></script>
+  <style type="text/css">
+    .highlight { display: block; background-color: #ddd; }
+  </style>
+  <script type="text/javascript">
+    function highlight() {
+      document.getElementById(location.hash.replace(/#/, "")).className = "highlight";
+    }
+  </script>
+</head>
+<body onload="prettyPrint(); highlight();">
+  <pre class="prettyprint lang-js">
+Ext.ns(&#39;TolomeoExt.widgets&#39;);
+
+<span id='TolomeoExt-widgets-ToloFilterView'>/**
+</span> * Widget per la visualizzazione del filtro impostato dall&#39;utente nella form.
+ * Le modifiche apportate dall&#39;untente al filtro sono formattate in formato stringa.
+ *
+ * @author Tobia Di Pisa at tobia.dipisa@geo-solutions.it
+ */
+Ext.define(&#39;TolomeoExt.widgets.ToloFilterView&#39;, {
+
+	extend: &#39;Ext.Panel&#39;,
+
+<span id='TolomeoExt-widgets-ToloFilterView-method-initComponent'>	/**
+</span>     * Inizializza un componente di tipo TolomeoExt.widgets.ToloFilterView.
+     * @param {Object} [config] Un opzionale oggetto di configurazione per il componente ExtJs.
+     */
+	initComponent: function(config){	
+		this.border = 0;
+			
+		this.filterTypeStore = Ext.create(&#39;Ext.data.Store&#39;, {
+		    fields: [{
+		    	name: &#39;type&#39;, 
+		    	mapping: &#39;type&#39;
+		    },{
+		    	name: &#39;name&#39;, 
+		    	mapping: &#39;name&#39;
+		    }],
+		    data: [
+	           {type: 1, name: &quot;OGC&quot;},
+	           {type: 2, name: &quot;CQL&quot;}
+		    ]
+		});
+
+		this.filterTypeCombo = Ext.create(&#39;Ext.form.ComboBox&#39;, {
+			typeAhead: true,
+			forceSelection: true, 
+			width: 200,
+			queryMode: &#39;local&#39;,
+			triggerAction: &#39;all&#39;,
+			selectOnFocus: true,
+			editable: false,
+			fieldLabel: &#39;Tipo Filtro&#39;,
+			name: &#39;name&#39;,
+			value: 1,
+			valueField: &#39;type&#39;,
+			displayField: &#39;name&#39;,
+			store: this.filterTypeStore,
+		    listeners:{
+		         scope: this,
+		         select: function(combo, records, eOpts){
+		        	 this.fireEvent(&quot;typeselected&quot;, records);
+		         }
+		    }
+		});	
+		
+		this.filterView = Ext.create(&#39;Ext.form.TextArea&#39;, {
+			flex: 1,
+	        xtype: &#39;textareafield&#39;,
+	        grow: true,
+	        name: &#39;filterView&#39;,
+	        fieldLabel: &#39;Filtro&#39;,
+	        anchor: &#39;100%&#39;,
+	        labelAlign: &quot;top&quot;,
+	        height: 100
+	    });
+		
+		var viewContainer = Ext.create(&#39;Ext.Panel&#39;, {
+			border: false,
+			height: 120,
+		    layout: {
+		        type: &#39;hbox&#39;,
+		        align: &#39;middle&#39;
+		    },
+		    items: [
+	            this.filterView,
+	            {
+			        xtype: &#39;button&#39;,
+			        iconCls: &quot;filterviewupdate&quot;,
+//			        style: &quot;padding-top: 20px;&quot;,
+			        tooltip: &quot;Aggiorna Filtro&quot;,
+			        handler: function(button){
+			        	var selectedRecord = this.filterTypeCombo.findRecordByValue(this.filterTypeCombo.getValue());
+			        	this.fireEvent(&quot;typeselected&quot;, selectedRecord);
+			        },
+			        scope: this
+			    }
+	        ]
+		});
+				
+		this.filterViewFieldSet = Ext.create(&#39;Ext.form.FieldSet&#39;,{
+			title: &#39;Vista Filtro&#39;,
+			anchor: &quot;-1&quot;,
+			autoWidth: true,
+			autoHeight: true,
+			collapsed : true,
+			checkboxToggle: true,
+			items:[this.filterTypeCombo, viewContainer]
+		});
+		
+		this.callParent();
+		
+		this.add(this.filterViewFieldSet);
+    },
+    
+<span id='TolomeoExt-widgets-ToloFilterView-method-setFilter'>	/**
+</span>     * Imposta all&#39;interno della TextArea definita la stringa corispondente il filtro selezionato.
+     * @param {String} filterString Il filtro in formato stringa.
+     */
+    setFilter: function(filterString){
+    	this.filterView.setRawValue(filterString);
+    },
+    
+<span id='TolomeoExt-widgets-ToloFilterView-method-resetView'>	/**
+</span>     * Reimposta la TextArea contenente il filro in formato stringa.
+     *
+     */
+    resetView: function(){
+    	this.filterView.setRawValue(&quot;&quot;);
+    	this.filterTypeCombo.reset();
+    }
+    
+});
+</pre>
+</body>
+</html>

@@ -1,0 +1,658 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>The source code</title>
+  <link href="../resources/prettify/prettify.css" type="text/css" rel="stylesheet" />
+  <script type="text/javascript" src="../resources/prettify/prettify.js"></script>
+  <style type="text/css">
+    .highlight { display: block; background-color: #ddd; }
+  </style>
+  <script type="text/javascript">
+    function highlight() {
+      document.getElementById(location.hash.replace(/#/, "")).className = "highlight";
+    }
+  </script>
+</head>
+<body onload="prettyPrint(); highlight();">
+  <pre class="prettyprint lang-js">
+Ext.ns(&#39;TolomeoExt.widgets.form&#39;);
+
+<span id='TolomeoExt-widgets-form-ToloFilterField'>/**
+</span> * Un campo Form che rappresenta un filtro di comparazione
+ *
+ * @author Tobia Di Pisa at tobia.dipisa@geo-solutions.it
+ */
+Ext.define(&#39;TolomeoExt.widgets.form.ToloFilterField&#39;, {
+	
+	extend: &#39;Ext.form.FieldContainer&#39;,
+	
+	alias: &#39;widget.tolomeo_tolofilterfield&#39;,
+	    
+<span id='TolomeoExt-widgets-form-ToloFilterField-cfg-lowerBoundaryTip'>	/**
+</span>     * @cfg {String} lowerBoundaryTip
+     * Tooltip per il campo inferiore di valorizzazione.
+     *
+     */
+    lowerBoundaryTip: &quot;Valore inferiore&quot;,
+     
+<span id='TolomeoExt-widgets-form-ToloFilterField-cfg-upperBoundaryTip'>	/**
+</span>     * @cfg {String} upperBoundaryTip
+     * Tooltip per il campo superiore di valorizzazione.
+     *
+     */
+    upperBoundaryTip: &quot;Valore superiore&quot;,
+    
+<span id='TolomeoExt-widgets-form-ToloFilterField-cfg-invalidRegExText'>	/**
+</span>     * @cfg {String} invalidRegExText
+     * Testo mostrato in caso di valore campo non valido.
+     *
+     */
+    invalidRegExText: &quot;Valore del campo non corretto&quot;,
+     
+<span id='TolomeoExt-widgets-form-ToloFilterField-cfg-caseInsensitiveMatch'>	/**
+</span>     * @cfg {Boolean} caseInsensitiveMatch [caseInsensitiveMatch=&quot;false&quot;]
+	 * Il filtro di comparazione per i campi di tipo stringa deve essere case insensitive ?
+     */
+    caseInsensitiveMatch: false,
+
+<span id='TolomeoExt-widgets-form-ToloFilterField-property-filter'>	/**
+</span>     * @property {OpenLayers.Filter} filter
+	 * Filtro non logico opzionale messo a disposizione nella configurazione iniziale. Per 
+	 * recuperare ili filtro usare il metodo &lt;getFilter&gt; invece di accedere direttamente questa 
+	 * proprietà.
+     */
+    filter: null,
+    
+<span id='TolomeoExt-widgets-form-ToloFilterField-property-attributes'>	/**
+</span>     * @property {Ext.DataStore} attributes
+	 * Rappresenta lo store configurato degli attributi del layer 
+	 * da usare all&#39;interno della combo box di filtraggio delle proprietà.
+     */
+    attributes: null,
+
+<span id='TolomeoExt-widgets-form-ToloFilterField-property-comparisonComboConfig'>	/**
+</span>     * @property {Object} comparisonComboConfig
+	 * Oggetto di configurazione per la combo box di comparazione.
+     */
+
+<span id='TolomeoExt-widgets-form-ToloFilterField-property-attributesComboConfig'>	/**
+</span>     * @property {Object} attributesComboConfig
+	 * Oggetto di configurazione per la combo box degli attributi.
+     */
+    attributesComboConfig: null,
+    
+<span id='TolomeoExt-widgets-form-ToloFilterField-cfg-autoComplete'>	/**
+</span>     * @cfg {Boolean} autoComplete [autoComplete=&quot;false&quot;]
+	 * Abilita la funzionalità di autocompletamento per i campi stringa.
+     */
+    autoComplete: false,
+    
+<span id='TolomeoExt-widgets-form-ToloFilterField-cfg-autoCompleteCfg'>	/**
+</span>     * @cfg {Object} autoCompleteCfg [autoCompleteCfg=&quot;{}&quot;]
+	 * Stabilisce la configurazione da usare per la funzionalità di autocompletamento.
+	 *
+	 * @example
+	 * autoCompleteCfg: {
+	 *  	url: &#39;http://localhost:8080/tolomeobinj/UniqueValueServlet&#39;,
+	 *		pageSize: 10
+	 * }
+     */
+    autoCompleteCfg: {},
+    
+<span id='TolomeoExt-widgets-form-ToloFilterField-cfg-pageSize'>	/**
+</span>     * @cfg {Integer} pageSize [autoComplete=&quot;5&quot;]
+	 * Configura il numero massimo predefinito di elementi per pagina per la 
+	 * combo box di autocompletamento.
+     */
+    pageSize: 5,
+    
+<span id='TolomeoExt-widgets-form-ToloFilterField-method-initComponent'>	/**
+</span>     * Inizializza un nuovo TolomeoExt.widgets.form.ToloFilterField.
+     * @param {Object} [config] Un opzionale oggetto di configurazione per il componente ExtJs.
+     */
+    initComponent: function(config) {
+        var me = this;
+        
+        this.combineErrors = false;
+        
+        if (!this.dateFormat) {
+            this.dateFormat = Ext.form.DateField.prototype.format;
+        }
+        if (!this.timeFormat) {
+            this.timeFormat = Ext.form.TimeField.prototype.format;
+        }        
+        if(!this.filter) {
+            this.filter = this.createDefaultFilter();
+        }
+        
+        var mode = &quot;local&quot;;
+        var attributes = this.attributes;
+        
+        this.createDefaultConfigs();
+        
+        var defAttributesComboConfig = {
+            xtype: &quot;combo&quot;,
+            store: attributes,
+            editable: false,
+            typeAhead: true,
+            forceSelection: true,
+            queryMode: mode,
+            triggerAction: &quot;all&quot;,
+            ref: &quot;property&quot;,
+            allowBlank: this.allowBlank,
+            displayField: &quot;name&quot;,
+            valueField: &quot;dbname&quot;,
+            value: this.filter.property,
+            listeners: {
+                select: function(combo, records) {
+                	var record = records;
+                	if(records instanceof Array){
+                		record = records[0];
+                	}
+                	
+                    this.filter.property = record.get(&quot;dbname&quot;);
+                    this.fieldType = record.get(&quot;type&quot;);
+                    this.fieldRegEx = record.get(&quot;regex&quot;);
+                    this.layerCodeTPN = record.get(&quot;codTPN&quot;);
+                    
+                    if(!this.comparisonCombo) {
+                        this.comparisonCombo = this.items.get(1);
+                    }
+                    
+                    this.comparisonCombo.enable();
+                    this.comparisonCombo.reset();
+                    
+                    if(!this.valueWidgets) {
+                        this.valueWidgets = this.items.get(2);
+                    }
+                    this.valueWidgets.removeAll();
+                    
+                    this.setFilterType(null);
+        
+                    this.doLayout();
+                    this.fireEvent(&quot;change&quot;, this.filter, this);
+                },
+                // workaround for select event not being fired when tab is hit
+                // after field was autocompleted with forceSelection
+                &quot;blur&quot;: function(combo) {
+                    var index = combo.store.findExact(&quot;dbname&quot;, combo.getValue());
+                    if (index != -1) {
+                        combo.fireEvent(&quot;select&quot;, combo, combo.store.getAt(index));
+                    } else if (combo.startValue != null) {
+                        combo.setValue(combo.startValue);
+                    }
+                },
+                scope: this
+            },
+            width: 140
+        };
+        
+        var defComparisonComboConfig = {
+            xtype: &quot;tolomeo_comparisoncombo&quot;,
+            ref: &quot;type&quot;,
+            disabled: true,
+            editable: false,
+            allowBlank: this.allowBlank,
+            value: this.filter.type,
+            listeners: {
+                select: function(combo, records) {        
+                	var record = records;
+                	if(records instanceof Array){
+                		record = records[0];
+                	}
+                    this.createValueWidgets(record.get(&quot;value&quot;));
+                },
+                expand: function(combo) {
+                    var store = combo.getStore();
+                    store.clearFilter();
+                    if(this.fieldType === &quot;java.util.Date&quot; || 
+                    		this.fieldType === &quot;java.util.Calendar&quot; || 
+                    		this.fieldType === &quot;&#39;java.math.BigInteger&quot; || 
+                    		this.fieldType === &quot;java.lang.Double&quot; || 
+                    		this.fieldType === &quot;java.math.BigDecimal&quot; || 
+                    		this.fieldType === &quot;java.lang.Integer&quot; || 
+                    		this.fieldType === &quot;java.lang.Long&quot; || 
+                    		this.fieldType === &quot;java.lang.Float&quot; || 
+                    		this.fieldType === &quot;java.lang.Short&quot;){
+                        store.filter([
+                          {
+                            fn   : function(record) {
+                                return (record.get(&#39;text&#39;) != &quot;like&quot;) || (record.get(&#39;text&#39;) != &quot;ilike&quot;);
+                            },
+                            scope: this
+                          }                      
+                        ]);
+                    }else if(this.fieldType === &quot;java.lang.Boolean&quot;){
+                        store.filter([
+                          {
+                            fn   : function(record) {
+                                return (record.get(&#39;name&#39;) == &quot;=&quot;);
+                            },
+                            scope: this
+                          }                      
+                        ]);
+                    }else if(this.fieldType === &quot;java.lang.String&quot;){
+                        store.filter([
+                          {
+                            fn   : function(record) {
+                            	return (record.get(&#39;text&#39;) != &quot;between&quot;);
+                            },
+                            scope: this
+                          }                      
+                        ]);
+                    }  
+                },
+                scope: this
+            }
+        };
+        
+        this.attributesComboConfig = this.attributesComboConfig || {};
+        Ext.applyIf(this.attributesComboConfig, defAttributesComboConfig);
+        
+        this.comparisonComboConfig = this.comparisonComboConfig || {};        
+        Ext.applyIf(this.comparisonComboConfig, defComparisonComboConfig);
+
+        this.items = [this.attributesComboConfig, this.comparisonComboConfig, {
+            xtype: &#39;container&#39;,
+            isFormField: true,
+            isValid: function() { return true; },
+            reset: function() {
+                 this.eachItem(function(a) {
+                    a.reset()
+                });
+            },
+            eachItem: function(b, a) {
+                if (this.items &amp;&amp; this.items.each) {
+                    this.items.each(b, a || this)
+                }
+            },
+            layout  : &#39;hbox&#39;,            
+            defaultMargins: &#39;0 3 0 0&#39;,
+            width: 160
+        }];
+        
+        this.addEvents(
+<span id='TolomeoExt-widgets-form-ToloFilterField-property-change'>            /**
+</span>             * Event: change
+             * Fires when the filter changes.
+             *
+             * Listener arguments:
+             * filter - {OpenLayers.Filter} This filter.
+             * this - {gxp.form.ToloFilterField} (TODO change sequence of event parameters)
+             */
+            &quot;change&quot;
+        ); 
+
+        this.callParent();
+    },
+    
+<span id='TolomeoExt-widgets-form-ToloFilterField-method-addAutocompleteStore'>	/**
+</span>     * Crea e aggiunge alla form una combo box di auto completamento.
+     * @param {Object} config Un opzionale oggetto di configurazione per il componente ExtJs.
+     * @return {Object} Ritorna l&#39;oggetto relativo alla combobox di auto completamento.
+     */
+    addAutocompleteStore: function(config) {
+        var uniqueValuesStore = new TolomeoExt.data.ToloUniqueValuesStore({
+            pageSize: this.autoCompleteCfg.pageSize || this.pageSize,
+			TOLOMEOServer: this.TOLOMEOServer,
+			TOLOMEOContext: this.TOLOMEOContext
+        });
+        
+        this.initUniqueValuesStore(uniqueValuesStore, this.autoCompleteCfg.url, this.layerCodeTPN, this.filter.property);
+        
+        return Ext.apply(Ext.apply({}, config), {store: uniqueValuesStore});
+    },
+    
+<span id='TolomeoExt-widgets-form-ToloFilterField-method-createValueWidget'>	/**
+</span>     * Se lo store degli attributi contiene anche una RegEx di validazione, applica 
+     * il validatore al componente Ext che rappresenta il valore.
+     * 
+     * @param {String} type Tipo dell&#39;attributo relativo per configurare il componente.
+     * @return {Object} Ritorna la configurazione relativa alla campo valore della proprietà.
+     */
+    createValueWidget: function(type) {
+        if(this.autoComplete &amp;&amp; this.fieldType === &#39;java.lang.String&#39;) {
+            return Ext.apply({}, this.addAutocompleteStore(this.autoCompleteDefault[type]));
+        } else {
+        	var config = {};
+        	if(this.fieldRegEx){
+        		var me = this;
+        		var valueTest = new RegExp(this.fieldRegEx);
+        		config = Ext.apply(config, {
+                    validator: function(value) {
+                        return valueTest.test(value) ? true : me.invalidRegExText;
+                    }
+        		});
+        	}
+        	
+            return Ext.apply(config, this.fieldDefault[type][this.fieldType]);
+        }
+    },
+    
+<span id='TolomeoExt-widgets-form-ToloFilterField-method-createValueWidgets'>	/**
+</span>     * Crea il componente Ext destinato a contenere il valore delle proprietà.
+     * @param {String} type Tipo dell&#39;attributo relativo per configurare il componente.
+     * 
+     */
+    createValueWidgets: function(type) {
+        if(type !== this.filter.type) {
+            this.setFilterType(type);
+            
+            if(!this.valueWidgets) {
+                this.valueWidgets = this.items.get(2);
+            }
+            this.valueWidgets.removeAll();
+            if (type === OpenLayers.Filter.Comparison.BETWEEN) {
+                this.valueWidgets.add(this.createValueWidget(&#39;lower&#39;));
+                this.valueWidgets.add(this.createValueWidget(&#39;upper&#39;));
+            } else {
+                this.valueWidgets.add(this.createValueWidget(&#39;single&#39;));
+            }
+            
+            this.doLayout();
+            
+            this.fireEvent(&quot;change&quot;, this.filter, this);
+        }
+    },
+    
+<span id='TolomeoExt-widgets-form-ToloFilterField-method-createDefaultConfigs'>	/**
+</span>     * Imposta la configurazione predefinita per la gestione dinamica dei componenti.
+     * 
+     */
+    createDefaultConfigs: function() {
+        this.defaultItemsProp = {
+            &#39;single&#39;: {
+                validateOnBlur: false,
+                ref: &quot;value&quot;,
+                grow: true,
+                growMin: 80,
+                width: 80,
+                anchor: &quot;100%&quot;,
+                allowBlank: this.allowBlank,
+                listeners: {
+                    &quot;change&quot;: function(field, value) {
+                        this.filter.value = value;
+                        this.fireEvent(&quot;change&quot;, this.filter, this);
+                    },
+                    &quot;blur&quot;: function(field){
+                    
+                    },
+                    scope: this
+                }   
+            },
+            
+           &#39;lower&#39;: {
+                grow: true,
+                growMin: 80,
+                width: 80,
+                ref: &quot;lowerBoundary&quot;,
+                anchor: &quot;100%&quot;,
+                allowBlank: this.allowBlank,
+                listeners: {
+                    &quot;change&quot;: function(field, value) {
+                        this.filter.lowerBoundary = value;
+                        this.fireEvent(&quot;change&quot;, this.filter, this);
+                    },
+                    &quot;autosize&quot;: function(field, width) {
+                        field.setWidth(width);
+                        field.ownerCt.doLayout();
+                    },
+                    scope: this
+                }
+            },
+            
+            &#39;upper&#39;: {
+                grow: true,
+                growMin: 80,
+                width: 80,
+                ref: &quot;upperBoundary&quot;,
+                allowBlank: this.allowBlank,
+                listeners: {
+                    &quot;change&quot;: function(field, value) {
+                        this.filter.upperBoundary = value;
+                        this.fireEvent(&quot;change&quot;, this.filter, this);
+                    },
+
+                    scope: this
+                }
+            }
+        };
+        
+        this.fieldDefault = {};
+        
+        for(key in this.defaultItemsProp) {
+            this.fieldDefault[key] = {
+                &#39;java.lang.String&#39;: Ext.applyIf({
+                    xtype: &quot;textfield&quot;
+                }, this.defaultItemsProp[key]),
+                &#39;java.lang.Double&#39;: Ext.applyIf({
+                    xtype: &quot;numberfield&quot;,
+                    allowDecimals:true,
+                    decimalPrecision: 10,
+                    width: 70
+                },this.defaultItemsProp[key]),
+                &#39;java.lang.Float&#39;: Ext.applyIf({
+                    xtype: &quot;numberfield&quot;,
+                    allowDecimals:true,
+                    decimalPrecision: 10,
+                    width: 70
+                },this.defaultItemsProp[key]),
+                &#39;java.math.BigDecimal&#39;: Ext.applyIf({
+                    xtype: &quot;numberfield&quot;,
+                    allowDecimals:true,
+                    decimalPrecision: 10,
+                    width: 70
+                },this.defaultItemsProp[key]),
+                &#39;java.math.BigInteger&#39;: Ext.applyIf({
+                    xtype: &quot;numberfield&quot;,
+                    allowDecimals:false,
+                    width: 70
+                },this.defaultItemsProp[key]),
+                &#39;java.lang.Integer&#39;: Ext.applyIf({
+                    xtype: &quot;numberfield&quot;,
+                    allowDecimals:false,
+                    width: 70
+                },this.defaultItemsProp[key]),
+                &#39;java.lang.Long&#39;: Ext.applyIf({
+                    xtype: &quot;numberfield&quot;,
+                    allowDecimals:false,
+                    width: 70
+                },this.defaultItemsProp[key]),
+                &#39;java.lang.Short&#39;: Ext.applyIf({
+                    xtype: &quot;numberfield&quot;,
+                    allowDecimals:false,
+                    width: 70
+                },this.defaultItemsProp[key]),
+                &#39;java.util.Date&#39;: Ext.applyIf({
+                    xtype: &quot;datefield&quot;,
+                    width: 80,
+                    allowBlank: false,
+                    format: this.dateFormat
+                },this.defaultItemsProp[key]),
+                &#39;java.util.Calendar&#39;: Ext.applyIf({
+                    xtype: &quot;datefield&quot;,
+                    width: 80,
+                    allowBlank: false,
+                    format: this.dateFormat
+                },this.defaultItemsProp[key])
+            };
+        }
+        
+        this.autoCompleteDefault = {        
+            &#39;single&#39;: Ext.applyIf({
+                xtype: &quot;tolomeo_uniquevaluescb&quot;,
+                queryMode: &quot;remote&quot;, // required as the combo store shouldn&#39;t be loaded before a field name is selected
+                pageSize: this.autoCompleteCfg.pageSize || this.pageSize,
+                typeAhead: false,
+                forceSelection: false,
+                remoteSort: true,
+                triggerAction: &quot;all&quot;,
+                allowBlank: this.allowBlank,
+                displayField: &quot;value&quot;,
+                valueField: &quot;value&quot;,
+                minChars: 1,
+//                resizable: true,
+                listeners: {
+                    select: function(combo, record) {
+                        this.filter.value = combo.getValue();
+                        this.fireEvent(&quot;change&quot;, this.filter);
+                    },
+                    blur: function(combo) {
+                        this.filter.value = combo.getValue();
+                        this.fireEvent(&quot;change&quot;, this.filter);
+                    },
+                    beforequery: function(evt) {
+                        evt.combo.store.baseParams.start = 0;
+                        evt.combo.store.baseParams.query =  evt.combo.getValue();
+                    },
+                    scope: this
+                },
+                matchFieldWidth: false,
+                width: 80,
+                anchor: &quot;100%&quot;
+            },this.defaultItemsProp[&#39;single&#39;]),
+            &#39;lower&#39;: Ext.applyIf({
+                xtype: &quot;tolomeo_uniquevaluescb&quot;,
+                queryMode: &quot;remote&quot;, // required as the combo store shouldn&#39;t be loaded before a field name is selected
+                pageSize: this.autoCompleteCfg.pageSize || this.pageSize,
+                typeAhead: false,
+                forceSelection: false,
+                remoteSort: true,
+                triggerAction: &quot;all&quot;,
+                allowBlank: this.allowBlank,
+                displayField: &quot;value&quot;,
+                valueField: &quot;value&quot;,
+                minChars: 1,
+//                resizable: true,
+                listeners: {
+                    select: function(combo, record) {
+                        this.filter.lowerBoundary = combo.getValue();
+                        this.fireEvent(&quot;change&quot;, this.filter);
+                    },
+                    blur: function(combo) {
+                        this.filter.lowerBoundary = combo.getValue();
+                        this.fireEvent(&quot;change&quot;, this.filter);
+                    },
+                    beforequery: function(evt) {
+                        evt.combo.store.baseParams.start = 0;
+                        evt.combo.store.baseParams.query =  evt.combo.getValue();
+                    },
+                    scope: this
+                },
+                matchFieldWidth: false,
+                width: 50,
+                anchor: &quot;100%&quot;
+            },this.defaultItemsProp[&#39;lower&#39;]),
+            &#39;upper&#39;: Ext.applyIf({
+                xtype: &quot;tolomeo_uniquevaluescb&quot;,
+                queryMode: &quot;remote&quot;, // required as the combo store shouldn&#39;t be loaded before a field name is selected
+                pageSize: this.autoCompleteCfg.pageSize || this.pageSize,
+                typeAhead: false,
+                forceSelection: false,
+                remoteSort: true,
+                triggerAction: &quot;all&quot;,
+                allowBlank: this.allowBlank,
+                displayField: &quot;value&quot;,
+                valueField: &quot;value&quot;,
+                minChars: 1,
+//                resizable: true,
+                listeners: {
+                    select: function(combo, record) {
+                        this.filter.upperBoundary = combo.getValue();
+                        this.fireEvent(&quot;change&quot;, this.filter);
+                    },
+                    blur: function(combo) {
+                        this.filter.upperBoundary = combo.getValue();
+                        this.fireEvent(&quot;change&quot;, this.filter);
+                    },
+                    beforequery: function(evt) {
+                        evt.combo.store.baseParams.start = 0;
+                        evt.combo.store.baseParams.query =  evt.combo.getValue();
+                    },
+                    scope: this
+                },
+                matchFieldWidth: false,
+                width: 50,
+                anchor: &quot;100%&quot;
+            },this.defaultItemsProp[&#39;upper&#39;])        
+        };      
+    },
+    
+<span id='TolomeoExt-widgets-form-ToloFilterField-method-createDefaultFilter'>	/**
+</span>     * Crea il filtro predefinito di comparazione. Questo metodo può essere sovrascritto per cambiare 
+     * il filtro predefinito.
+     * @return {OpenLayers.Filter} Di default ritorna un filtro di comparazione.
+     * 
+     */
+    createDefaultFilter: function() {
+        return new OpenLayers.Filter.Comparison({matchCase: !this.caseInsensitiveMatch});
+    },
+    
+<span id='TolomeoExt-widgets-form-ToloFilterField-method-initUniqueValuesStore'>	/**
+</span>     * Crea il componente Ext destinato a contenere il valore delle proprietà.
+     * @param {TolomeoExt.data.ToloUniqueValuesStore} store Store della combo box di auto completamento.
+     * @param {String} url Url del servizio remoto di auto completamento.
+     * @param {String} layerName codTPN da usare com eparametro della richiesta.
+     * @param {String} fieldName Nome della proprietà di cui ritornare i suggerimenti.
+     * 
+     */
+    initUniqueValuesStore: function(store, url, layerName, fieldName) {
+        var params = {
+            url: url,
+            inputs: {
+            	featureTypeName: layerName,
+                fieldName: fieldName
+            },
+            start: 0,
+            limit: this.autoCompleteCfg.pageSize || this.pageSize
+        };
+        
+        store.setParams(params);
+    },
+    
+<span id='TolomeoExt-widgets-form-ToloFilterField-method-setFilterType'>	/**
+</span>     * Imposta il tipo di filtro che si desidera.
+     * @param {String} type Tipo del filtro da impostare.
+     * 
+     */
+    setFilterType: function(type) {
+        this.filter.type = type;
+        
+        // Ilike (ignore case)
+        if(this.filter.type == &quot;ilike&quot;){
+            this.filter.type = OpenLayers.Filter.Comparison.LIKE;
+            this.filter.matchCase = false;
+        }else{
+            // default matches case. See OpenLayers.Filter.Comparison#matchCase
+            this.filter.matchCase = !this.caseInsensitiveMatch; //true;
+        }
+    },
+
+<span id='TolomeoExt-widgets-form-ToloFilterField-method-setFilter'>	/**
+</span>     * Cambia l&#39;oggetto del filtro con uno nuovo che si desidera utilizzare.
+     * @param {OpenLayers.Filter} filter Il filtro da impostare
+     * 
+     */
+    setFilter: function(filter) {
+        var previousType = this.filter.type;
+        this.filter = filter;
+        if (previousType !== filter.type) {
+            this.setFilterType(filter.type);
+        }
+        this[&#39;property&#39;].setValue(filter.property);
+        this[&#39;type&#39;].setValue(filter.type);
+        if (filter.type === OpenLayers.Filter.Comparison.BETWEEN) {
+            this[&#39;lowerBoundary&#39;].setValue(filter.lowerBoundary);
+            this[&#39;upperBoundary&#39;].setValue(filter.upperBoundary);
+        } else {
+            this[&#39;value&#39;].setValue(filter.value);
+        }
+        this.fireEvent(&quot;change&quot;, this.filter, this);
+    }
+
+});
+
+</pre>
+</body>
+</html>

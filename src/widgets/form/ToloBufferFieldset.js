@@ -1,10 +1,11 @@
 
 Ext.ns('TolomeoExt.widgets.form');
 
-/** api: constructor
- *  .. class:: ToloBufferFieldset(config)
- *   
- *    Buffer fieldset
+/**
+ * Widget per la gestione delle funzionalità relative alla modalità di selezione
+ * per Buffer 
+ *
+ * @author Tobia Di Pisa at tobia.dipisa@geo-solutions.it
  */
 Ext.define('TolomeoExt.widgets.form.ToloBufferFieldset', {
 	
@@ -12,69 +13,61 @@ Ext.define('TolomeoExt.widgets.form.ToloBufferFieldset', {
 	
     alias: "widget.tolomeo_bufferfieldset",
     
-    /** api: config[id]
-     *  ``String``
-     */
     id: "bufferFieldSet",
 	
-	/**
-     * Property: buttonIconCls
-     * {String} Icon of the selection Button
-     *     
+ 	/**
+     * @property {String} buttonIconCls.
+     * Classe di stile che rappresenta l'iconaper il pulsante di selezione.
      */
     buttonIconCls:'gx-buffer',
-	
-	/** api: config[bufferFieldLabel]
-     * ``String``
-     * Text for buffer number field label.
-     */ 	 
+
+    /**
+     * @cfg {String} bufferFieldLabel.
+     * Testo per la label del campo numerico del buffer.
+     */
 	bufferFieldLabel: "Raggio Buffer",
 	
-	/** api: config[bufferFieldSetTitle]
-     * ``String``
-     * Text for buffer field set title.
-     */ 
+    /**
+     * @cfg {String} bufferFieldSetTitle.
+     * Testo per il titolo del field set del buffer.
+     */
 	bufferFieldSetTitle: "Buffer",
 
-	/** api: config[coordinatePickerLabel]
-     * ``String``
-     * Text for coordinate picker label.
-     */ 
+    /**
+     * @cfg {String} coordinatePickerLabel.
+     * Testo per l'etichetta del coordinate picker.
+     */
 	coordinatePickerLabel: "Coordinate",
 	
-    /** api: config[draweBufferTooltip]
-     * ``String``
-     * Text for draw buffer button tooltip.
-     */ 
+    /**
+     * @cfg {String} draweBufferTooltip.
+     * Testo del il tooltip per il bottone di disegno del buffer.
+     */
 	draweBufferTooltip: "Disegna il Buffer",
 	
-    /** api: config[errorBufferText]
-     * ``String``
-     * Text for buffer error text.
-     */ 
-	map: null,
-	
-	/** api: config[outputSRS]
-     * ``String``
-     * coordinates output SRS.
-     */ 
+ 	/**
+     * @property {String} outputSRS.
+     * Codice EPSG per la trasformazione delle coordinate in 
+     * visualizzazione all'interno della form.
+     */
 	outputSRS: "EPSG:4326",
 	
-	/** api: config[selectLayerName]
-     * ``String``
-     * Text for buffer layer.
-     */ 
+    /**
+     * @cfg {String} decimalPrecision.
+     * Nome del layer vettoriale che rappresenta il buffer su mappa.
+     */
 	selectLayerName: "buffer-layer",
 	
-    /** api: config[displayInLayerSwitcher]
-     * ``String``
-     */ 
+    /**
+     * @cfg {Boolean} displayInLayerSwitcher.
+     * Usato per determinare se il layer vettoriale deve apparire all'interno del LayerSwitcher OpenLayers.
+     */
 	displayInLayerSwitcher: false,
 	
-	/** api: config[selectStyle]
-     * ``String``
-     * Default Style.
-     */ 
+    /**
+     * @property {Object} selectStyle.
+     * Configurazione del OpenLayer.Style usato come stile del punto su mappa.
+     */
 	selectStyle: {
 		strokeColor: "#FF0000",
 		handlerFillColor: "#FFFFFF",
@@ -83,34 +76,47 @@ Ext.define('TolomeoExt.widgets.form.ToloBufferFieldset', {
 		strokeWidth: 2
 	},
 	
-	/** api: config[minValue]
-     * ``String``
-     * Min buffer range.
-     */ 
+    /**
+     * @cfg {Integer} minValue.
+     * valore minimo per il raggio del buffer.
+     */
 	minValue: 1,
 
-	/** api: config[maxValue]
-     * ``String``
-     * Max buffer range.
-     */ 
+    /**
+     * @cfg {Integer} maxValue.
+     * valore massimo per il raggio del buffer.
+     */
 	maxValue: 1000,
 	
-   /** api: config[decimalPrecision]
-     * ``String``
-     * Default decimal precision for the buffer number.
-     */ 
+    /**
+     * @cfg {Integer} decimalPrecision.
+     * Massimo numero possibile di cifre decimali per i campi di coordinate.
+     */
 	decimalPrecision: 0,
 	
+    /**
+     * @cfg {Boolean} geodesic.
+     * 
+     */
 	geodesic: true,
 	
+    /**
+     * @cfg {Object} config.
+     * 
+     */
 	config: {
-	         bufferLayer: null
+	    /**
+	     * @cfg {OpenLayer.Layer.Vector} bufferLayer.
+	     * 
+	     */
+        bufferLayer: null
 	},
 	
-    /** 
-	 * private: method[initComponent]
+	/**
+     * Inizializza un nuovo TolomeoExt.widgets.form.ToloBufferFieldset.
+     * @param {Object} [config] Un opzionale oggetto di configurazione per il componente ExtJs.
      */
-    initComponent: function() {
+    initComponent: function(config) {
 		this.coordinatePicker = Ext.create('TolomeoExt.widgets.form.ToloCoordinatePicker', {
 			fieldLabel: this.coordinatePickerLabel,
 			latitudeEmptyText: this.latitudeEmptyText,
@@ -202,25 +208,44 @@ Ext.define('TolomeoExt.widgets.form.ToloBufferFieldset', {
 		this.callParent();
     },
 	
+	/**
+     * Reimposta il buffer tramite un evento gestito dal Manager.
+     * 
+     */
 	resetBuffer: function(){
 		if(this.qbEventManager){
 			this.qbEventManager.fireEvent("removelayer", this.selectLayerName);
 		}
 	},
 	
+	/**
+     * Controlla la validità del valore inserito.
+     * 
+     * @return {Boolean} Restituisce true se valido e false se non lo è.
+     */
 	isValid: function(){
 		return(this.coordinatePicker.isValid() &&
 			this.bufferField.isValid());
 	},
 	
+	/**
+     * Avvia la procedura di reimpostazione del buffer.
+     * 
+     */	
 	resetPointSelection: function(){
 		this.coordinatePicker.resetPoint();
         this.bufferField.reset();
 		this.resetBuffer();
 	},
 	
+	/**
+     * Imposta il layer OpenLayers per il buffer.
+     * @param {OpenLayers.Layer.Vector} bufferLayer Il layer vettoriale OpenLayers che rappresenta il buffer.
+     * @param {OpenLayers.Feature.Vector} bufferFeature La feature vettoriale da disegnare du mappa.
+     */
 	setBufferLayer: function(bufferLayer, bufferFeature){
 		this.bufferLayer = bufferLayer;
 		this.fireEvent('bufferadded', this, bufferFeature);
 	}
+	
 });

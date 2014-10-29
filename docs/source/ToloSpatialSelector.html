@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>The source code</title>
+  <link href="../resources/prettify/prettify.css" type="text/css" rel="stylesheet" />
+  <script type="text/javascript" src="../resources/prettify/prettify.js"></script>
+  <style type="text/css">
+    .highlight { display: block; background-color: #ddd; }
+  </style>
+  <script type="text/javascript">
+    function highlight() {
+      document.getElementById(location.hash.replace(/#/, "")).className = "highlight";
+    }
+  </script>
+</head>
+<body onload="prettyPrint(); highlight();">
+  <pre class="prettyprint lang-js">
+Ext.ns(&#39;TolomeoExt.widgets&#39;);
+
+<span id='TolomeoExt-widgets-ToloSpatialSelector'>/**
+</span> * Widget per la selezione della regione di interesse. Collega 
+ * le specifiche funzionalità di di selezione spaziale e le 
+ * relative caratteristiche in un&#39;unica form dinamica.
+ *
+ * @author Tobia Di Pisa at tobia.dipisa@geo-solutions.it
+ */
+Ext.define(&#39;TolomeoExt.widgets.ToloSpatialSelector&#39;, {
+
+	extend: &#39;Ext.Panel&#39;,
+	
+<span id='TolomeoExt-widgets-ToloSpatialSelector-cfg-spatialSelectorsConfig'>	/**
+</span>	 * @cfg {Object} spatialSelectorsConfig
+     * Configurazione dei metodi di selezione che si vuole rendere disponibili.
+     */
+    spatialSelectorsConfig:{
+<span id='TolomeoExt-widgets-ToloSpatialSelector-cfg-bbox'>	    /**
+</span>		 * @cfg {Object} bbox
+		 * Metodo di selezione per bounding box.
+		 */
+        bbox:{
+            xtype : &#39;widget.tolomeo_spatial_bbox_selector&#39;
+        },
+<span id='TolomeoExt-widgets-ToloSpatialSelector-cfg-buffer'>	    /**
+</span>		 * @cfg {Object} buffer
+		 * Metodo di selezione pre buffer.
+		 */
+        buffer:{
+            xtype : &#39;widget.tolomeo_spatial_buffer_selector&#39;
+        },
+<span id='TolomeoExt-widgets-ToloSpatialSelector-cfg-circle'>	    /**
+</span>		 * @cfg {Object} circle
+		 * Metodo di selezione per cerchio.
+		 */
+        circle:{
+            xtype : &#39;widget.tolomeo_spatial_circle_selector&#39;,
+            zoomToCurrentExtent : true
+        },
+<span id='TolomeoExt-widgets-ToloSpatialSelector-cfg-polygon'>	    /**
+</span>		 * @cfg {Object} polygon
+		 * Metodo di selezione per poligono.
+		 */
+        polygon:{
+            xtype : &#39;widget.tolomeo_spatial_polygon_selector&#39;
+        }
+    },
+
+<span id='TolomeoExt-widgets-ToloSpatialSelector-cfg-defaultSelectionMethod'>	/**
+</span>	 * @cfg {String} defaultSelectionMethod
+	 * (xtype) Metodo di selezione da usare come predefinito.
+	 */
+	defaultSelectionMethod: null,
+
+<span id='TolomeoExt-widgets-ToloSpatialSelector-cfg-filterGeometryName'>	/**
+</span>	 * @cfg {String} filterGeometryName
+	 * None del campo geometrico usato per la preparazione del filtro.
+	 */
+	filterGeometryName: &quot;the_geom&quot;,
+
+<span id='TolomeoExt-widgets-ToloSpatialSelector-cfg-titleText'>	/**
+</span>	 * @cfg {String} titleText
+	 * Titolo usato per il fielset di contenimento.
+	 */
+	titleText: &quot;Selettore Spaziale&quot;,
+
+<span id='TolomeoExt-widgets-ToloSpatialSelector-cfg-comboEmptyText'>	/**
+</span>	 * @cfg {String} comboEmptyText
+	 * Testo predefinito per la combo box del metodo di selezione spaziale.
+	 */
+	comboEmptyText : &quot;Seleziona un Metodo...&quot;,
+
+<span id='TolomeoExt-widgets-ToloSpatialSelector-cfg-comboSelectionMethodLabel'>	/**
+</span>	 * @cfg {String} comboSelectionMethodLabel
+	 * Testo per l&#39;etichetta della combo box di selezione del metodo.
+	 */
+	comboSelectionMethodLabel : &quot;Metodo di Selezione&quot;,
+	
+<span id='TolomeoExt-widgets-ToloSpatialSelector-property-qbEventManager'>	/**
+</span>	 * @property {TolomeoExt.events.ToloQueryBuilderEvtManager} qbEventManager
+	 * Gestore di eventi per il query builder.
+	 */
+	qbEventManager: null,
+    
+<span id='TolomeoExt-widgets-ToloSpatialSelector-method-constructor'>	/**
+</span>     * Crea un nuovo TolomeoExt.widgets.ToloSpatialSelector.
+     * @param {Object} [config] Un opzionale oggetto di configurazione per il componente ExtJs.
+     */
+	constructor : function(config) {
+		this.layoutConfig = {
+            xtype: &#39;container&#39;,
+            defaults:{
+                layout: &quot;form&quot;
+            }
+        };
+
+		// Apply config
+		Ext.apply(this, config);
+
+		// initialize spatial selectors
+		this.spatialSelectors = {};
+		this.spatialSelectorsItems = [];
+		if(this.spatialSelectorsConfig){
+			for (var key in this.spatialSelectorsConfig){
+				var spConfig = this.spatialSelectorsConfig[key];
+				var plugin = Ext.create(spConfig.xtype, {
+					qbEventManager: this.qbEventManager
+				});
+				this.spatialSelectors[key] = plugin;
+				var selectorItem = plugin.getSelectionMethodItem();
+				selectorItem.value = key;
+				this.spatialSelectorsItems.push(selectorItem);
+			}	
+		}
+		
+		this.callParent(arguments);
+	},
+
+<span id='TolomeoExt-widgets-ToloSpatialSelector-method-initComponent'>	/**
+</span>     * Inizializza un oggetto di tipo TolomeoExt.widgets.ToloSpatialSelector.
+     * @param {Object} [config] Un opzionale oggetto di configurazione per il componente ExtJs.
+     */
+	initComponent: function(config){	
+		this.border = 0;
+		
+    	// prepare layout
+    	var layout = {};
+		Ext.apply(layout, this.layoutConfig);
+		if(!layout.title){
+			layout.title = this.titleText;
+		}
+
+		var selectionMethodCombo = {
+			xtype : &#39;combo&#39;,
+			// anchor : &#39;100%&#39;,
+			id : this.id + &#39;_selectionMethod_id&#39;,
+			fieldLabel : this.comboSelectionMethodLabel,
+			typeAhead : true,
+			triggerAction : &#39;all&#39;,
+			lazyRender : false,
+			queryMode : &#39;local&#39;,
+			name : &#39;roiSelectionMethod&#39;,
+			forceSelection : true,
+			emptyText : this.comboEmptyText,
+			allowBlank : false,
+			//autoLoad : true,
+			displayField : &#39;label&#39;,
+			valueField : &#39;value&#39;,
+			editable : false,
+			readOnly : false,
+			store : Ext.create(&#39;Ext.data.JsonStore&#39;, {
+				autoLoad : true,
+				fields : [{
+					name : &#39;name&#39;,
+					dataIndex : &#39;name&#39;
+				}, {
+					name : &#39;label&#39;,
+					dataIndex : &#39;label&#39;
+				}, {
+					name : &#39;value&#39;,
+					dataIndex : &#39;value&#39;
+				}],
+				data : this.spatialSelectorsItems
+			}),
+			listeners : {
+				select : function(c, record, index) {
+					this._updating = true;
+					this.reset();
+					this._updating = false;
+					var method = this.spatialSelectors[c.getValue()];//record.json.method;
+					method.activate();
+					this.activeMethod = method;
+                    setTimeout(function(){
+                        //TODO: ??? c.refOwner.doLayout();
+                    }, 500);
+				},
+				scope : this
+			}
+		};
+
+		var selItems = [];
+		selItems.push(selectionMethodCombo);
+		
+		if(this.spatialSelectors){
+	    	for (var key in this.spatialSelectors){
+	    		var output = this.spatialSelectors[key];
+	    		if(output){
+					selItems.push(output);
+	    		}
+	    	}
+	    }
+
+		this.spatialFieldSet = Ext.create(&#39;Ext.form.FieldSet&#39;, {
+			collapsed : true,
+			checkboxToggle: true,
+			title: this.comboSelectionMethodLabel,
+			items: selItems
+		});
+		
+	    // initialize layout
+		layout.items = [];		
+		layout.items.push(this.spatialFieldSet);
+
+    	this.items = [layout];
+    	
+    	this.callParent();    	
+    	
+    	//
+    	// Update the current map extent
+    	//
+    	this.qbEventManager.on(&quot;mapmoved&quot;, function(extent){
+    		this.currentMapExtent = extent;
+    	}, this);
+    },
+ 
+<span id='TolomeoExt-widgets-ToloSpatialSelector-method-reset'>	/**
+</span>     * Reimposta lo stato del selettore spaziale.
+	 *
+     */
+    reset: function(){
+    	if(this.spatialSelectors){
+	    	for (var key in this.spatialSelectors){
+	    		this.spatialSelectors[key].deactivate();
+	    		this.activeMethod = null;
+	    	}
+	    	if(!this._updating 
+	    		&amp;&amp; this.defaultSelectionMethod
+	    		&amp;&amp; this.spatialSelectors[this.defaultSelectionMethod]){
+	    		this.spatialSelectors[this.defaultSelectionMethod].activate();
+				this.activeMethod = this.spatialSelectors[this.defaultSelectionMethod];
+	    	}   	
+    	}
+    },
+
+<span id='TolomeoExt-widgets-ToloSpatialSelector-method-getQueryFilter'>	/**
+</span>     * Genera un filtro per il metodo di selezione scelto.
+     * @param {Boolean} currentExtent Stabilisce se ritornare un filtro semplice basato sull&#39;estensione corente della mappa.
+     */
+	getQueryFilter: function(currentExtent){
+		var currentExtentFilter = new OpenLayers.Filter.Spatial({
+			type: OpenLayers.Filter.Spatial.BBOX,
+			property: this.filterGeometryName,
+			value: this.currentMapExtent 
+		});
+		
+		if(currentExtent === true){
+			return currentExtentFilter;
+		}
+		
+		if(this.activeMethod &amp;&amp; this.activeMethod.currentGeometry){
+			this.activeMethod.filterGeometryName = this.filterGeometryName;
+			return this.activeMethod.getQueryFilter();
+		}else{
+			return currentExtentFilter;
+		}
+	},
+
+<span id='TolomeoExt-widgets-ToloSpatialSelector-method-getGeometry'>	/**
+</span>     * Restituisce la geometria selezionata.
+     * 
+     */
+	getGeometry: function(){
+		if(this.activeMethod){
+			return this.activeMethod.currentGeometry;
+		}else{
+			return null;
+		}
+	},
+	
+<span id='TolomeoExt-widgets-ToloSpatialSelector-method-getSelectionMethodCombo'>	/**
+</span>     * Restituisce l&#39;elemento ext relativo alla combo box del metodo di selezione spaziale.
+     * 
+     */
+	getSelectionMethodCombo: function(){		
+    	var selectionMethodCombo = this.queryById(this.id + &#39;_selectionMethod_id&#39;);
+    	return  selectionMethodCombo;
+	}
+	
+});
+</pre>
+</body>
+</html>

@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>The source code</title>
+  <link href="../resources/prettify/prettify.css" type="text/css" rel="stylesheet" />
+  <script type="text/javascript" src="../resources/prettify/prettify.js"></script>
+  <style type="text/css">
+    .highlight { display: block; background-color: #ddd; }
+  </style>
+  <script type="text/javascript">
+    function highlight() {
+      document.getElementById(location.hash.replace(/#/, "")).className = "highlight";
+    }
+  </script>
+</head>
+<body onload="prettyPrint(); highlight();">
+  <pre class="prettyprint lang-js">
+Ext.ns(&#39;TolomeoExt.data&#39;);
+
+<span id='TolomeoExt-data-ToloUniqueValuesStore'>/**
+</span> * Un data store da usare come tool di autocompletamento paginato.
+ * Non sono richiesti parametri di configurazione per il costruttore, il proxy
+ * si appoggia alle canoniche funzionalità di TolomeoExt
+ *
+ * @author Tobia Di Pisa at tobia.dipisa@geo-solutions.it
+ */
+Ext.define(&#39;TolomeoExt.data.ToloUniqueValuesStore&#39;, {
+	
+	extend: &#39;Ext.data.Store&#39;,
+	
+	alias: &#39;widget.tolomeo_uniquestore&#39;,
+
+<span id='TolomeoExt-data-ToloUniqueValuesStore-method-constructor'>	/**
+</span>     * Crea un nuovo TolomeoExt.data.ToloUniqueValuesStore.
+     * @param {Object} [config] Un opzionale oggetto di configurazione per il componente ExtJs.
+     */
+	constructor: function(config) {
+        config.baseParams = Ext.apply(config.baseParams || {}, {});
+
+        this.TOLOMEOServer =  config.TOLOMEOServer;
+        this.TOLOMEOContext = config.TOLOMEOContext;
+        
+		var proxy = TolomeoExt.ToloCrossAjaxUtil.getProxy(null, this.TOLOMEOServer + this.TOLOMEOContext + &#39;/UniqueValueServlet&#39;);
+		var reader = proxy.getReader();
+		reader.root = &quot;rows&quot;;
+		reader.totalProperty = &quot;total&quot;;
+		
+        TolomeoExt.data.ToloUniqueValuesStore.superclass.constructor.call(this,
+            Ext.applyIf(config, {
+//                sortInfo: {
+//                    field: &#39;value&#39;,
+//                    direction: &#39;ASC&#39;
+//                },
+                proxy: proxy
+            })
+        );
+    },
+	 
+<span id='TolomeoExt-data-ToloUniqueValuesStore-method-setParams'>	/**
+</span>     * Imposta i parametri da passare al proxy per il caricamento dei dati.
+     * @param {Object} params Un opzionale oggetto di configurazione per il componente ExtJs.
+     */
+    setParams: function(params) {
+        this.baseParams = Ext.apply(this.baseParams, params);
+    },
+    
+<span id='TolomeoExt-data-ToloUniqueValuesStore-method-load'>    /**
+</span>     * Carica i dati nello store.
+     * @param {Object} options Oggetto contenente le opzioni di caricamento dei dati.
+     */
+    load: function(options) {
+    	var params = options.params;
+        if (!params.inputs) {
+            return;
+        }
+        
+        var filter;
+        if(params.query) {
+            var queryValue = params.query;
+            if(queryValue.indexOf(&#39;*&#39;) === -1) {
+                queryValue = &#39;*&#39; + queryValue + &#39;*&#39;;
+            }
+            
+            filter = new OpenLayers.Filter.Comparison({ 
+                type: OpenLayers.Filter.Comparison.LIKE, 
+                property: params.inputs.fieldName, 
+                value: queryValue,
+                matchCase: false                
+            });
+            
+            var node = new OpenLayers.Format.Filter({version: &quot;1.1.0&quot;}).write(filter);
+            filter = new OpenLayers.Format.XML().write(node);
+        }
+        
+		var fparams = {
+			filter: filter,
+			codTPN: params.inputs.featureTypeName,
+			format: &quot;ext&quot;,
+			ogcFilterVersion: &quot;1.1.0&quot;,
+			attributeName: params.inputs.fieldName
+		};
+		
+		this.proxy.extraParams = this.proxy.extraParams || {};
+		this.proxy.startParam = &quot;startIndex&quot;;
+		this.proxy.limitParam = &quot;maxFeatures&quot;;
+		this.proxy.actionMethods = &quot;POST&quot;;
+		
+    	Ext.apply(this.proxy.extraParams, fparams); 
+		
+        if (options) {
+            this.baseParams = Ext.apply(this.baseParams, options.params);
+        }
+        
+        this.superclass.load.call(this, options);
+    } 
+    
+});
+</pre>
+</body>
+</html>
