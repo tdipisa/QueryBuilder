@@ -88,7 +88,7 @@ Ext.define('TolomeoExt.widgets.form.spatialselector.ToloSpatialSelectorMethod', 
 	},
 	
  	/**
-     * @property {Boolean} zoomToCurrentExtent [addGeometryOperation="true"]
+     * @property {Boolean} addGeometryOperation [addGeometryOperation="true"]
      * Flag per stabilire se aggiungere o meno il tool di selezione dell'operazione geometrica per la selezione spaziale scelta.
      */
 	addGeometryOperation: true,

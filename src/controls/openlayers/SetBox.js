@@ -6,7 +6,7 @@
 /**
  * Controllo OpenLayers per la selezione del Box.
  * 
- * @extents {OpenLayers.Control}
+ * @extends {OpenLayers.Control}
  * @author Tobia Di Pisa at tobia.dipisa@geo-solutions.it
  */
 OpenLayers.Control.SetBox = OpenLayers.Class(OpenLayers.Control, {

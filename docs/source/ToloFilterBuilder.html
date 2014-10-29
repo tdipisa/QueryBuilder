@@ -29,14 +29,14 @@ Ext.define(&#39;TolomeoExt.widgets.ToloFilterBuilder&#39;, {
 
 	alias: &#39;widget.tolomeo_tolofilterbuilder&#39;,
 	
-<span id='TolomeoExt-widgets-ToloFilterBuilder-cfg-spatialSelectorsConfig'>	/**
-</span>     * @cfg {Array} spatialSelectorsConfig [builderTypeNames=``[&quot;ognuno&quot;, &quot;tutti&quot;, &quot;nessuno&quot;, &quot;non tutti&quot;]``]
+<span id='TolomeoExt-widgets-ToloFilterBuilder-cfg-builderTypeNames'>	/**
+</span>     * @cfg {Array} builderTypeNames [builderTypeNames=``[&quot;ognuno&quot;, &quot;tutti&quot;, &quot;nessuno&quot;, &quot;non tutti&quot;]``]
 	 * La lista di etichette che corrispondono ai tipi di costanti del costruttore.
      */
 	builderTypeNames: [&quot;ognuno&quot;, &quot;tutti&quot;, &quot;nessuno&quot;, &quot;non tutti&quot;],
     
-<span id='TolomeoExt-widgets-ToloFilterBuilder-cfg-spatialSelectorsConfig'>	/**
-</span>     * @cfg {Array} spatialSelectorsConfig 
+<span id='TolomeoExt-widgets-ToloFilterBuilder-cfg-allowedBuilderTypes'>	/**
+</span>     * @cfg {Array} allowedBuilderTypes 
 	 * La lista delle costanti dei tipi di costruttore. Valori possibili sono ``[ANY_OF, ALL_OF, NONE_OF]``
      */
     allowedBuilderTypes: null,
@@ -281,7 +281,7 @@ Ext.define(&#39;TolomeoExt.widgets.ToloFilterBuilder&#39;, {
 </span>     * Crea un filtro che corrisponde al modello del corrente costruttore.
 	 * Questo filtro non rispetterà necessariamente e specifiche di Filter Encoding.
 	 * In particolare, i filtri che rappresentano operatori logici binary possono non avere due filtri figlio.
-	 * Usare il metodo &lt;getFilter&gt; per ottenere un filtro che rispetta le specifiche di Filter Encoding
+	 * Usare il metodo &#39;&#39;getFilter&#39;&#39; per ottenere un filtro che rispetta le specifiche di Filter Encoding
      * @param {OpenLayers.Filter} filter Il filtro corrente.
 	 * @return {OpenLayers.Filter} Un filtro che rispetta il modello usato da questo costruttore.
      */

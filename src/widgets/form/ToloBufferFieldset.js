@@ -53,7 +53,7 @@ Ext.define('TolomeoExt.widgets.form.ToloBufferFieldset', {
 	outputSRS: "EPSG:4326",
 	
     /**
-     * @cfg {String} decimalPrecision.
+     * @cfg {String} selectLayerName.
      * Nome del layer vettoriale che rappresenta il buffer su mappa.
      */
 	selectLayerName: "buffer-layer",

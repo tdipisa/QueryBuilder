@@ -42,7 +42,7 @@ Ext.define('TolomeoExt.widgets.form.ToloFilterField', {
 	/**
      * @property {OpenLayers.Filter} filter
 	 * Filtro non logico opzionale messo a disposizione nella configurazione iniziale. Per 
-	 * recuperare ili filtro usare il metodo <getFilter> invece di accedere direttamente questa 
+	 * recuperare il filtro usare il metodo ''getFilter'' invece di accedere direttamente questa 
 	 * proprietà.
      */
     filter: null,
@@ -256,14 +256,10 @@ Ext.define('TolomeoExt.widgets.form.ToloFilterField', {
         }];
         
         this.addEvents(
-            /**
-             * Event: change
-             * Fires when the filter changes.
-             *
-             * Listener arguments:
-             * filter - {OpenLayers.Filter} This filter.
-             * this - {gxp.form.ToloFilterField} (TODO change sequence of event parameters)
-             */
+			/**
+			 * @event 
+			 * Lanciato a seguito di un cambiamento del valore del componente.
+			 */
             "change"
         ); 
 
