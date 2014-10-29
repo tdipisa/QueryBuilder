@@ -62,8 +62,8 @@
  		<script type="text/javascript" src="/tolomeobinj/js/tolomeoExt/query_builder/src/ToloQueryBuilderExt.js" charset="utf-8" ></script>
  		<script type="text/javascript" src="/tolomeobinj/js/tolomeoExt/query_builder/src/ToloFeatureGridPanel.js" charset="utf-8" ></script>
 		
-		<!-- Caricamento Stores per Query Builder -->
-		<script type="text/JavaScript" src="/tolomeobinj/js/tolomeoExt/query_builder/src/data/stores.js" charset="utf-8"></script>
+		<!-- Caricamento Stores per Query Builder 
+		<script type="text/JavaScript" src="/tolomeobinj/js/tolomeoExt/query_builder/src/data/stores.js" charset="utf-8"></script>-->
 		
 		<!-- Caricamento preset -->
 		<script type="text/JavaScript" src="/tolomeobinj/ToloExtParamsJSServlet?paramPreset=QueryBuilder" charset="utf-8"></script>
