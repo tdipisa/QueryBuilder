@@ -116,9 +116,14 @@ Ext.define(&#39;TolomeoExt.events.ToloQueryBuilderEvtManager&#39;, {
 				&quot;mapmoved&quot;,
 <span id='TolomeoExt-events-ToloQueryBuilderEvtManager-event-addvectorlayer'>				/**
 </span>				 * @event
-				 * Lanciato per l&#39;agginte di un layer vetoriale.
+				 * Lanciato per l&#39;agginta di un layer vetoriale.
 				 */
-				&quot;addvectorlayer&quot;
+				&quot;addvectorlayer&quot;,
+<span id='TolomeoExt-events-ToloQueryBuilderEvtManager-event-setmapunitsvaluefield'>				/**
+</span>				 * @event
+				 * Lanciato per impostare le unità della mappa nei tool che lo richiedono.
+				 */
+				&quot;setmapunitsvaluefield&quot;
 		);	
 		
 		this.on(&quot;afterboxlayout&quot;, this.onAfterBoxLayout);

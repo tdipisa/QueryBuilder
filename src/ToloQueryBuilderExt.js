@@ -345,7 +345,7 @@ Ext.define('TolomeoExt.ToloQueryBuilderExt', {
             var node = new OpenLayers.Format.Filter({version: this.ogcFilterVersion}).write(filter);
             serialized_filter = new OpenLayers.Format.XML().write(node);
         }else{
-        	serialized_filter = filter.toString();
+        	serialized_filter = new OpenLayers.Format.CQL().write(filter);
         }
         
         return serialized_filter;

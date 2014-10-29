@@ -98,7 +98,7 @@ Ext.define('TolomeoExt.widgets.form.ToloBufferFieldset', {
      * @cfg {Boolean} geodesic.
      * 
      */
-	geodesic: true,
+	geodesic: false,
 	
     /**
      * @cfg {Object} config.

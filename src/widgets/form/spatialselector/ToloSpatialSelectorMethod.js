@@ -129,10 +129,6 @@ Ext.define('TolomeoExt.widgets.form.spatialselector.ToloSpatialSelectorMethod', 
 		label: "BBOX",
 		value: OpenLayers.Filter.Spatial.BBOX
 	},{
-		name: "CONTAINS",
-		label: "CONTAINS",
-		value: OpenLayers.Filter.Spatial.CONTAINS
-	},{
 		name: "DWITHIN",
 		label: "DWITHIN",
 		value: OpenLayers.Filter.Spatial.DWITHIN
@@ -245,10 +241,6 @@ Ext.define('TolomeoExt.widgets.form.spatialselector.ToloSpatialSelectorMethod', 
         	scope.distanceFieldset = scope.query('fieldset[ref=distanceFieldset]')[0];
         	scope.distance = scope.query('numberfield[ref="distance"]')[0];
         	scope.dunits = scope.query('textfield[ref=dunits]')[0];
-//TODO: fix this     	
-//			if(scope.qbEventManager){
-//				scope.qbEventManager.fireEvent("setmapunitsvaluefield", scope.dunits);
-//			}
         });
     },
 
@@ -463,7 +455,16 @@ Ext.define('TolomeoExt.widgets.form.spatialselector.ToloSpatialSelectorMethod', 
 				ref: "distance",
 				labelStyle: 'width: 130px;',
 				allowBlank: false
-			}]
+			}],
+			listeners:{
+				scope: this,
+			    afterlayout: function(fieldset, options){
+					var dunits = this.query('textfield[ref=dunits]')[0];
+					if(this.qbEventManager){
+						this.qbEventManager.fireEvent("setmapunitsvaluefield", this.dunits);
+					}
+				}
+			}
 		}
 	}
 	

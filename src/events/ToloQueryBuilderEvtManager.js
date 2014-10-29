@@ -99,9 +99,14 @@ Ext.define('TolomeoExt.events.ToloQueryBuilderEvtManager', {
 				"mapmoved",
 				/**
 				 * @event
-				 * Lanciato per l'agginte di un layer vetoriale.
+				 * Lanciato per l'agginta di un layer vetoriale.
 				 */
-				"addvectorlayer"
+				"addvectorlayer",
+				/**
+				 * @event
+				 * Lanciato per impostare le unità della mappa nei tool che lo richiedono.
+				 */
+				"setmapunitsvaluefield"
 		);	
 		
 		this.on("afterboxlayout", this.onAfterBoxLayout);

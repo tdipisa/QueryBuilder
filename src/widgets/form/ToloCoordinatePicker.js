@@ -80,7 +80,7 @@ Ext.define('TolomeoExt.widgets.form.ToloCoordinatePicker', {
      * @cfg {Integer} decimalPrecision.
      * Massimo numero possibile di cifre decimali per i campi di coordinate.
      */
-    decimalPrecision:10,
+    decimalPrecision: 10,
     
     /**
      * @cfg {String} selectLayerName.
@@ -119,7 +119,7 @@ Ext.define('TolomeoExt.widgets.form.ToloCoordinatePicker', {
                     ref:'longitudeField',
                     decimalPrecision:this.decimalPrecision,
                     flex      : 1,
-                    allowBlank:false,
+                    allowBlank: false,
                     name: 'lon',
 					listeners: {
 						scope:this,
@@ -129,10 +129,10 @@ Ext.define('TolomeoExt.widgets.form.ToloCoordinatePicker', {
                     xtype: 'button',
 					ref:'clickToggle',
                     tooltip: this.pointSelectionButtionTip,
-                    iconCls:this.buttonIconCls,
+                    iconCls: this.buttonIconCls,
                     enableToggle: true,
                     toggleGroup: this.toggleGroup,
-                    width:20,
+                    width: 20,
                     listeners: {
                       scope: this, 
                       toggle: function(button, pressed) {  

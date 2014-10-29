@@ -50,7 +50,7 @@ Ext.define(&#39;TolomeoExt.ToloQueryBuilderExt&#39;, {
 </span>	 * @cfg {String} filterFormat [filterFormat=&quot;OGC&quot;]
 	 * Formato dei filtro. Possibili valori: &quot;OGC&quot;, &quot;CQL&quot;.
 	 */
-	filterFormat: &quot;OGC&quot;,
+	filterFormat: &quot;CQL&quot;,
 	
 <span id='TolomeoExt-ToloQueryBuilderExt-cfg-ogcFilterVersion'>	/**
 </span>	 * @cfg {String} ogcFilterVersion [ogcFilterVersion=&quot;1.1.0&quot;]
@@ -362,7 +362,7 @@ Ext.define(&#39;TolomeoExt.ToloQueryBuilderExt&#39;, {
             var node = new OpenLayers.Format.Filter({version: this.ogcFilterVersion}).write(filter);
             serialized_filter = new OpenLayers.Format.XML().write(node);
         }else{
-        	serialized_filter = filter.toString();
+        	serialized_filter = new OpenLayers.Format.CQL().write(filter);
         }
         
         return serialized_filter;

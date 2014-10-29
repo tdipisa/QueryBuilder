@@ -250,7 +250,7 @@ Ext.define(&#39;TolomeoExt.ToloFeatureGridPanel&#39;, {
     	}, this);
     	
     	this.qbFeatureManager.featureStore.on(&quot;load&quot;, function(store, records, successful, eOpts){
-    		if(records.length &gt; 0){
+    		if(records &amp;&amp; records.length &gt; 0){
         		var proxy = store.getProxy();
         		var reader = proxy.getReader();
         		var metadata = reader.metaData;

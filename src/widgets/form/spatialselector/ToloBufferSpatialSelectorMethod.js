@@ -58,6 +58,12 @@ Ext.define('TolomeoExt.widgets.form.spatialselector.ToloBufferSpatialSelectorMet
 		"decimalPrecision": 2,
 		"distanceUnits": "m"
 	},
+	
+    /**
+     * @cfg {Boolean} geodesic.
+     * 
+     */
+	geodesic: false,
 
 	/**
      * Inizializza un nuovo TolomeoExt.widgets.form.spatialselector.ToloBufferSpatialSelectorMethod.
@@ -75,7 +81,7 @@ Ext.define('TolomeoExt.widgets.form.spatialselector.ToloBufferSpatialSelectorMet
 		    decimalPrecision: this.bufferOptions.decimalPrecision,
 			outputSRS: null,
 			selectStyle: this.selectStyle,
-			geodesic: this.geodesic || true,
+			geodesic: this.geodesic != undefined ?  this.geodesic : false,
 			latitudeEmptyText: this.latitudeEmptyText,
 			longitudeEmptyText: this.longitudeEmptyText,
 			qbEventManager: this.qbEventManager
