@@ -44,7 +44,21 @@ public class LayerTerritorioGenerico extends LayerTerritorio {
     	this.elencoCampi = elencoCampi;
     }
     
-    public void setLayerConfig(ConfigLayerBean layerConfig) {
+    /**
+	 * @param elencoCampiLeggibili the elencoCampiLeggibili to set
+	 */
+	public void setElencoCampiLeggibili(Map<String, String> elencoCampiLeggibili) {
+		this.elencoCampiLeggibili = elencoCampiLeggibili;
+	}
+
+	/**
+	 * @param elencoCampiRegEx the elencoCampiRegEx to set
+	 */
+	public void setElencoCampiRegEx(Map<String, String> elencoCampiRegEx) {
+		this.elencoCampiRegEx = elencoCampiRegEx;
+	}
+
+	public void setLayerConfig(ConfigLayerBean layerConfig) {
         configBean.setLayerConfig(layerConfig);
     }
     

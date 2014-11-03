@@ -23,8 +23,6 @@
 			<util:map map-class="java.util.HashMap">
 				<entry key="NL_IDTPN" value="STATE_FIPS" />
 				<entry key="NL_STATE_NAME" value="STATE_NAME" />
-				<entry key="UR_STATE_NAME" value="NOME STATO" />
-				<entry key="RE_STATE_NAME" value="[a-zA-Z0-9]" />
 			</util:map>
 		</property>
 		
