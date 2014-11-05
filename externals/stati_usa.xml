@@ -14,27 +14,27 @@
 		<property name="layerConfig">
 			<bean class="it.prato.comune.sit.ConfigLayerBean">
 				<property name="dsPoolID" value="1" /><!-- ID datastore definito su config.txt -->
-				<property name="typeName" value="topp:states" /><!-- nome tabella in caso si punti a DB o nome layer WFS -->
+				<property name="typeName" value="states" /><!-- nome tabella in caso si punti a DB o nome layer WFS -->
 			</bean>
 		</property>
 		
 		<!-- metodo che definisce l'elenco dei campi -->
 		<property name="elencoCampi">
 			<util:map map-class="java.util.HashMap">
-				<entry key="NL_IDTPN" value="STATE_FIPS" />
-				<entry key="NL_STATE_NAME" value="STATE_NAME" />
+				<entry key="NL_IDTPN" value="state_fips" />
+				<entry key="NL_STATE_NAME" value="state_name" />
 			</util:map>
 		</property>
 		
 		<property name="elencoCampiLeggibili">
 			<util:map map-class="java.util.HashMap">
-				<entry key="UR_STATE_NAME" value="NOME STATO" />
+				<entry key="NL_STATE_NAME" value="NOME STATO" />
 			</util:map>
 		</property>
 		
 		<property name="elencoCampiRegEx">
 			<util:map map-class="java.util.HashMap">
-				<entry key="RE_STATE_NAME" value="[a-zA-Z0-9]" />
+				<entry key="NL_STATE_NAME" value="[a-zA-Z0-9]" />
 			</util:map>
 		</property>
 

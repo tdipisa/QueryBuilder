@@ -221,7 +221,7 @@ Ext.define('TolomeoExt.ToloFeatureGridPanel', {
         		this.query("pagingtoolbar")[0].disable();
         		
         		// Collapse the Grid
-        		this.ownerCt.collapse();
+//        		this.ownerCt.collapse();
 			}
 		});
 		

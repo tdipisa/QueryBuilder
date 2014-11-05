@@ -247,10 +247,10 @@ Ext.define('TolomeoExt.ToloFeatureManager', {
     },
     
 	/**
-     * Reimposta i parametri di richiesta per la racclta delle features risultato della ricerca. 
+     * Reimposta i parametri di richiesta per la raccolta delle features risultato della ricerca. 
      *
      */
-    resetQuery: function(){
+    resetQuery: function(collapse){
     	if(this.featureStore){
     		this.featureStore.removeAll();
     	}

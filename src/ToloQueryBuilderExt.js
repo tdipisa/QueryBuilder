@@ -195,6 +195,8 @@ Ext.define('TolomeoExt.ToloQueryBuilderExt', {
 			listeners:{
 				scope: this,
 				layerselected: function(records){
+					this.reset();
+					
 					// /////////////////////////////////////////////////
 					// Enable the sub components after layer selection
 					// in order to allow filter composition.
@@ -211,6 +213,7 @@ Ext.define('TolomeoExt.ToloQueryBuilderExt', {
 		// /////////////////////
 		this.spatialSelector = Ext.create('TolomeoExt.widgets.ToloSpatialSelector', {
 			qbEventManager: this.qbEventManager,
+			filterGeometryName: "geom",
 			disabled: true
 		});
 		
@@ -253,21 +256,7 @@ Ext.define('TolomeoExt.ToloQueryBuilderExt', {
             iconCls: "querybuilder-icon-cancel",
             scope: this,
             handler: function() {
-            	// Spatial Selector Reset
-            	this.spatialSelector.reset();
-            	var spatialMethodCombo = this.spatialSelector.getSelectionMethodCombo();
-            	spatialMethodCombo.reset();
-            	
-            	// Attribute Form Reset
-            	if(this.queryfilter.filterBuilder){
-            		this.queryfilter.filterBuilder.removeAllConditions();
-            	}
-            	
-            	// Attribute Filter Reset
-            	this.filterView.resetView();
-            	
-            	// Feature Grid Reset
-            	this.qbFeatureManager.fireEvent("resetquery");
+            	this.reset();
             }
         }, {
             text: "Cerca",
@@ -309,6 +298,28 @@ Ext.define('TolomeoExt.ToloQueryBuilderExt', {
 			this.waitMask = new Ext.LoadMask(this.id, {msg: "Ricerca in corso...."});
 		}, this);
 		
+	},
+	
+	/**
+     * Reimposta i componenti della form e il la griglia delle features
+     *
+     */
+	reset: function(){
+    	// Spatial Selector Reset
+    	this.spatialSelector.reset();
+    	var spatialMethodCombo = this.spatialSelector.getSelectionMethodCombo();
+    	spatialMethodCombo.reset();
+    	
+    	// Attribute Form Reset
+    	if(this.queryfilter.filterBuilder){
+    		this.queryfilter.filterBuilder.removeAllConditions();
+    	}
+    	
+    	// Attribute Filter Reset
+    	this.filterView.resetView();
+    	
+    	// Feature Grid Reset
+    	this.qbFeatureManager.fireEvent("resetquery");
 	},
 	
 	/**

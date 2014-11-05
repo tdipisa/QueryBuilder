@@ -5,7 +5,7 @@
 	<azioniApertura />
 	<azioniEventi>
 		<eventiLayerList>
-			<eventiLayer>
+			<!-- eventiLayer>
 				<codTPN>1</codTPN>
 				<nomeLayer>stati_usa_plugin</nomeLayer>
 				<descrizioneLayer>Stati USA - Java Plugin WFS</descrizioneLayer>
@@ -52,6 +52,42 @@
 					</azioneList>
 					<autoVisOnSelect>true</autoVisOnSelect>
 				</azioniEventiVis>
+			</eventiLayer-->
+			<eventiLayer>
+				<codTPN>1</codTPN>
+				<nomeLayer>stati_usa_plugin</nomeLayer>
+				<descrizioneLayer>Stati USA - Java Plugin WFS</descrizioneLayer>
+				<tipoGeometria>3</tipoGeometria>
+				<copertura>false</copertura>
+				<caricaLayerSeparato>false</caricaLayerSeparato>
+				<queryBuilder>true</queryBuilder>
+				<azioniEventiRicercaList>
+					<ricercaList>
+						<ricerca>
+							<idRicerca>1</idRicerca>
+						</ricerca>
+					</ricercaList>
+				</azioniEventiRicercaList>
+				<autoIdentifyAllowed>true</autoIdentifyAllowed>
+				<autoIdentifyWithHighlight>true</autoIdentifyWithHighlight>
+			</eventiLayer>
+		    <eventiLayer>
+				<codTPN>2</codTPN>
+				<nomeLayer>stati_usa_spring</nomeLayer>
+				<descrizioneLayer>Stati USA - Spring</descrizioneLayer>
+				<tipoGeometria>3</tipoGeometria>
+				<copertura>false</copertura>
+				<caricaLayerSeparato>false</caricaLayerSeparato>
+				<queryBuilder>true</queryBuilder>
+				<azioniEventiRicercaList>
+					<ricercaList>
+						<ricerca>
+							<idRicerca>1</idRicerca>
+						</ricerca>
+					</ricercaList>
+				</azioniEventiRicercaList>
+				<autoIdentifyAllowed>true</autoIdentifyAllowed>
+				<autoIdentifyWithHighlight>true</autoIdentifyWithHighlight>
 			</eventiLayer>
 		</eventiLayerList>
 	</azioniEventi>
@@ -72,8 +108,9 @@
 						<category>
 							<name>Stati Uniti</name>
 							<layerList>
-								<layer>
-									<expanded>true</expanded><name>topp:states</name>
+								<!-- layer>
+									<expanded>true</expanded>
+									<name>topp:states</name>
 									<descrizione>Stati USA - Java Plugin WFS</descrizione>
 									<codTPN>1</codTPN>
 								</layer>
@@ -90,6 +127,18 @@
 									<defaultStyle>polygon</defaultStyle>
 									<descrizione>Stati USA - Spring WMS GetFeatureInfo</descrizione>
 									<expanded>true</expanded>
+								</layer-->
+								<layer>
+									<expanded>true</expanded>
+									<name>states</name>
+									<descrizione>Stati USA - Postgis</descrizione>
+									<codTPN>1</codTPN>
+								</layer>
+								<layer>
+									<expanded>true</expanded>
+									<name>states</name>
+									<descrizione>Stati USA - Spring</descrizione>
+									<codTPN>2</codTPN>
 								</layer>
 							</layerList>
 							
