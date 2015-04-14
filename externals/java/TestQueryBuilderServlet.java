@@ -97,6 +97,7 @@ public class TestQueryBuilderServlet extends TolomeoServlet   {
      * @see javax.servlet.http.HttpServlet#doPost(javax.servlet.http.HttpServletRequest, javax.servlet.http.HttpServletResponse)
      */
 	public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, java.io.IOException {		
+//		forward("/js/tolomeoExt/form_codeless/jsp/form_codeless_test.jsp", request, response);
 		forward("/js/tolomeoExt/query_builder/jsp/query_builder_test.jsp", request, response);
     }
 

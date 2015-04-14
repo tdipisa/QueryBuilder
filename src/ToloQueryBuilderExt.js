@@ -213,7 +213,7 @@ Ext.define('TolomeoExt.ToloQueryBuilderExt', {
 		// /////////////////////
 		this.spatialSelector = Ext.create('TolomeoExt.widgets.ToloSpatialSelector', {
 			qbEventManager: this.qbEventManager,
-			filterGeometryName: "geom",
+			filterGeometryName: "the_geom",
 			disabled: true
 		});
 		
@@ -412,6 +412,7 @@ Ext.define('TolomeoExt.ToloQueryBuilderExt', {
             	var currentMapExtent = this.spatialSelector.spatialFieldSet.collapsed;
                 var spatialFilter = this.spatialSelector.getQueryFilter(currentMapExtent);   
                 if (spatialFilter) {
+                	spatialFilter.projection = this.paramsJS.mappe.SRID;
                 	filters.push(spatialFilter);
                 }
 					

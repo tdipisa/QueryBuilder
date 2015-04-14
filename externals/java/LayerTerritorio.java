@@ -130,6 +130,7 @@ import javax.xml.parsers.ParserConfigurationException;
 import org.apache.commons.lang.StringUtils;
 import org.eclipse.xsd.XSDElementDeclaration;
 import org.eclipse.xsd.impl.XSDElementDeclarationImpl;
+import org.geotools.data.DataSourceException;
 import org.geotools.data.DataStore;
 import org.geotools.data.DataUtilities;
 import org.geotools.data.FeatureReader;
@@ -144,6 +145,7 @@ import org.geotools.data.shapefile.ShapefileDataStore;
 import org.geotools.data.simple.SimpleFeatureCollection;
 import org.geotools.data.simple.SimpleFeatureSource;
 import org.geotools.data.spatialite.SpatiaLiteDataStoreFactory;
+import org.geotools.factory.CommonFactoryFinder;
 import org.geotools.factory.GeoTools;
 import org.geotools.factory.Hints;
 import org.geotools.feature.DefaultFeatureCollection;
@@ -152,9 +154,13 @@ import org.geotools.feature.Schema;
 import org.geotools.feature.simple.SimpleFeatureBuilder;
 import org.geotools.feature.simple.SimpleFeatureTypeBuilder;
 import org.geotools.feature.type.DateUtil;
+import org.geotools.filter.spatial.DefaultCRSFilterVisitor;
+import org.geotools.filter.spatial.ReprojectingFilterVisitor;
 import org.geotools.filter.text.cql2.CQL;
 import org.geotools.filter.text.cql2.CQLException;
+import org.geotools.filter.visitor.DefaultFilterVisitor;
 import org.geotools.jdbc.JDBCDataStore;
+import org.geotools.jdbc.JDBCDataStoreFactory;
 import org.geotools.jdbc.JDBCFeatureStore;
 import org.geotools.jdbc.PreparedFilterToSQL;
 import org.geotools.jdbc.PreparedStatementSQLDialect;
@@ -170,16 +176,30 @@ import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.feature.type.AttributeDescriptor;
 import org.opengis.feature.type.AttributeType;
+import org.opengis.feature.type.GeometryDescriptor;
 import org.opengis.feature.type.PropertyDescriptor;
+import org.opengis.filter.And;
+import org.opengis.filter.BinaryLogicOperator;
 import org.opengis.filter.Filter;
+import org.opengis.filter.FilterFactory2;
+import org.opengis.filter.FilterVisitor;
 import org.opengis.filter.Id;
+import org.opengis.filter.Not;
+import org.opengis.filter.Or;
 import org.opengis.filter.sort.SortBy;
 import org.opengis.filter.sort.SortOrder;
+import org.opengis.filter.spatial.BBOX;
 import org.opengis.filter.spatial.Beyond;
 import org.opengis.filter.spatial.BinarySpatialOperator;
 import org.opengis.filter.spatial.Contains;
+import org.opengis.filter.spatial.Crosses;
+import org.opengis.filter.spatial.DWithin;
+import org.opengis.filter.spatial.Disjoint;
+import org.opengis.filter.spatial.Equals;
 import org.opengis.filter.spatial.Intersects;
+import org.opengis.filter.spatial.Overlaps;
 import org.opengis.filter.spatial.Touches;
+import org.opengis.filter.spatial.Within;
 import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.NoSuchAuthorityCodeException;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
@@ -227,6 +247,13 @@ public abstract class LayerTerritorio implements Layers, IGetFeatureInfoLayer{
     private HashMap<String, String> NomiCampiScrittura = new HashMap<String, String>();
     private HashMap<String, String> nomiCampiLegibili = new HashMap<String, String>();
     private HashMap<String, String> attributiRegEx = new HashMap<String, String>();
+    private HashMap<String, String> attributiReadWrite = new HashMap<String, String>();
+    private HashMap<String, String> defaultAttributeValues= new HashMap<String, String>();
+    
+    private HashMap<String, String> attributiFk = new HashMap<String, String>();
+    
+    private String dateFormat = null;
+    
     private HashMap<Integer, MetadatoRicerche> ricerche = new HashMap<Integer, MetadatoRicerche>();
 
     private String espressioneDescrizione = null;
@@ -761,15 +788,16 @@ public abstract class LayerTerritorio implements Layers, IGetFeatureInfoLayer{
         }      
 
     }
-    
+
     /**
      * @param pr
      * @param ente
      * @param nomeLayer
      * @param szNL
      * @param prefix
+     * @return String[]
      */
-    protected void addnomicampiLeggibili(Properties pr, String ente, String nomeLayer, String szNL, String prefix) { 
+    protected String[] addnomicampiExt(Properties pr, String ente, String nomeLayer, String szNL, String prefix) { 
     	String prefixProp = null;
     	if(pr != null && ente != null && nomeLayer != null){
             String nomeCampoProp = ente + nomeLayer + prefix;         
@@ -786,11 +814,13 @@ public abstract class LayerTerritorio implements Layers, IGetFeatureInfoLayer{
         		prop = prefixProp;
         	}
         	
-            this.getNomiCampiLegibili().put(szNL, prop);
-
+        	String[] array = new String[]{szNL, prop};
+        	return array;
         } else {
             logger.info(this.getClass().getName() + " nome campo nullo: " + prefixProp);
         }    
+        
+        return null;
     }
     
     /**
@@ -800,28 +830,96 @@ public abstract class LayerTerritorio implements Layers, IGetFeatureInfoLayer{
      * @param szNL
      * @param prefix
      */
-    protected void addnomicampiRegEx(Properties pr, String ente, String nomeLayer, String szNL, String prefix) { 
-    	String prefixProp = null;
-    	if(pr != null && ente != null && nomeLayer != null){
-            String nomeCampoProp = ente + nomeLayer + prefix;         
-            prefixProp = pr.getProperty(nomeCampoProp);   
-    	}else{
-    		prefixProp = prefix;
+    protected void addnomicampiLeggibili(Properties pr, String ente, String nomeLayer, String szNL, String prefix) { 
+    	String[] nomiCamiLeggibili = this.addnomicampiExt(pr, ente, nomeLayer, szNL, prefix);
+    	if(nomiCamiLeggibili != null){
+    		this.getNomiCampiLegibili().put(nomiCamiLeggibili[0], nomiCamiLeggibili[1]); 
     	}
-        
-        if (prefixProp!=null){
-        	String prop = null;
-        	if(prefixProp.contains("!!")){
-        		prop = prefixProp.split("!!")[0];
-        	}else{
-        		prop = prefixProp;
-        	}
-        	
-            this.getAttributiRegEx().put(szNL, prop);
+    }
 
-        } else {
-            logger.info(this.getClass().getName() + " nome campo nullo: " + prefixProp);
-        }  
+    /**
+     * @param pr
+     * @param ente
+     * @param nomeLayer
+     * @param szNL
+     * @param prefix
+     */
+    protected void addnomicampiRegEx(Properties pr, String ente, String nomeLayer, String szNL, String prefix) { 
+    	String[] nomicampiRegEx = this.addnomicampiExt(pr, ente, nomeLayer, szNL, prefix);
+    	if(nomicampiRegEx != null){
+    		this.getAttributiRegEx().put(nomicampiRegEx[0], nomicampiRegEx[1]); 
+    	}
+    }
+    
+    /**
+     * @param pr
+     * @param ente
+     * @param nomeLayer
+     * @param szNL
+     * @param prefix
+     */
+    protected void addnomicampiReadWrite(Properties pr, String ente, String nomeLayer, String szNL, String prefix) { 
+    	String[] nomicampiReadWrite = this.addnomicampiExt(pr, ente, nomeLayer, szNL, prefix);
+    	if(nomicampiReadWrite != null){
+    		this.getAttributiReadWrite().put(nomicampiReadWrite[0], nomicampiReadWrite[1]); 
+    	}
+    }
+    
+    /**
+     * @param pr
+     * @param ente
+     * @param nomeLayer
+     * @param szNL
+     * @param prefix
+     */
+    protected void addDefaultValueForField(Properties pr, String ente, String nomeLayer, String szNL, String prefix) { 
+    	String[] defaultValues = this.addnomicampiExt(pr, ente, nomeLayer, szNL, prefix);
+    	if(defaultValues != null){
+    		this.getDefaultAttributeValues().put(defaultValues[0], defaultValues[1]); 
+    	}
+    }
+    
+    /**
+     * @param pr
+     * @param ente
+     * @param nomeLayer
+     * @param szNL
+     * @param prefix
+     */
+    protected void addnomicampiFk(Properties pr, String ente, String nomeLayer, String szNL, String prefix) { 
+    	String[] nomicampiFk = this.addnomicampiExt(pr, ente, nomeLayer, szNL, prefix);
+    	if(nomicampiFk != null){
+    		String[] fkArray = null;
+    		if(nomicampiFk[1].contains(";")){
+    			fkArray = nomicampiFk[1].split(";");
+    			for(int i=0; i<fkArray.length; i++){
+    				String key = fkArray[i];
+    				String[] kv = key.split(":");
+    				attributiFk.put(kv[0], kv[1].concat(":" + kv[2]));
+    			}
+    		}else{
+				String key = nomicampiFk[1];
+				String[] kv = key.split(":");
+				attributiFk.put(kv[0], kv[1].concat(":" + kv[2]));
+    		}
+    	}
+    }
+    
+    /**
+     * @param pr
+     * @param ente
+     * @param nomeLayer
+     * @param szNL
+     * @param prefix
+     */
+    protected void addnomicampiDateFormat(Properties pr, String ente, String nomeLayer, String szNL, String prefix) { 
+    	String[] nomicampiFk = this.addnomicampiExt(pr, ente, nomeLayer, szNL, prefix);
+    	if(nomicampiFk != null){
+    		dateFormat = nomicampiFk[1];
+    	}else{
+    		// Se non definito un formato viene usato come default ISO-8601
+    		dateFormat = "YYYY-MM-DDTHH:MM:SSZ";
+    	}
     }
     
 	/**
@@ -2329,7 +2427,8 @@ public abstract class LayerTerritorio implements Layers, IGetFeatureInfoLayer{
         try {
             store = getDataStore();        
             FeatureSource<SimpleFeatureType, SimpleFeature> features = store.getFeatureSource(configBean.getTypeName());            
-            Query query = new Query(configBean.getTypeName(), filtroTotale.getFiltro());            
+            Query query = new Query(configBean.getTypeName(), filtroTotale.getFiltro()); 
+            query = this.reprojectFilter(query);
             iRet = features.getCount(query);
  
             if( iRet == -1 ){
@@ -2426,6 +2525,7 @@ public abstract class LayerTerritorio implements Layers, IGetFeatureInfoLayer{
 
             //, new String[]{"nprov", "prov_istat" }
             Query query = this.buildQuery(maxFeatures, startIndex, sortFields);
+            query = this.reprojectFilter(query);
             
             FeatureReader<?, SimpleFeature> features = (FeatureReader<?, SimpleFeature>)store.getFeatureReader(query,tmpTransaction); //tmpTransaction                
             
@@ -2475,6 +2575,37 @@ public abstract class LayerTerritorio implements Layers, IGetFeatureInfoLayer{
         filtroTotale.ResetFiltro();  
         retVal.setResult(retpol);
         return retVal;            
+    }
+    
+    private Query reprojectFilter(Query query) throws DataSourceException, SITException{    	
+        final SimpleFeatureType nativeFeatureType=this.getFeatureType();
+        final GeometryDescriptor geom=nativeFeatureType.getGeometryDescriptor();
+        
+        if (geom == null) {
+          return query;
+        }
+        
+        final FilterFactory2 ff=CommonFactoryFinder.getFilterFactory2(null);
+        
+        try {
+          CoordinateReferenceSystem nativeCRS=geom.getCoordinateReferenceSystem();
+          
+          DefaultCRSFilterVisitor defaultCRSVisitor=new DefaultCRSFilterVisitor(ff, nativeCRS);
+          
+          Filter originalFilter = filtroTotale.getFiltro();
+          final Filter defaultedFilter=(Filter)originalFilter.accept(defaultCRSVisitor,null);
+          
+          ReprojectingFilterVisitor reprojectingVisitor=new ReprojectingFilterVisitor(ff, nativeFeatureType);
+          
+          final Filter reprojectedFilter=(Filter)defaultedFilter.accept(reprojectingVisitor,null);
+          
+          query=new Query(query);
+          query.setFilter(reprojectedFilter);
+          
+          return query;
+        }catch (  Exception e) {
+          throw new DataSourceException("Had troubles handling filter reprojection...",e);
+        }
     }
     
     /**
@@ -2718,6 +2849,8 @@ public abstract class LayerTerritorio implements Layers, IGetFeatureInfoLayer{
             spatialite = new File(tempdirpath, fileName + ".db");
             
 //            System.setProperty("java.library.path", "C:/spatialite_libs");
+            System.setProperty("org.sqlite.lib.path", "C:/spatialite_libs");
+            System.setProperty("org.sqlite.lib.name", "sqlitejdbc.dll");
             
             //
             // Preparazione dello store di export
@@ -2729,10 +2862,14 @@ public abstract class LayerTerritorio implements Layers, IGetFeatureInfoLayer{
             }
             
             Map dbParams = new HashMap();
-            dbParams.put(SpatiaLiteDataStoreFactory.DBTYPE.key, "spatialite");
-            dbParams.put(SpatiaLiteDataStoreFactory.DATABASE.key, spatialite.getAbsolutePath());
+//            dbParams.put(SpatiaLiteDataStoreFactory.DBTYPE.key, "spatialite");
+//            dbParams.put(SpatiaLiteDataStoreFactory.DATABASE.key, spatialite.getAbsolutePath());
+            
+            dbParams.put(JDBCDataStoreFactory.DBTYPE.key, "spatialite");
+            dbParams.put(JDBCDataStoreFactory.DATABASE.key, spatialite.getAbsolutePath());
             
             DataStore dataStore = dsFactory.createDataStore(dbParams);
+//            DataStore dataStore = DataStoreFinder.getDataStore(dbParams);
             dataStore.createSchema(ft);
             
             //
@@ -2989,9 +3126,13 @@ public abstract class LayerTerritorio implements Layers, IGetFeatureInfoLayer{
      * @param startIndex
      * @param sortFields
      * @return Query
+     * @throws DataSourceException 
+     * @throws SITException 
      */
-    private Query buildQuery(Integer maxFeatures, Integer startIndex, SortItem[] sortFields){
+    private Query buildQuery(Integer maxFeatures, Integer startIndex, SortItem[] sortFields) throws DataSourceException, SITException{
+    	
         Query query = new Query(configBean.getTypeName(), filtroTotale.getFiltro());  
+        
         
         // Paginazione
         if (maxFeatures!=null && maxFeatures > 0) {
@@ -5098,7 +5239,63 @@ public abstract class LayerTerritorio implements Layers, IGetFeatureInfoLayer{
 		this.attributiRegEx = attributiRegEx;
 	}
 
+	/**
+	 * @return the attributiReadWrite
+	 */
+	public HashMap<String, String> getAttributiReadWrite() {
+		return attributiReadWrite;
+	}
+
+	/**
+	 * @param attributiReadWrite the attributiReadWrite to set
+	 */
+	public void setAttributiReadWrite(HashMap<String, String> attributiReadWrite) {
+		this.attributiReadWrite = attributiReadWrite;
+	}
+
+	/**
+	 * @return the attributiFk
+	 */
+	public HashMap<String, String> getAttributiFk() {
+		return attributiFk;
+	}
+
+	/**
+	 * @param attributiFk the attributiFk to set
+	 */
+	public void setAttributiFk(HashMap<String, String> attributiFk) {
+		this.attributiFk = attributiFk;
+	}
+
+	/**
+	 * @return the dateFormat
+	 */
+	public String getDateFormat() {
+		return dateFormat;
+	}
+
+	/**
+	 * @param dateFormat the dateFormat to set
+	 */
+	public void setDateFormat(String dateFormat) {
+		this.dateFormat = dateFormat;
+	}
+
+	/**
+	 * @return the defaultAttributeValues
+	 */
+	public HashMap<String, String> getDefaultAttributeValues() {
+		return defaultAttributeValues;
+	}
+
+	/**
+	 * @param defaultAttributeValues the defaultAttributeValues to set
+	 */
+	public void setDefaultAttributeValues(
+			HashMap<String, String> defaultAttributeValues) {
+		this.defaultAttributeValues = defaultAttributeValues;
+	}
+	
 //  [regionend]
-
-
+	
 }

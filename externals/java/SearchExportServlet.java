@@ -102,6 +102,19 @@ import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.geotools.geometry.jts.JTS;
+import org.geotools.referencing.CRS;
+import org.opengis.geometry.MismatchedDimensionException;
+import org.opengis.referencing.FactoryException;
+import org.opengis.referencing.NoSuchAuthorityCodeException;
+import org.opengis.referencing.crs.CoordinateReferenceSystem;
+import org.opengis.referencing.operation.MathTransform;
+import org.opengis.referencing.operation.TransformException;
+
+import com.vividsolutions.jts.geom.Geometry;
+import com.vividsolutions.jts.io.ParseException;
+import com.vividsolutions.jts.io.WKTReader;
+
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 
@@ -293,8 +306,44 @@ public class SearchExportServlet extends TolomeoServlet {
 	        					}
 	        					
 	        					String geometry = ogg.getGeometryAttributeWKT();
-	        					if(geometry != null){
-	        						attrObj.put("geometry", geometry);
+	        					if(geometry != null){	        						
+	        						if(ogg.getSRID() == srid){
+	        							attrObj.put("geometry", geometry);
+	        						}else{
+	        					        WKTReader wktReader = new WKTReader();
+	        					        Geometry geom = null;
+	        					        
+	        					        try {
+	        					            geom = wktReader.read(geometry);
+	        					            
+	        					    		CoordinateReferenceSystem toCRS = CRS.decode(srid);
+	        					    		CoordinateReferenceSystem fromCRS = CRS.decode(ogg.getSRID());	        					    		
+	        					    		
+	        								MathTransform transform = CRS.findMathTransform(fromCRS, toCRS, true);
+	        								geom = JTS.transform(geom, transform);
+	        								
+	        								attrObj.put("geometry", geom.toText());
+	        					            
+	        					        } catch (ParseException e) {
+	        					            logger.error("Errore durante conversione geometria da WKT a com.vividsolutions.jts.geom.Geometry", e);
+	        					        } catch (NoSuchAuthorityCodeException e) {
+        					    			String errMsg = "Errore durante trasformazione CRS: authority code non valido";
+        					    			logger.error(errMsg, e);
+        					    			throw new SITException(errMsg, e);
+        					    		} catch (FactoryException e) {
+        					    			String errMsg = "Errore durante trasformazione CRS: FactoryException";
+        					    			logger.error(errMsg, e);
+        					    			throw new SITException(errMsg, e);
+        					    		} catch (MismatchedDimensionException e) {
+        					    			String errMsg = "Errore durante trasformazione CRS: MismatchedDimensionException";
+        					    			logger.error(errMsg, e);
+        					    			throw new SITException(errMsg, e);
+										} catch (TransformException e) {
+											String errMsg = "Errore durante trasformazione CRS: TransformException";
+											logger.error(errMsg, e);
+											throw new SITException(errMsg, e);
+										}
+	        						}	        						
 	        					}
 	        				}
 

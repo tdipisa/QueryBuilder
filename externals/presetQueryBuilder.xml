@@ -56,7 +56,7 @@
 			<eventiLayer>
 				<codTPN>1</codTPN>
 				<nomeLayer>stati_usa_plugin</nomeLayer>
-				<descrizioneLayer>Stati USA - Java Plugin WFS</descrizioneLayer>
+				<descrizioneLayer>Stati USA - Postgis</descrizioneLayer>
 				<tipoGeometria>3</tipoGeometria>
 				<copertura>false</copertura>
 				<caricaLayerSeparato>false</caricaLayerSeparato>
