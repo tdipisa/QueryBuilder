@@ -125,6 +125,8 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.regex.Pattern;
 
+import javax.measure.unit.SI;
+import javax.measure.unit.Unit;
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.apache.commons.lang.StringUtils;
@@ -158,7 +160,8 @@ import org.geotools.filter.spatial.DefaultCRSFilterVisitor;
 import org.geotools.filter.spatial.ReprojectingFilterVisitor;
 import org.geotools.filter.text.cql2.CQL;
 import org.geotools.filter.text.cql2.CQLException;
-import org.geotools.filter.visitor.DefaultFilterVisitor;
+import org.geotools.geometry.jts.JTS;
+import org.geotools.geometry.jts.JTSFactoryFinder;
 import org.geotools.jdbc.JDBCDataStore;
 import org.geotools.jdbc.JDBCDataStoreFactory;
 import org.geotools.jdbc.JDBCFeatureStore;
@@ -178,31 +181,22 @@ import org.opengis.feature.type.AttributeDescriptor;
 import org.opengis.feature.type.AttributeType;
 import org.opengis.feature.type.GeometryDescriptor;
 import org.opengis.feature.type.PropertyDescriptor;
-import org.opengis.filter.And;
-import org.opengis.filter.BinaryLogicOperator;
 import org.opengis.filter.Filter;
 import org.opengis.filter.FilterFactory2;
-import org.opengis.filter.FilterVisitor;
 import org.opengis.filter.Id;
-import org.opengis.filter.Not;
-import org.opengis.filter.Or;
+import org.opengis.filter.expression.Expression;
 import org.opengis.filter.sort.SortBy;
 import org.opengis.filter.sort.SortOrder;
-import org.opengis.filter.spatial.BBOX;
 import org.opengis.filter.spatial.Beyond;
 import org.opengis.filter.spatial.BinarySpatialOperator;
 import org.opengis.filter.spatial.Contains;
-import org.opengis.filter.spatial.Crosses;
 import org.opengis.filter.spatial.DWithin;
-import org.opengis.filter.spatial.Disjoint;
-import org.opengis.filter.spatial.Equals;
 import org.opengis.filter.spatial.Intersects;
-import org.opengis.filter.spatial.Overlaps;
 import org.opengis.filter.spatial.Touches;
-import org.opengis.filter.spatial.Within;
 import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.NoSuchAuthorityCodeException;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
+import org.opengis.referencing.operation.TransformException;
 import org.xml.sax.SAXException;
 
 import com.vividsolutions.jts.geom.Coordinate;
@@ -214,6 +208,8 @@ import com.vividsolutions.jts.geom.MultiPoint;
 import com.vividsolutions.jts.geom.MultiPolygon;
 import com.vividsolutions.jts.geom.Point;
 import com.vividsolutions.jts.geom.Polygon;
+import com.vividsolutions.jts.io.ParseException;
+import com.vividsolutions.jts.io.WKTReader;
 
 /**
  * LayerTerritorio è una classe astratta per la gestione di layer di oggetti territoriali. <br>
@@ -2577,6 +2573,81 @@ public abstract class LayerTerritorio implements Layers, IGetFeatureInfoLayer{
         return retVal;            
     }
     
+    /**
+     * Classe estensione di DefaultCRSFilterVisitor.
+     * Consente oltre la riproiezione del filtro spaziale nel CRS nativo specificato, anche la conversione automatica dell'unità di misura 
+     * in caso la l'operazione geometrica del filtro sia DWithin (da metri a gradi).
+     * 
+     * @author Tobia Di Pisa
+     *
+     */
+    public class SITDefaultFilterVisitor extends DefaultCRSFilterVisitor {
+        private CoordinateReferenceSystem defaultCrs;
+        Unit<?> uom;
+        
+        public SITDefaultFilterVisitor(FilterFactory2 factory, CoordinateReferenceSystem defaultCrs, Unit<?> uom) {
+            super(factory, defaultCrs);
+            this.defaultCrs = defaultCrs;
+            this.uom = uom;
+        }
+        
+    	/**
+    	 * Null safe expression cloning
+    	 * @param expression
+    	 * @param extraData
+    	 * @return
+    	 */
+    	Expression visit(Expression expression, Object extraData) {
+    	    if(expression == null)
+    	        return null;
+    	    return (Expression) expression.accept(this, extraData);
+    	}
+    	
+    	/* (non-Javadoc)
+    	 * @see org.geotools.filter.visitor.DuplicatingFilterVisitor#visit(org.opengis.filter.spatial.DWithin, java.lang.Object)
+    	 */
+    	public Object visit(DWithin filter, Object extraData) {
+    	    Expression geometry1= visit(filter.getExpression1(), extraData);
+            Expression geometry2= visit(filter.getExpression2(), extraData);
+            
+    		double distance = filter.getDistance();
+    		String units = filter.getDistanceUnits();
+    		
+    		if(!SI.METRE.isCompatible(uom)){
+    			WKTReader wktReader = new WKTReader();
+    			
+    	        try {
+					Geometry geom =  wktReader.read(geometry2.toString());
+					Point centroid = geom.getCentroid();
+					
+					GeometryFactory geometryFactory = JTSFactoryFinder.getGeometryFactory(null);
+					Point point = geometryFactory.createPoint(new Coordinate(centroid.getX(), centroid.getY() + 1));
+					
+					double distance_m = JTS.orthodromicDistance(new Coordinate(centroid.getX(), centroid.getY()), 
+							new Coordinate(point.getX(), point.getY()), this.defaultCrs);
+
+				    distance = distance / distance_m;
+				    units = "dd";
+				    
+				} catch (ParseException e) {
+					logger.warn("Problem occured while parsing the WKT in filter visitor class ", e);
+				} catch (TransformException e) {
+					logger.warn("Problem occured while transforming geometry in filter visitor class ", e);
+				}
+    		}
+    		
+    		return getFactory(extraData).dwithin(geometry1, geometry2, distance, units, filter.getMatchAction());
+    	}
+    }    
+    
+    /**
+     * Metodo di riproiezione del filtro spaziale.
+     *
+     * @param query
+     * @return Query
+     * @throws DataSourceException
+     * @throws SITException
+     */
     private Query reprojectFilter(Query query) throws DataSourceException, SITException{    	
         final SimpleFeatureType nativeFeatureType=this.getFeatureType();
         final GeometryDescriptor geom=nativeFeatureType.getGeometryDescriptor();
@@ -2587,10 +2658,12 @@ public abstract class LayerTerritorio implements Layers, IGetFeatureInfoLayer{
         
         final FilterFactory2 ff=CommonFactoryFinder.getFilterFactory2(null);
         
+        CoordinateReferenceSystem nativeCRS=geom.getCoordinateReferenceSystem();
+        Unit<?> uom = nativeCRS.getCoordinateSystem().getAxis(0).getUnit();
+
         try {
-          CoordinateReferenceSystem nativeCRS=geom.getCoordinateReferenceSystem();
-          
-          DefaultCRSFilterVisitor defaultCRSVisitor=new DefaultCRSFilterVisitor(ff, nativeCRS);
+
+          SITDefaultFilterVisitor defaultCRSVisitor=new SITDefaultFilterVisitor(ff, nativeCRS, uom);
           
           Filter originalFilter = filtroTotale.getFiltro();
           final Filter defaultedFilter=(Filter)originalFilter.accept(defaultCRSVisitor,null);
@@ -2603,7 +2676,7 @@ public abstract class LayerTerritorio implements Layers, IGetFeatureInfoLayer{
           query.setFilter(reprojectedFilter);
           
           return query;
-        }catch (  Exception e) {
+        }catch (Exception e) {
           throw new DataSourceException("Had troubles handling filter reprojection...",e);
         }
     }

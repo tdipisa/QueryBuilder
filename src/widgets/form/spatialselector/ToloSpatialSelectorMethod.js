@@ -158,9 +158,15 @@ Ext.define('TolomeoExt.widgets.form.spatialselector.ToloSpatialSelectorMethod', 
 
     /**
      * @property {String} distanceTitleText.
-     * Testo da mostrare per il campo distanza.
+     * Testo da mostrare per il fieldset della distanza.
      */
 	distanceTitleText: "Distanza",
+	
+    /**
+     * @property {String} distanceLabelText.
+     * Etichetta da mostrare per il valore della distanza.
+     */
+	distanceLabelText: "Valore (m)",
 
     /**
      * @property {String} distanceUnitsTitleText.
@@ -240,7 +246,7 @@ Ext.define('TolomeoExt.widgets.form.spatialselector.ToloSpatialSelectorMethod', 
         	scope.geometryOperation = scope.query('combo[ref=geometryOperation]')[0];
         	scope.distanceFieldset = scope.query('fieldset[ref=distanceFieldset]')[0];
         	scope.distance = scope.query('numberfield[ref="distance"]')[0];
-        	scope.dunits = scope.query('textfield[ref=dunits]')[0];
+        	//scope.dunits = scope.query('textfield[ref=dunits]')[0];
         });
     },
 
@@ -298,11 +304,11 @@ Ext.define('TolomeoExt.widgets.form.spatialselector.ToloSpatialSelectorMethod', 
 					break;
 				case OpenLayers.Filter.Spatial.DWITHIN:
 					if(this.distance.isValid()
-						&& this.dunits.isValid()){
+						/*&& this.dunits.isValid()*/){
 						this.currentFilter = new OpenLayers.Filter.Spatial({
 							type: operation,
 							property:  this.filterGeometryName,
-					        distanceUnits: this.dunits.getValue(),
+					        distanceUnits: "m", //this.dunits.getValue(),
 					        distance: this.distance.getValue(),
 							value: this.currentGeometry
 						});
@@ -441,21 +447,21 @@ Ext.define('TolomeoExt.widgets.form.spatialselector.ToloSpatialSelectorMethod', 
 			title: this.distanceTitleText,
 			ref: "distanceFieldset",
 			hidden: true,
-			items: [{
+			items: [/*{
 				xtype: "textfield",
 				fieldLabel: this.distanceUnitsTitleText,
 				name: "dunits",
 				ref: "dunits",
 				labelStyle: 'width: 130px;',
 				allowBlank: false
-			},{
+			},*/{
 				xtype: "numberfield",
-				fieldLabel: this.distanceTitleText,
+				fieldLabel: this.distanceLabelText,
 				name: "distance",
 				ref: "distance",
 				labelStyle: 'width: 130px;',
 				allowBlank: false
-			}],
+			}]/*,
 			listeners:{
 				scope: this,
 			    afterlayout: function(fieldset, options){
@@ -464,7 +470,7 @@ Ext.define('TolomeoExt.widgets.form.spatialselector.ToloSpatialSelectorMethod', 
 						this.qbEventManager.fireEvent("setmapunitsvaluefield", this.dunits);
 					}
 				}
-			}
+			}*/
 		}
 	}
 	
