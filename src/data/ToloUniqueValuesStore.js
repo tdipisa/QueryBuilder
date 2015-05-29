@@ -38,6 +38,8 @@ Ext.define('TolomeoExt.data.ToloUniqueValuesStore', {
                 proxy: proxy
             })
         );
+        
+        this.pageSize = config.pageSize;
     },
 	 
 	/**
@@ -53,49 +55,52 @@ Ext.define('TolomeoExt.data.ToloUniqueValuesStore', {
      * @param {Object} options Oggetto contenente le opzioni di caricamento dei dati.
      */
     load: function(options) {
-    	var params = options.params;
-        if (!params.inputs) {
-            return;
-        }
-        
-        var filter;
-        if(params.query) {
-            var queryValue = params.query;
-            if(queryValue.indexOf('*') === -1) {
-                queryValue = '*' + queryValue + '*';
+    	var count = this.getCount() > 0 && this.pageSize == 0;
+     	if(!count){
+        	var params = options.params;
+            if (!params.inputs) {
+                return;
             }
             
-            filter = new OpenLayers.Filter.Comparison({ 
-                type: OpenLayers.Filter.Comparison.LIKE, 
-                property: params.inputs.fieldName, 
-                value: queryValue,
-                matchCase: false                
-            });
+            var filter;
+            params.query = params.query || "*";
+            if(params.query) {
+                var queryValue = params.query;
+                if(queryValue.indexOf('*') === -1) {
+                    queryValue = '*' + queryValue + '*';
+                }
+                
+                filter = new OpenLayers.Filter.Comparison({ 
+                    type: OpenLayers.Filter.Comparison.LIKE, 
+                    property: params.inputs.fieldName, 
+                    value: queryValue,
+                    matchCase: false                
+                });
+                
+                var node = new OpenLayers.Format.Filter({version: "1.1.0"}).write(filter);
+                filter = new OpenLayers.Format.XML().write(node);
+            }
             
-            var node = new OpenLayers.Format.Filter({version: "1.1.0"}).write(filter);
-            filter = new OpenLayers.Format.XML().write(node);
-        }
-        
-		var fparams = {
-			filter: filter,
-			codTPN: params.inputs.featureTypeName,
-			format: "ext",
-			ogcFilterVersion: "1.1.0",
-			attributeName: params.inputs.fieldName
-		};
-		
-		this.proxy.extraParams = this.proxy.extraParams || {};
-		this.proxy.startParam = "startIndex";
-		this.proxy.limitParam = "maxFeatures";
-		this.proxy.actionMethods = "POST";
-		
-    	Ext.apply(this.proxy.extraParams, fparams); 
-		
-        if (options) {
-            this.baseParams = Ext.apply(this.baseParams, options.params);
-        }
-        
-        this.superclass.load.call(this, options);
+    		var fparams = {
+    			filter: filter,
+    			codTPN: params.inputs.featureTypeName,
+    			format: "ext",
+    			ogcFilterVersion: "1.1.0",
+    			attributeName: params.inputs.fieldName
+    		};
+    		
+    		this.proxy.extraParams = this.proxy.extraParams || {};
+    		this.proxy.startParam = "startIndex";
+    		this.proxy.limitParam = "maxFeatures";
+    		this.proxy.actionMethods = "POST";
+    		
+        	Ext.apply(this.proxy.extraParams, fparams); 
+    		
+            if (options) {
+                this.baseParams = Ext.apply(this.baseParams, options.params);
+            }
+            
+            this.superclass.load.call(this, options);
+    	}
     } 
-    
 });

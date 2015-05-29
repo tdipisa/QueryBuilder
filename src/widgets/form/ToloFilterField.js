@@ -139,6 +139,35 @@ Ext.define('TolomeoExt.widgets.form.ToloFilterField', {
                     this.fieldRegEx = record.get("regex");
                     this.layerCodeTPN = record.get("codTPN");
                     
+                    // ////////////////////////////////////////////////////////////////
+                    // Check if the autocomplete must be disabled for the single field
+                    // ////////////////////////////////////////////////////////////////
+                    var autocomplete = record.get("autocomplete");
+                    this.autoCompleteFieldCheck = autocomplete.active != undefined ? 
+                    		autocomplete.active && this.autoComplete : this.autoComplete;
+                    
+                    if(this.autoCompleteFieldCheck){
+                    	var mode = autocomplete.mode || "remote";
+                    	Ext.copyTo(this.autoCompleteCfg, {
+                    		 autoCompleteMode: mode,
+                    		 minChars: mode == "remote" ? autocomplete.minChars || 1 : 1
+                    	}, ["autoCompleteMode", "minChars"]);
+                    	
+                        //
+                        // Update the this.autoCompleteDefault config with minChars retrieved by the server
+                        //
+                        this.autoCompleteDefault["single"].minChars = this.autoCompleteCfg.minChars;
+                        this.autoCompleteDefault["lower"].minChars = this.autoCompleteCfg.minChars;
+                        this.autoCompleteDefault["upper"].minChars = this.autoCompleteCfg.minChars;
+                        
+                        this.autoCompleteDefault["single"].pageSize = mode == "remote" ? 
+                        		this.autoCompleteCfg.pageSize || this.pageSize : 0;
+                        this.autoCompleteDefault["lower"].pageSize = mode == "remote" ? 
+                        		this.autoCompleteCfg.pageSize || this.pageSize : 0; 
+                        this.autoCompleteDefault["upper"].pageSize = mode == "remote" ? 
+                        		this.autoCompleteCfg.pageSize || this.pageSize : 0;
+                    }
+                    
                     if(!this.comparisonCombo) {
                         this.comparisonCombo = this.items.get(1);
                     }
@@ -273,12 +302,12 @@ Ext.define('TolomeoExt.widgets.form.ToloFilterField', {
      */
     addAutocompleteStore: function(config) {
         var uniqueValuesStore = new TolomeoExt.data.ToloUniqueValuesStore({
-            pageSize: this.autoCompleteCfg.pageSize || this.pageSize,
+            pageSize: this.autoCompleteCfg.autoCompleteMode == "remote" ? this.autoCompleteCfg.pageSize || this.pageSize : 0,
 			TOLOMEOServer: this.TOLOMEOServer,
 			TOLOMEOContext: this.TOLOMEOContext
         });
         
-        this.initUniqueValuesStore(uniqueValuesStore, this.autoCompleteCfg.url, this.layerCodeTPN, this.filter.property);
+        this.initUniqueValuesStore(uniqueValuesStore, this.layerCodeTPN, this.filter.property);
         
         return Ext.apply(Ext.apply({}, config), {store: uniqueValuesStore});
     },
@@ -291,7 +320,7 @@ Ext.define('TolomeoExt.widgets.form.ToloFilterField', {
      * @return {Object} Ritorna la configurazione relativa alla campo valore della proprietà.
      */
     createValueWidget: function(type) {
-        if(this.autoComplete && this.fieldType === 'java.lang.String') {
+        if(this.autoComplete && this.autoCompleteFieldCheck && this.fieldType === 'java.lang.String') {
             return Ext.apply({}, this.addAutocompleteStore(this.autoCompleteDefault[type]));
         } else {
         	var config = {};
@@ -344,8 +373,8 @@ Ext.define('TolomeoExt.widgets.form.ToloFilterField', {
             'single': {
                 validateOnBlur: false,
                 ref: "value",
-                grow: true,
-                growMin: 80,
+                //grow: true,
+                //growMin: 80,
                 width: 80,
                 anchor: "100%",
                 allowBlank: this.allowBlank,
@@ -360,10 +389,9 @@ Ext.define('TolomeoExt.widgets.form.ToloFilterField', {
                     scope: this
                 }   
             },
-            
            'lower': {
-                grow: true,
-                growMin: 80,
+                //grow: true,
+                //growMin: 80,
                 width: 80,
                 ref: "lowerBoundary",
                 anchor: "100%",
@@ -380,10 +408,9 @@ Ext.define('TolomeoExt.widgets.form.ToloFilterField', {
                     scope: this
                 }
             },
-            
             'upper': {
-                grow: true,
-                growMin: 80,
+                //grow: true,
+                //growMin: 80,
                 width: 80,
                 ref: "upperBoundary",
                 allowBlank: this.allowBlank,
@@ -392,7 +419,6 @@ Ext.define('TolomeoExt.widgets.form.ToloFilterField', {
                         this.filter.upperBoundary = value;
                         this.fireEvent("change", this.filter, this);
                     },
-
                     scope: this
                 }
             }
@@ -463,14 +489,19 @@ Ext.define('TolomeoExt.widgets.form.ToloFilterField', {
                 xtype: "tolomeo_uniquevaluescb",
                 queryMode: "remote", // required as the combo store shouldn't be loaded before a field name is selected
                 pageSize: this.autoCompleteCfg.pageSize || this.pageSize,
-                typeAhead: false,
+//                pageSize: this.autoCompleteCfg.autoCompleteMode == "remote" ? this.autoCompleteCfg.pageSize || this.pageSize : 0,
+                typeAhead: true,
                 forceSelection: false,
                 remoteSort: true,
                 triggerAction: "all",
                 allowBlank: this.allowBlank,
                 displayField: "value",
                 valueField: "value",
-                minChars: 1,
+                matchFieldWidth: false,
+                listConfig:{
+                	width: 250
+                },
+                minChars: this.autoCompleteCfg.minChars || 1,
 //                resizable: true,
                 listeners: {
                     select: function(combo, record) {
@@ -483,7 +514,8 @@ Ext.define('TolomeoExt.widgets.form.ToloFilterField', {
                     },
                     beforequery: function(evt) {
                         evt.combo.store.baseParams.start = 0;
-                        evt.combo.store.baseParams.query =  evt.combo.getValue();
+//                        evt.combo.store.baseParams.query = evt.combo.getValue();
+                        evt.combo.store.baseParams.query = this.autoCompleteCfg.autoCompleteMode == "remote" ? evt.combo.getValue() : "*";
                     },
                     scope: this
                 },
@@ -495,14 +527,15 @@ Ext.define('TolomeoExt.widgets.form.ToloFilterField', {
                 xtype: "tolomeo_uniquevaluescb",
                 queryMode: "remote", // required as the combo store shouldn't be loaded before a field name is selected
                 pageSize: this.autoCompleteCfg.pageSize || this.pageSize,
-                typeAhead: false,
+//              pageSize: this.autoCompleteCfg.autoCompleteMode == "remote" ? this.autoCompleteCfg.pageSize || this.pageSize : 0,
+                typeAhead: true,
                 forceSelection: false,
                 remoteSort: true,
                 triggerAction: "all",
                 allowBlank: this.allowBlank,
                 displayField: "value",
                 valueField: "value",
-                minChars: 1,
+                minChars: this.autoCompleteCfg.minChars || 1,
 //                resizable: true,
                 listeners: {
                     select: function(combo, record) {
@@ -515,7 +548,8 @@ Ext.define('TolomeoExt.widgets.form.ToloFilterField', {
                     },
                     beforequery: function(evt) {
                         evt.combo.store.baseParams.start = 0;
-                        evt.combo.store.baseParams.query =  evt.combo.getValue();
+//                        evt.combo.store.baseParams.query =  evt.combo.getValue();
+                        evt.combo.store.baseParams.query = this.autoCompleteCfg.autoCompleteMode == "remote" ? evt.combo.getValue() : "*";
                     },
                     scope: this
                 },
@@ -527,14 +561,15 @@ Ext.define('TolomeoExt.widgets.form.ToloFilterField', {
                 xtype: "tolomeo_uniquevaluescb",
                 queryMode: "remote", // required as the combo store shouldn't be loaded before a field name is selected
                 pageSize: this.autoCompleteCfg.pageSize || this.pageSize,
-                typeAhead: false,
+//              pageSize: this.autoCompleteCfg.autoCompleteMode == "remote" ? this.autoCompleteCfg.pageSize || this.pageSize : 0,
+                typeAhead: true,
                 forceSelection: false,
                 remoteSort: true,
                 triggerAction: "all",
                 allowBlank: this.allowBlank,
                 displayField: "value",
                 valueField: "value",
-                minChars: 1,
+                minChars: this.autoCompleteCfg.minChars || 1,
 //                resizable: true,
                 listeners: {
                     select: function(combo, record) {
@@ -547,7 +582,8 @@ Ext.define('TolomeoExt.widgets.form.ToloFilterField', {
                     },
                     beforequery: function(evt) {
                         evt.combo.store.baseParams.start = 0;
-                        evt.combo.store.baseParams.query =  evt.combo.getValue();
+//                        evt.combo.store.baseParams.query =  evt.combo.getValue();
+                        evt.combo.store.baseParams.query = this.autoCompleteCfg.autoCompleteMode == "remote" ? evt.combo.getValue() : "*";
                     },
                     scope: this
                 },
@@ -571,21 +607,25 @@ Ext.define('TolomeoExt.widgets.form.ToloFilterField', {
 	/**
      * Crea il componente Ext destinato a contenere il valore delle proprietà.
      * @param {TolomeoExt.data.ToloUniqueValuesStore} store Store della combo box di auto completamento.
-     * @param {String} url Url del servizio remoto di auto completamento.
      * @param {String} layerName codTPN da usare com eparametro della richiesta.
      * @param {String} fieldName Nome della proprietà di cui ritornare i suggerimenti.
      * 
      */
-    initUniqueValuesStore: function(store, url, layerName, fieldName) {
+    initUniqueValuesStore: function(store, layerName, fieldName) {
         var params = {
-            url: url,
+            url: this.autoCompleteCfg.url,
             inputs: {
             	featureTypeName: layerName,
                 fieldName: fieldName
-            },
-            start: 0,
-            limit: this.autoCompleteCfg.pageSize || this.pageSize
+            }
         };
+        
+        if(this.autoCompleteCfg.autoCompleteMode == "remote"){
+        	Ext.applyIf(params, {
+        		start: 0,
+                limit: this.autoCompleteCfg.pageSize || this.pageSize
+        	});
+        }
         
         store.setParams(params);
     },

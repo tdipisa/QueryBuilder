@@ -2659,6 +2659,11 @@ public abstract class LayerTerritorio implements Layers, IGetFeatureInfoLayer{
         final FilterFactory2 ff=CommonFactoryFinder.getFilterFactory2(null);
         
         CoordinateReferenceSystem nativeCRS=geom.getCoordinateReferenceSystem();
+        
+        if(nativeCRS == null){
+        	return query;   	
+        }
+        
         Unit<?> uom = nativeCRS.getCoordinateSystem().getAxis(0).getUnit();
 
         try {

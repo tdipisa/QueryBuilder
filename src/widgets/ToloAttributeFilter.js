@@ -87,6 +87,9 @@ Ext.define('TolomeoExt.widgets.ToloAttributeFilter', {
 	   		    },{
 	   		    	name: 'codTPN', 
 	   		    	mapping: 'codTPN'
+	   		    },{
+	   		    	name: 'autocomplete', 
+	   		    	mapping: 'autocomplete'
 	   		    }],
 	   		    data: schema
 	   		}),

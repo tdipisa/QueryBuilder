@@ -78,6 +78,8 @@ import it.prato.comune.sit.OggettoTerritorio;
 import it.prato.comune.sit.SITException;
 import it.prato.comune.sit.SITLayersManager;
 import it.prato.comune.sit.SITPaginatedResult;
+import it.prato.comune.sit.SortItem;
+import it.prato.comune.sit.SortItem.Dir;
 import it.prato.comune.tolomeo.utility.ExtStoreError;
 import it.prato.comune.utilita.logging.interfaces.LogInterface;
 
@@ -149,12 +151,12 @@ public class UniqueValueServlet extends TolomeoServlet {
         String ogcFilterVersion     = request.getParameter("ogcFilterVersion");
         
         Integer maxFeatures = Integer.parseInt(request.getParameter("maxFeatures"));
-        maxFeatures = maxFeatures == -1 ? null : maxFeatures;
+        maxFeatures = maxFeatures == -1 ? 0 : maxFeatures;
         Integer startIndex = Integer.parseInt(request.getParameter("startIndex"));
-        startIndex = startIndex == -1 ? null : startIndex;
+        startIndex = startIndex == -1 ? 0 : startIndex;
         
         String format = request.getParameter("format");
-        String attributeName     = request.getParameter("attributeName");
+        String attributeName = request.getParameter("attributeName");
         
         logger.debug("UniqueValueServlet codTPN: " + codTPN);
         
@@ -173,7 +175,25 @@ public class UniqueValueServlet extends TolomeoServlet {
         			Map<String, String> attributes = layer.getNomiCampi();
     				Set<String> attributesKeys = attributes.keySet();
     				
-	        		SITPaginatedResult pagRes = layer.searchByFilter(filter, ogcFilterVersion, maxFeatures, startIndex, null);
+    				// Manages the order of the features to return
+    				Iterator<String> keyIterator = attributesKeys.iterator();
+    				
+    				SortItem[] sortItems = new SortItem[1];
+        			while(keyIterator.hasNext()){
+        				String key = (String)keyIterator.next();
+        				
+        				String attr_name = attributes.get(key);
+        				if(attr_name.equals(attributeName)){
+            				SortItem sortItem = new SortItem();
+            				sortItem.setNomeLogico(key);
+            				sortItem.setOrdine(Dir.CRESCENTE);
+            				
+            				sortItems[0] = sortItem;
+            				break;
+        				}
+        			}
+    				
+	        		SITPaginatedResult pagRes = layer.searchByFilter(filter, ogcFilterVersion, maxFeatures, startIndex, sortItems[0] != null ? sortItems : null);
         			List<? extends OggettoTerritorio> pagResList = pagRes.getResult();
         			
         			JSONObject obj = new JSONObject();

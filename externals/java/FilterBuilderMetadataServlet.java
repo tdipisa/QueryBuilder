@@ -180,6 +180,22 @@ public class FilterBuilderMetadataServlet extends TolomeoServlet {
 	        		obj.put("regex", layerAttributeRegEx.get(key));
 	        		obj.put("codTPN", codTPN);
 	        		
+	        		// ////////////////////////////////////////////////////////////
+	        		// Example code to manage the autocomplete for single field 
+	        		// ////////////////////////////////////////////////////////////
+	        		JSONObject autocomplete = new JSONObject();
+	        		if(layerAttributeNames.get(key).equals("state_name")){
+		        		autocomplete.put("active", true); 
+		        		autocomplete.put("mode", "remote"); 
+		        		autocomplete.put("minChars", 2);
+	        		}else if(layerAttributeNames.get(key).equals("state_abbr")){
+		        		autocomplete.put("active", true);
+		        		autocomplete.put("mode", "local");
+		        		autocomplete.put("minChars", 1);
+	        		}
+	        		
+	        		obj.put("autocomplete", autocomplete);
+	        		
 	        		jsonArray.add(obj);	        		
 	        	}
 	        	
